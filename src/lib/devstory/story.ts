@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TOKEN_IDS, TOKEN_MEANINGS } from "./tokens";
 
 export const eraSchema = z.object({
   year: z
@@ -17,6 +18,11 @@ export const eraSchema = z.object({
   keyLanguages: z
     .array(z.string())
     .describe("The programming languages that defined this era, in order of importance"),
+  token: z
+    .enum(TOKEN_IDS)
+    .describe(
+      `The single sigil from the gallery that best embodies this era. Gallery: ${TOKEN_IDS.map((t) => `${t} (${TOKEN_MEANINGS[t]})`).join("; ")}. Prefer distinct tokens across eras.`,
+    ),
 });
 
 export const storySchema = z.object({

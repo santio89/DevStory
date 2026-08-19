@@ -2,11 +2,13 @@
 
 import { motion } from "framer-motion";
 import { langColor } from "@/components/story/languages";
+import { resolveToken, Sigil } from "@/components/story/sigil";
 import { cn } from "@/lib/utils";
 import type { Era } from "@/lib/devstory/story";
 
 function TimelineItem({ era, index }: { era: Era; index: number }) {
   const isLeft = index % 2 === 0;
+  const token = resolveToken(era);
 
   return (
     <motion.div
@@ -16,10 +18,11 @@ function TimelineItem({ era, index }: { era: Era; index: number }) {
       transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
       className="relative grid grid-cols-1 gap-6 sm:grid-cols-2"
     >
-      <span className="absolute top-5 left-4 z-10 -translate-x-1/2 sm:left-1/2">
-        <span className="relative flex size-3">
-          <span className="absolute inline-flex size-full animate-ping rounded-full bg-amber-400 opacity-40" />
-          <span className="relative inline-flex size-3 rounded-full bg-amber-400 shadow-[0_0_16px_4px_rgba(251,191,36,0.45)]" />
+      <span className="absolute top-2.5 left-4 z-10 -translate-x-1/2 sm:left-1/2">
+        <span className="flex size-11 items-center justify-center rounded-full bg-gradient-to-br from-amber-400/60 via-white/10 to-blue-500/60 p-px shadow-[0_0_20px_rgba(251,191,36,0.28)]">
+          <span className="flex size-full items-center justify-center rounded-full bg-zinc-950/95">
+            <Sigil token={token} className="size-7 drop-shadow-[0_0_6px_rgba(251,191,36,0.45)]" />
+          </span>
         </span>
       </span>
 
@@ -30,6 +33,12 @@ function TimelineItem({ era, index }: { era: Era; index: number }) {
         )}
       >
         <article className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-md transition-colors duration-300 hover:border-amber-400/30 hover:bg-white/[0.05] sm:p-7">
+          <div
+            className="pointer-events-none absolute -top-8 -right-8 opacity-[0.07]"
+            aria-hidden="true"
+          >
+            <Sigil token={token} className="size-44" />
+          </div>
           <div
             className="pointer-events-none absolute -top-16 -right-16 size-40 rounded-full bg-amber-400/10 opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100"
             aria-hidden="true"

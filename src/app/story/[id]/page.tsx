@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { eq } from "drizzle-orm";
+import { Brand } from "@/components/brand";
 import { Button } from "@/components/ui/button";
 import { StoryContent } from "@/components/story/story-content";
 import { getDb, hasDatabase } from "@/lib/db";
@@ -60,8 +61,7 @@ export default async function StoryPage({
             href="/"
             className="flex items-center gap-2 font-mono text-sm font-semibold tracking-tight"
           >
-            <span className="inline-block size-2 rounded-full bg-amber-400 shadow-[0_0_12px_2px_rgba(251,191,36,0.6)]" />
-            DevStory
+            <Brand />
           </Link>
           <span className="font-mono text-xs text-muted-foreground">
             a story from the invisible hours

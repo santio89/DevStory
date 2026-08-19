@@ -2,7 +2,9 @@
 
 import { motion } from "framer-motion";
 import { Timeline } from "@/components/timeline/timeline";
+import { resolveToken, Sigil } from "@/components/story/sigil";
 import type { DevStory } from "@/lib/devstory/story";
+import type { TokenId } from "@/lib/devstory/tokens";
 import { Wand2 } from "lucide-react";
 
 const NOISE =
@@ -15,6 +17,9 @@ export function StoryContent({
   story: DevStory;
   mode: "ai" | "mock";
 }) {
+  const lastEra = story.eras[story.eras.length - 1] ?? story.eras[0];
+  const heroToken: TokenId = lastEra ? resolveToken(lastEra) : "sprout";
+
   return (
     <div className="space-y-10">
       <motion.div
@@ -23,6 +28,12 @@ export function StoryContent({
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent px-6 py-10 sm:px-12 sm:py-14"
       >
+        <div
+          className="pointer-events-none absolute -top-14 -right-14 opacity-[0.08]"
+          aria-hidden="true"
+        >
+          <Sigil token={heroToken} className="size-72" />
+        </div>
         <div
           className="pointer-events-none absolute inset-0 opacity-[0.05] mix-blend-overlay"
           style={{ backgroundImage: NOISE }}
@@ -51,7 +62,7 @@ export function StoryContent({
                 key={`${word}-${i}`}
                 className={
                   i > 0 && i >= Math.floor(story.title.split(/\s+/).length / 2)
-                    ? "animate-[shimmer_8s_ease_infinite] bg-[length:200%_auto] bg-gradient-to-r from-amber-300 via-orange-400 to-blue-400 bg-clip-text text-transparent"
+                    ? "aurora-text title-glow"
                     : undefined
                 }
               >

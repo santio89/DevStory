@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { Brand } from "@/components/brand";
 import { GithubSignIn } from "@/components/auth/github-sign-in";
 import { UserMenu } from "@/components/auth/user-menu";
 import { HeroTitle } from "@/components/hero-title";
@@ -114,9 +115,8 @@ export default function Home() {
     <>
       <header className="sticky top-0 z-50 border-b border-border/40 bg-zinc-950/80 backdrop-blur-md">
         <div className="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-4 sm:px-6">
-          <Link href="/" className="flex items-center gap-2 font-mono text-sm font-semibold tracking-tight">
-            <span className="inline-block size-2 rounded-full bg-amber-400 shadow-[0_0_12px_2px_rgba(251,191,36,0.6)]" />
-            DevStory
+          <Link href="/">
+            <Brand />
           </Link>
           <UserMenu />
         </div>

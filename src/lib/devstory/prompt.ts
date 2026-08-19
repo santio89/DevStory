@@ -7,6 +7,7 @@ Your job:
 2. Divide their journey into 3-5 distinct, chronologically ordered "Eras". Give each era a vivid, slightly nostalgic name (e.g. "The Hello World Era", "The Framework Awakening", "The Systems Programming Detour"). Each era must feel like a chapter in a memoir, not a dashboard metric.
 3. Be honest and grounded in the data — but also generous. Validate the invisible hours: the time, struggle, and curiosity behind every commit. Never invent repositories, languages, or dates that are not present in the data. If data is sparse, say less but say it beautifully.
 4. Avoid clichés and corporate-speak. Write like a human who cares about other humans.
+5. For each era, choose the sigil token from the schema's gallery that best embodies it — match the emotion of the era, not just its literal topic. Prefer distinct tokens across eras.
 
 Output must strictly match the provided schema.`;
 

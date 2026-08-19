@@ -1,5 +1,6 @@
 import type { DevStoryData } from "./aggregate";
 import type { DevStory, Era } from "./story";
+import type { TokenId } from "./tokens";
 
 const ERA_TEMPLATES = [
   "The Hello World Era",
@@ -8,6 +9,8 @@ const ERA_TEMPLATES = [
   "The Language Shift",
   "The Mastery Era",
 ];
+
+const ERA_TOKEN: TokenId[] = ["sprout", "frame", "spark", "bridge", "peak"];
 
 export function generateMockStory(data: DevStoryData): DevStory {
   const byYear = data.languagesByYear;
@@ -62,6 +65,7 @@ export function generateMockStory(data: DevStoryData): DevStory {
       name: ERA_TEMPLATES[index % ERA_TEMPLATES.length],
       description: `Working primarily in ${langList}${bucket.years.length ? ` across ${bucket.years[0]}${bucket.years.length > 1 ? `–${bucket.years[bucket.years.length - 1]}` : ""}` : ""}, ${data.username} was figuring things out one repo at a time.${anchor}`,
       keyLanguages: bucket.languages,
+      token: ERA_TOKEN[index % ERA_TOKEN.length],
     };
   });
 

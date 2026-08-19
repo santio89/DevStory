@@ -84,7 +84,7 @@ export async function POST(request: Request) {
       .where(eq(stories.id, storyRow.id));
   }
 
-  const storyUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/story/${storyRow.id}`;
+  const storyUrl = `${(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000").replace(/\/+$/, "")}/story/${storyRow.id}`;
 
   try {
     await sendStoryEmail({

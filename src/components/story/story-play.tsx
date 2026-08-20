@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useLocale } from "@/components/locale/locale-provider";
@@ -9,8 +9,6 @@ import type { DevStory } from "@/lib/devstory/story";
 import type { StoryDataSnapshot } from "@/lib/devstory/minify";
 import {
   BookOpen,
-  ChevronLeft,
-  ChevronRight,
   Clock3,
   Image as ImageIcon,
   Loader2,
@@ -35,35 +33,52 @@ export function StoryPlay({
 }) {
   const { t, locale } = useLocale();
   const trackRef = useRef<HTMLDivElement>(null);
-  const [scrollState, setScrollState] = useState({ left: false, right: false });
+  const dragState = useRef({
+    pointerId: 0,
+    startX: 0,
+    startScroll: 0,
+    dragging: false,
+    moved: false,
+  });
+  const suppressClick = useRef(false);
   const [remixing, setRemixing] = useState<RemixVoice | null>(null);
   const [remixError, setRemixError] = useState<string | null>(null);
   const [moment, setMoment] = useState<Moment | null>(null);
   const [momentLoading, setMomentLoading] = useState(false);
   const [momentError, setMomentError] = useState<string | null>(null);
 
-  useEffect(() => {
+  function onDragStart(e: React.PointerEvent<HTMLDivElement>) {
+    if (e.pointerType !== "mouse") return;
     const el = trackRef.current;
     if (!el) return;
-    setScrollState({
-      left: el.scrollLeft > 4,
-      right: el.scrollLeft < el.scrollWidth - el.clientWidth - 4,
-    });
-  }, []);
-
-  function updateArrows() {
-    const el = trackRef.current;
-    if (!el) return;
-    setScrollState({
-      left: el.scrollLeft > 4,
-      right: el.scrollLeft < el.scrollWidth - el.clientWidth - 4,
-    });
+    dragState.current = {
+      pointerId: e.pointerId,
+      startX: e.clientX,
+      startScroll: el.scrollLeft,
+      dragging: true,
+      moved: false,
+    };
+    el.setPointerCapture(e.pointerId);
   }
 
-  function nudge(dir: 1 | -1) {
+  function onDragMove(e: React.PointerEvent<HTMLDivElement>) {
+    const s = dragState.current;
     const el = trackRef.current;
-    if (!el) return;
-    el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: "smooth" });
+    if (!s.dragging || !el) return;
+    const dx = e.clientX - s.startX;
+    if (Math.abs(dx) > 6) s.moved = true;
+    el.scrollLeft = s.startScroll - dx;
+  }
+
+  function onDragEnd(e: React.PointerEvent<HTMLDivElement>) {
+    const s = dragState.current;
+    const el = trackRef.current;
+    if (!s.dragging || !el) return;
+    s.dragging = false;
+    try {
+      el.releasePointerCapture(e.pointerId);
+    } catch {}
+    if (s.moved) suppressClick.current = true;
   }
 
   function centerVoice(btn: HTMLButtonElement) {
@@ -144,21 +159,14 @@ export function StoryPlay({
           <p className="font-mono text-xs font-bold tracking-[0.2em] text-muted-foreground uppercase">
             {t.play.remixTitle}
           </p>
-          <div className="mt-2.5 flex items-center gap-1.5">
-            <Button
-              variant="outline"
-              size="icon-sm"
-              onClick={() => nudge(-1)}
-              disabled={!scrollState.left}
-              aria-label="Previous tone"
-              className="shrink-0"
-            >
-              <ChevronLeft />
-            </Button>
+          <div className="mt-2.5">
             <div
               ref={trackRef}
-              onScroll={updateArrows}
-              className="no-scrollbar flex-1 overflow-x-auto scroll-smooth snap-x snap-mandatory"
+              onPointerDown={onDragStart}
+              onPointerMove={onDragMove}
+              onPointerUp={onDragEnd}
+              onPointerCancel={onDragEnd}
+              className="no-scrollbar flex-1 cursor-grab touch-pan-y overflow-x-auto select-none snap-x snap-mandatory active:cursor-grabbing"
             >
               <div className="flex w-max gap-2.5 snap-x snap-mandatory">
                 {REMIX_VOICES.map((voice) => (
@@ -169,6 +177,10 @@ export function StoryPlay({
                     disabled={remixing !== null}
                     className="shrink-0 snap-start"
                     onClick={(e) => {
+                      if (suppressClick.current) {
+                        suppressClick.current = false;
+                        return;
+                      }
                       centerVoice(e.currentTarget);
                       void handleRemix(voice);
                     }}
@@ -183,16 +195,6 @@ export function StoryPlay({
                 ))}
               </div>
             </div>
-            <Button
-              variant="outline"
-              size="icon-sm"
-              onClick={() => nudge(1)}
-              disabled={!scrollState.right}
-              aria-label="Next tone"
-              className="shrink-0"
-            >
-              <ChevronRight />
-            </Button>
           </div>
           {remixError && (
             <p className="mt-2 font-mono text-xs font-bold text-destructive uppercase">

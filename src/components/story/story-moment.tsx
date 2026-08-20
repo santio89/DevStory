@@ -10,12 +10,43 @@ import { BookOpen, Clock3, Loader2, RefreshCw } from "lucide-react";
 
 type Moment = { title: string; text: string; year: string };
 
+const STORAGE_KEY = "devstory-moment";
+
+type StoredMoment = { fingerprint: string; moment: Moment };
+
+function readStored(fingerprint: string): Moment | null {
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as StoredMoment;
+    if (
+      parsed?.fingerprint === fingerprint &&
+      parsed?.moment &&
+      typeof parsed.moment.title === "string"
+    ) {
+      return parsed.moment;
+    }
+  } catch {}
+  return null;
+}
+
+function writeStored(fingerprint: string, moment: Moment) {
+  try {
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ fingerprint, moment }),
+    );
+  } catch {}
+}
+
 export function StoryMoment({
   story,
   data,
+  fingerprint,
 }: {
   story: DevStory;
   data: StoryDataSnapshot | null;
+  fingerprint: string;
 }) {
   const { t, locale } = useLocale();
   const [moment, setMoment] = useState<Moment | null>(null);
@@ -35,7 +66,9 @@ export function StoryMoment({
       if (!res.ok) {
         throw new Error(json.error ?? t.moment.failed);
       }
-      setMoment({ title: json.title, text: json.text, year: json.year });
+      const next = { title: json.title, text: json.text, year: json.year };
+      setMoment(next);
+      writeStored(fingerprint, next);
     } catch (e) {
       setError(
         e instanceof Error && e.message.includes("503")
@@ -51,13 +84,18 @@ export function StoryMoment({
     let active = true;
     queueMicrotask(() => {
       if (!active) return;
+      const stored = readStored(fingerprint);
+      if (stored) {
+        setMoment(stored);
+        return;
+      }
       void handleMoment();
     });
     return () => {
       active = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [fingerprint]);
 
   return (
     <motion.div

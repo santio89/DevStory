@@ -64,6 +64,9 @@ export function StoryView({
   );
 
   const displayStory = remix?.story ?? story;
+  const fingerprint = story.eras
+    .map((era) => `${era.year}|${era.name}`)
+    .join("§");
   const shareUrl = storyId
     ? new URL(`/story/${storyId}`, window.location.origin).href
     : null;
@@ -144,7 +147,7 @@ export function StoryView({
         <StoryContent story={displayStory} mode={mode} data={data} />
       </div>
 
-      <StoryMoment story={displayStory} data={data} />
+      <StoryMoment story={displayStory} data={data} fingerprint={fingerprint} />
 
       <StoryRetell remix={remix} onRemix={(voice) => handleRemix(voice)} />
 

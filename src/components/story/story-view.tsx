@@ -34,9 +34,6 @@ function storyToText(story: DevStory): string {
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-const NOISE =
-  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E\")";
-
 export function StoryView({
   story,
   mode,
@@ -127,24 +124,20 @@ export function StoryView({
         initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-40px" }}
-        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-sky-400/[0.14] via-transparent to-blue-500/[0.1] p-6 sm:p-8"
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="relative rounded-none border-2 border-foreground bg-bauhaus-deep p-6 text-white shadow-hard-lg sm:p-8"
       >
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.05] mix-blend-overlay"
-          style={{ backgroundImage: NOISE }}
-          aria-hidden="true"
-        />
+        <span className="pointer-events-none absolute top-5 left-5 size-3 rotate-45 rounded-none bg-bauhaus-yellow" />
         <div className="relative">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <Share2 className="size-4 text-cyan-400" />
-                <h4 className="font-heading text-lg font-semibold tracking-tight">
+                <Share2 className="size-4 text-bauhaus-yellow" />
+                <h4 className="font-heading text-lg font-black tracking-tight uppercase">
                   {t.share.title}
                 </h4>
               </div>
-              <p className="mt-1.5 max-w-md text-sm text-muted-foreground">
+              <p className="mt-1.5 max-w-md text-sm text-white/80">
                 {t.share.erasLabel(story.eras.length)},{" "}
                 {allLanguages.length > 0
                   ? `${allLanguages.join(" → ")}`
@@ -153,11 +146,18 @@ export function StoryView({
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
-              <Button onClick={() => void copyStory()}>
+              <Button
+                onClick={() => void copyStory()}
+                className="bg-white text-bauhaus-deep hover:bg-bauhaus-paper"
+              >
                 {copied ? <Check /> : <Copy />}
                 {copied ? t.share.copied : t.share.copyText}
               </Button>
-              <Button variant="outline" onClick={downloadStory}>
+              <Button
+                variant="outline"
+                onClick={downloadStory}
+                className="border-white bg-transparent text-white shadow-none hover:bg-white/10"
+              >
                 <Download />
                 {t.share.downloadJson}
               </Button>
@@ -165,6 +165,7 @@ export function StoryView({
                 variant="outline"
                 onClick={() => void copyLink()}
                 disabled={!storyId}
+                className="border-white bg-transparent text-white shadow-none hover:bg-white/10"
               >
                 {linkCopied ? <Check /> : <Link2 />}
                 {linkCopied ? t.share.linkCopied : t.share.copyLink}
@@ -172,16 +173,16 @@ export function StoryView({
             </div>
           </div>
 
-          <div className="mt-6 border-t border-border/60 pt-6">
+          <div className="mt-6 border-t-2 border-white/30 pt-6">
             <div className="flex items-center gap-2">
-              <Mail className="size-4 text-pink-400" />
-              <h5 className="font-heading text-sm font-semibold tracking-tight">
+              <Mail className="size-4 text-bauhaus-yellow" />
+              <h5 className="font-heading text-sm font-bold tracking-tight uppercase">
                 {t.share.emailTitle}
               </h5>
             </div>
 
             {emailStatus === "success" ? (
-              <p className="mt-3 font-mono text-sm text-emerald-400">
+              <p className="mt-3 font-mono text-sm font-bold text-bauhaus-yellow">
                 {t.share.emailSuccess}
               </p>
             ) : (
@@ -197,7 +198,7 @@ export function StoryView({
                   placeholder={t.share.emailPlaceholder}
                   disabled={emailStatus === "loading" || !storyId}
                   aria-label="Email address"
-                  className="h-9 flex-1 rounded-lg border border-border/60 bg-muted/60 px-3 font-mono text-sm text-foreground placeholder:text-muted-foreground focus:border-cyan-400/50 focus:outline-none disabled:opacity-50"
+                  className="h-10 flex-1 rounded-none border-2 border-foreground bg-background px-3 font-mono text-sm text-foreground placeholder:text-muted-foreground focus:border-bauhaus-deep focus:outline-none disabled:opacity-50"
                 />
                 <Button
                   type="submit"
@@ -207,6 +208,7 @@ export function StoryView({
                     !storyId ||
                     !EMAIL_PATTERN.test(email)
                   }
+                  className="bg-bauhaus-yellow text-bauhaus-ink hover:bg-bauhaus-yellow/90"
                 >
                   {emailStatus === "loading" ? (
                     <Loader2 className="size-4 animate-spin" />
@@ -221,13 +223,13 @@ export function StoryView({
             )}
 
             {emailStatus === "error" && emailError && (
-              <p className="mt-2 font-mono text-xs text-destructive">
+              <p className="mt-2 font-mono text-xs font-bold text-bauhaus-yellow">
                 {emailError}
               </p>
             )}
 
             {!storyId && (
-              <p className="mt-2 font-mono text-xs text-muted-foreground">
+              <p className="mt-2 font-mono text-xs text-white/70">
                 {t.share.unlock}
               </p>
             )}

@@ -55,10 +55,10 @@ export function StoryPreview({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <p className="font-mono text-xs text-muted-foreground">
+          <p className="font-mono text-xs font-bold tracking-[0.2em] text-muted-foreground uppercase">
             {t.preview.phase}
           </p>
-          <h2 className="mt-1 font-heading text-2xl font-semibold tracking-tight">
+          <h2 className="mt-1 font-heading text-2xl font-black tracking-tight uppercase">
             {t.preview.title}
           </h2>
         </div>
@@ -66,7 +66,7 @@ export function StoryPreview({
           type="button"
           onClick={() => void handleRefresh()}
           disabled={loading}
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-none border-2 border-foreground bg-background px-2.5 py-1 text-xs font-bold tracking-wider text-foreground uppercase shadow-hard-sm transition-all duration-200 hover:bg-muted active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:opacity-50"
         >
           <RefreshCw className={`size-3.5 ${loading ? "animate-spin" : ""}`} />
           {loading ? t.preview.digging : t.preview.refresh}
@@ -74,17 +74,17 @@ export function StoryPreview({
       </div>
 
       {loading && (
-        <Card className="bg-muted/40">
-          <CardContent className="flex items-center gap-3 py-8 font-mono text-sm text-muted-foreground">
-            <GitCommit className="size-4 animate-pulse text-cyan-400" />
+        <Card className="bg-card shadow-hard">
+          <CardContent className="flex items-center gap-3 py-8 font-mono text-sm font-bold tracking-wider text-muted-foreground uppercase">
+            <GitCommit className="size-4 animate-pulse text-bauhaus-deep" />
             {t.preview.harvesting}
           </CardContent>
         </Card>
       )}
 
       {error && (
-        <Card className="border-destructive/30 bg-destructive/10">
-          <CardContent className="py-4 font-mono text-sm text-destructive">
+        <Card className="border-destructive bg-destructive/10 shadow-none">
+          <CardContent className="py-4 font-mono text-sm font-bold text-destructive uppercase">
             {error}
           </CardContent>
         </Card>
@@ -92,42 +92,52 @@ export function StoryPreview({
 
       {data && !loading && (
         <>
-          <div className="grid gap-4 sm:grid-cols-4">
+          <div className="grid gap-5 sm:grid-cols-4">
             {[
               {
                 label: t.preview.repos,
                 value: data.totals.repoCount,
                 icon: FolderGit2,
-                color: "text-sky-400",
+                color: "text-bauhaus-deep",
+                block: false,
               },
               {
                 label: t.preview.stars,
                 value: data.totals.totalStars,
                 icon: Star,
-                color: "text-pink-400",
+                color: "text-bauhaus-ink",
+                block: true,
               },
               {
                 label: t.preview.commitsAnalyzed,
                 value: data.totals.commitsAnalyzed,
                 icon: GitCommit,
-                color: "text-cyan-400",
+                color: "text-bauhaus-deep",
+                block: false,
               },
               {
                 label: t.preview.firstRepo,
                 value: formatDate(data.totals.oldestRepoDate, locale),
                 icon: GitCommit,
-                color: "text-violet-400",
+                color: "text-bauhaus-deep",
+                block: false,
               },
             ].map((stat, i) => (
               <FadeIn key={stat.label} delay={0.05 * i}>
-                <Card className="h-full bg-muted/40 ring-1 ring-border/50">
+                <Card
+                  className={`relative h-full shadow-hard transition-transform duration-200 hover:-translate-y-1 ${
+                    stat.block
+                      ? "border-foreground bg-bauhaus-yellow text-bauhaus-ink"
+                      : "bg-card"
+                  }`}
+                >
                   <CardContent className="flex flex-col gap-3 py-5">
                     <stat.icon className={`size-4 ${stat.color}`} />
                     <div>
-                      <div className="font-mono text-2xl font-semibold tracking-tight">
+                      <div className="font-mono text-2xl font-bold tracking-tight">
                         {stat.value}
                       </div>
-                      <div className="mt-0.5 text-xs text-muted-foreground">
+                      <div className="mt-0.5 text-xs font-bold tracking-wider uppercase opacity-80">
                         {stat.label}
                       </div>
                     </div>
@@ -137,35 +147,32 @@ export function StoryPreview({
             ))}
           </div>
 
-          <div className="grid gap-4 lg:grid-cols-2">
+          <div className="grid gap-5 lg:grid-cols-2">
             <FadeIn>
-              <Card className="h-full bg-muted/40 ring-1 ring-border/50">
+              <Card className="relative h-full bg-card shadow-hard">
                 <CardHeader>
                   <CardTitle>{t.preview.languagesTitle}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {data.languagesByYear.length === 0 && (
-                    <p className="font-mono text-sm text-muted-foreground">
+                    <p className="font-mono text-sm font-bold tracking-wider text-muted-foreground uppercase">
                       {t.preview.noLanguageData}
                     </p>
                   )}
                   {data.languagesByYear.map((year) => (
                     <div key={year.year}>
-                      <div className="mb-2 font-mono text-xs text-muted-foreground">
+                      <div className="mb-2 bg-bauhaus-sky/20 px-1.5 py-0.5 font-mono text-xs font-bold tracking-[0.2em] text-bauhaus-deep uppercase">
                         {year.year}
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {year.languages.map((lang) => (
                           <span
                             key={lang.language}
-                            className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-muted/60 px-2.5 py-1 font-mono text-xs"
+                            className="inline-flex items-center gap-1.5 rounded-none border-2 border-foreground bg-background px-2 py-0.5 font-mono text-xs font-bold uppercase tracking-wider"
                           >
                             <span
-                              className="inline-block size-1.5 rounded-full"
-                              style={{
-                                backgroundColor: langColor(lang.language),
-                                boxShadow: `0 0 8px 1px ${langColor(lang.language)}66`,
-                              }}
+                              className="inline-block size-2 rounded-none"
+                              style={{ backgroundColor: langColor(lang.language) }}
                             />
                             {lang.language} ×{lang.repoCount}
                           </span>
@@ -178,29 +185,28 @@ export function StoryPreview({
             </FadeIn>
 
             <FadeIn delay={0.1}>
-              <Card className="h-full bg-muted/40 ring-1 ring-border/50">
+              <Card className="relative h-full bg-card shadow-hard">
                 <CardHeader>
                   <CardTitle>{t.preview.earliestCommits}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {data.milestones.length === 0 && (
-                    <p className="font-mono text-sm text-muted-foreground">
+                    <p className="font-mono text-sm font-bold tracking-wider text-muted-foreground uppercase">
                       {t.preview.noCommits}
                     </p>
                   )}
                   {data.milestones.map((m) => (
-                    <div
-                      key={`${m.repo}-${m.sha}`}
-                      className="border-l-2 border-cyan-400/50 pl-3"
-                    >
-                      <div className="flex items-center gap-2 font-mono text-xs">
-                        <span className="text-cyan-400">{m.sha}</span>
+                    <div key={`${m.repo}-${m.sha}`} className="border-l-4 border-bauhaus-deep pl-3">
+                      <div className="flex items-center gap-2 font-mono text-xs font-bold">
+                        <span className="bg-bauhaus-sky/20 px-1.5 text-bauhaus-deep">
+                          {m.sha}
+                        </span>
                         <span className="text-muted-foreground">
                           {formatDate(m.date, locale)}
                         </span>
                       </div>
                       <p className="mt-1 text-sm">{m.message}</p>
-                      <p className="mt-0.5 font-mono text-xs text-muted-foreground">
+                      <p className="mt-0.5 font-mono text-xs font-bold tracking-wider text-muted-foreground uppercase">
                         {m.repo}
                       </p>
                     </div>

@@ -36,9 +36,14 @@ const LANGUAGES = [
 
 const FEATURE_ICONS = [GitCommit, Sparkles, TerminalSquare];
 const FEATURE_ICON_COLORS = [
-  "text-sky-400",
-  "text-cyan-400",
-  "text-blue-400",
+  "text-bauhaus-deep",
+  "text-bauhaus-cyan",
+  "text-bauhaus-sky",
+];
+const FEATURE_CORNER = [
+  "bg-bauhaus-deep",
+  "bg-bauhaus-yellow",
+  "bg-bauhaus-pink",
 ];
 
 async function HeroCta({ t }: { t: Messages }) {
@@ -109,27 +114,32 @@ export default async function Home() {
 
       <main className="flex-1">
         <section className="relative overflow-hidden">
-          <div className="pointer-events-none absolute inset-0 -z-10">
-            <div className="absolute -top-64 left-1/2 h-[560px] w-[960px] -translate-x-1/2 rounded-full bg-sky-500/25 blur-[140px]" />
-            <div className="absolute top-24 -right-24 h-[420px] w-[420px] rounded-full bg-fuchsia-500/15 blur-[120px]" />
-            <div className="absolute bottom-0 -left-32 h-[380px] w-[380px] rounded-full bg-violet-500/12 blur-[120px]" />
-            <div
-              className="absolute inset-0 opacity-[0.04]"
-              style={{
-                backgroundImage:
-                  "linear-gradient(to right, color-mix(in srgb, var(--foreground) 7%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in srgb, var(--foreground) 7%, transparent) 1px, transparent 1px)",
-                backgroundSize: "72px 72px",
-              }}
-            />
+          <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+            <div className="bauhaus-grid absolute inset-0 opacity-40 [mask-image:linear-gradient(to_bottom,black,transparent_90%)]" />
+            <span className="absolute top-20 right-[6%] -rotate-6 rounded-none border-2 border-foreground bg-bauhaus-deep px-2.5 py-1 font-mono text-lg font-black text-white shadow-hard-sm">
+              {"{ }"}
+            </span>
+            <span className="absolute top-44 left-[7%] rotate-3 rounded-none border-2 border-foreground bg-bauhaus-yellow px-2.5 py-1 font-mono text-sm font-black text-bauhaus-ink shadow-hard-sm">
+              {"< />"}
+            </span>
+            <span className="absolute right-[11%] bottom-40 rotate-6 rounded-none border-2 border-foreground bg-bauhaus-pink px-2 py-0.5 font-mono text-base font-black text-bauhaus-deep shadow-hard-sm">
+              {"||"}
+            </span>
+            <span className="absolute bottom-24 left-[5%] rotate-12 rounded-none border-2 border-foreground bg-bauhaus-sky/25 px-2.5 py-1 font-mono text-lg font-black text-bauhaus-deep shadow-hard-sm">
+              {"&&"}
+            </span>
+            <span className="absolute top-16 right-[26%] -rotate-3 font-mono text-2xl font-black text-bauhaus-cyan">
+              ;
+            </span>
+            <span className="absolute right-[30%] bottom-12 rotate-2 rounded-none border-2 border-foreground bg-background px-2 py-0.5 font-mono text-sm font-black text-foreground shadow-hard-sm">
+              {"=>"}
+            </span>
           </div>
 
           <div className="mx-auto flex w-full max-w-5xl flex-col items-center px-4 py-24 text-center sm:px-6 sm:py-36">
             <FadeIn>
-              <span className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-muted/60 px-3 py-1 font-mono text-xs text-muted-foreground">
-                <span className="relative flex size-1.5">
-                  <span className="absolute inline-flex size-full animate-ping rounded-full bg-cyan-400 opacity-75" />
-                  <span className="relative inline-flex size-1.5 rounded-full bg-cyan-400" />
-                </span>
+              <span className="inline-flex items-center gap-2 rounded-none border-2 border-foreground bg-background px-3 py-1 font-mono text-xs font-bold tracking-[0.2em] text-foreground uppercase shadow-hard-sm">
+                <span className="inline-block size-2 animate-[blink-dot_1.6s_ease-in-out_infinite] rounded-none bg-bauhaus-cyan" />
                 {t.hero.badge}
               </span>
             </FadeIn>
@@ -144,12 +154,15 @@ export default async function Home() {
 
             <FadeIn delay={0.3} className="mt-10 flex flex-col items-center gap-6">
               <HeroCta t={t} />
-              <div className="flex items-center gap-3 font-mono text-xs text-muted-foreground">
+              <div className="flex flex-wrap items-center justify-center gap-2 font-mono text-xs text-muted-foreground">
                 {LANGUAGES.map((lang) => (
-                  <span key={lang.name} className="flex items-center gap-1.5">
+                  <span
+                    key={lang.name}
+                    className="flex items-center gap-1.5 rounded-none border-2 border-foreground bg-background px-2 py-0.5 uppercase tracking-wider"
+                  >
                     <span
-                      className="inline-block size-2 rounded-full"
-                      style={{ backgroundColor: lang.color, boxShadow: `0 0 8px 1px ${lang.color}66` }}
+                      className="inline-block size-2 rounded-none"
+                      style={{ backgroundColor: lang.color }}
                     />
                     {lang.name}
                   </span>
@@ -163,18 +176,22 @@ export default async function Home() {
 
         <section className="mx-auto w-full max-w-5xl px-4 pb-24 sm:px-6">
           <FadeIn>
-            <h2 className="text-center font-heading text-2xl font-semibold tracking-tight sm:text-3xl">
+            <h2 className="text-center font-heading text-2xl font-black tracking-tight uppercase sm:text-3xl">
               {t.features.title}
+              <span className="ml-2 inline-block size-3 rounded-full border-2 border-foreground bg-bauhaus-yellow" />
             </h2>
           </FadeIn>
-          <div className="mt-10 grid gap-4 sm:grid-cols-3">
+          <div className="mt-10 grid gap-5 sm:grid-cols-3">
             {FEATURE_ICONS.map((Icon, i) => {
               const feature = t.features[i === 0 ? "one" : i === 1 ? "two" : "three"];
               return (
                 <FadeIn key={i} delay={0.1 * i}>
-                  <Card className="h-full bg-muted/40 ring-1 ring-border/50 transition-colors hover:ring-cyan-400/40">
+                  <Card className="relative h-full bg-card shadow-hard transition-transform duration-200 hover:-translate-y-1">
+                    <span className={`absolute top-3 right-3 size-3 rotate-45 ${FEATURE_CORNER[i]}`} />
                     <CardHeader>
-                      <Icon className={cn("size-5", FEATURE_ICON_COLORS[i])} />
+                      <span className="mb-1 flex size-9 items-center justify-center rounded-none border-2 border-foreground bg-bauhaus-sky/20 shadow-hard-sm">
+                        <Icon className={cn("size-5", FEATURE_ICON_COLORS[i])} />
+                      </span>
                       <CardTitle>{feature.t}</CardTitle>
                       <CardDescription>{feature.d}</CardDescription>
                     </CardHeader>
@@ -186,13 +203,13 @@ export default async function Home() {
         </section>
       </main>
 
-      <footer className="border-t border-border/40">
+      <footer className="border-t-4 border-foreground bg-foreground text-background">
         <div className="mx-auto flex w-full max-w-5xl flex-col items-center justify-between gap-2 px-4 py-8 sm:flex-row sm:px-6">
-          <span className="flex items-center gap-2 font-mono text-xs text-muted-foreground">
-            <ArrowRight className="size-3 text-cyan-400" />
+          <span className="flex items-center gap-2 font-mono text-xs font-bold tracking-widest uppercase">
+            <ArrowRight className="size-3 text-bauhaus-yellow" />
             {t.footer.tagline}
           </span>
-          <span className="font-mono text-xs text-muted-foreground">
+          <span className="font-mono text-xs font-bold tracking-widest uppercase">
             DevStory © {new Date().getFullYear()}
           </span>
         </div>

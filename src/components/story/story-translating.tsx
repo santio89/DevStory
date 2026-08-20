@@ -4,13 +4,10 @@ import { motion } from "framer-motion";
 import { useLocale } from "@/components/locale/locale-provider";
 import { Loader2 } from "lucide-react";
 
-const NOISE =
-  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E\")";
-
 function Bar({ className = "" }: { className?: string }) {
   return (
     <div
-      className={`h-3 animate-pulse rounded-full bg-gradient-to-r from-sky-400/20 via-muted to-cyan-400/20 ${className}`}
+      className={`h-3 animate-pulse rounded-none bg-foreground/15 ${className}`}
     />
   );
 }
@@ -25,14 +22,10 @@ export function StoryTranslating() {
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       className="space-y-8"
     >
-      <div className="relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-b from-card/60 to-transparent px-6 py-10 sm:px-12 sm:py-14">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.05] mix-blend-overlay"
-          style={{ backgroundImage: NOISE }}
-          aria-hidden="true"
-        />
+      <div className="relative rounded-none border-2 border-foreground bg-card px-6 py-10 shadow-hard sm:px-12 sm:py-14">
+        <span className="pointer-events-none absolute top-6 right-6 size-8 rounded-full border-2 border-foreground bg-bauhaus-sky/30" />
         <div className="relative">
-          <div className="flex items-center gap-2 font-mono text-xs text-cyan-400">
+          <div className="flex items-center gap-2 font-mono text-xs font-bold tracking-[0.2em] text-bauhaus-deep uppercase">
             <Loader2 className="size-3.5 animate-spin" />
             {t.story.translating}
           </div>
@@ -55,13 +48,13 @@ export function StoryTranslating() {
             className="relative grid grid-cols-1 gap-6 sm:grid-cols-2"
           >
             <article
-              className={`relative overflow-hidden rounded-2xl border border-border/60 bg-card/50 p-6 sm:p-7 ${
+              className={`relative rounded-none border-2 border-foreground bg-card p-6 shadow-hard sm:p-7 ${
                 i % 2 === 0 ? "sm:col-start-1 sm:pr-14" : "sm:col-start-2 sm:pl-14"
               }`}
             >
               <div className="flex items-center gap-3">
                 <Bar className="w-24" />
-                <span className="h-px flex-1 bg-gradient-to-r from-border/60 to-transparent" />
+                <span className="h-[2px] flex-1 bg-foreground/70" />
                 <Bar className="w-16" />
               </div>
               <div className="mt-4 space-y-2">

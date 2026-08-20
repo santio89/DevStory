@@ -73,11 +73,16 @@ export default async function StoryPage({
 
       <main className="flex-1">
         <section className="relative overflow-hidden pt-28 pb-10 text-center">
-          <div className="pointer-events-none absolute inset-0 -z-10">
-            <div className="absolute -top-32 left-1/2 h-[420px] w-[680px] -translate-x-1/2 rounded-full bg-fuchsia-500/12 blur-[140px]" />
-            <div className="absolute -bottom-24 right-0 h-[320px] w-[320px] rounded-full bg-cyan-400/12 blur-[120px]" />
+          <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+            <div className="bauhaus-grid absolute inset-0 opacity-40 [mask-image:linear-gradient(to_bottom,black,transparent_90%)]" />
+            <span className="absolute right-[10%] bottom-2 rotate-6 rounded-none border-2 border-foreground bg-bauhaus-deep px-2.5 py-1 font-mono text-base font-black text-white shadow-hard-sm">
+              {"&&"}
+            </span>
+            <span className="absolute bottom-8 left-[8%] -rotate-3 rounded-none border-2 border-foreground bg-bauhaus-yellow px-2.5 py-1 font-mono text-sm font-black text-bauhaus-ink shadow-hard-sm">
+              {"{ }"}
+            </span>
           </div>
-          <p className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
+          <p className="font-mono text-xs font-bold tracking-[0.3em] text-muted-foreground uppercase">
             {t.sharePage.of(story.username)}
           </p>
         </section>
@@ -87,14 +92,20 @@ export default async function StoryPage({
         </section>
 
         <section className="mx-auto w-full max-w-5xl px-4 pb-24 sm:px-6">
-          <div className="relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-sky-400/[0.14] via-transparent to-blue-500/[0.1] p-8 text-center sm:p-12">
-            <h2 className="font-heading text-2xl font-semibold tracking-tight sm:text-3xl">
+          <div className="relative rounded-none border-2 border-foreground bg-bauhaus-deep p-8 text-center text-white shadow-hard-lg sm:p-12">
+            <span className="pointer-events-none absolute top-6 left-6 size-4 rotate-45 rounded-none bg-bauhaus-yellow" />
+            <span className="pointer-events-none absolute right-8 bottom-8 size-10 rounded-full border-2 border-white/40" />
+            <h2 className="font-heading text-2xl font-black tracking-tight uppercase sm:text-3xl">
               {t.sharePage.writeYours}
             </h2>
-            <p className="mx-auto mt-3 max-w-xl text-sm text-muted-foreground sm:text-base">
+            <p className="mx-auto mt-3 max-w-xl text-sm text-white/80 sm:text-base">
               {t.sharePage.ctaDesc}
             </p>
-            <Button asChild size="lg" className="mt-6">
+            <Button
+              asChild
+              size="lg"
+              className="mt-6 bg-white text-bauhaus-deep hover:bg-bauhaus-paper"
+            >
               <Link href="/">
                 {t.sharePage.tellYours}
                 <ArrowRight />

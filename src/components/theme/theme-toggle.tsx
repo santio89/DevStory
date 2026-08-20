@@ -12,7 +12,7 @@ export function ThemeToggle() {
       onClick={toggleTheme}
       aria-label={t.common.toggleTheme}
       title={t.common.toggleTheme}
-      className="inline-flex size-9 shrink-0 items-center justify-center rounded-full border border-transparent bg-transparent text-muted-foreground transition-colors hover:text-foreground [.glass-header_&]:border-border/60 [.glass-header_&]:bg-muted/40 [.glass-header_&]:hover:border-foreground/20"
+      className="inline-flex size-9 shrink-0 items-center justify-center rounded-none border-2 border-foreground bg-background text-foreground shadow-hard-sm transition-all duration-200 hover:bg-muted active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
     >
       <Sun className="hidden size-4 dark:block" />
       <Moon className="block size-4 dark:hidden" />

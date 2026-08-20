@@ -92,10 +92,10 @@ export function StoryGenerator() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <p className="font-mono text-xs text-muted-foreground">
+          <p className="font-mono text-xs font-bold tracking-[0.2em] text-muted-foreground uppercase">
             {t.generator.phase}
           </p>
-          <h2 className="mt-1 font-heading text-2xl font-semibold tracking-tight">
+          <h2 className="mt-1 font-heading text-2xl font-black tracking-tight uppercase">
             {t.generator.title}
           </h2>
         </div>
@@ -104,7 +104,7 @@ export function StoryGenerator() {
           disabled={loading || translating}
           size="sm"
         >
-          <Sparkles className="text-cyan-400" />
+          <Sparkles className="text-bauhaus-yellow" />
           {loading
             ? t.generator.writing
             : story
@@ -114,17 +114,17 @@ export function StoryGenerator() {
       </div>
 
       {loading && (
-        <Card className="bg-muted/40">
-          <CardContent className="flex items-center gap-3 py-8 font-mono text-sm text-muted-foreground">
-            <Loader2 className="size-4 animate-spin text-cyan-400" />
+        <Card className="bg-card shadow-hard">
+          <CardContent className="flex items-center gap-3 py-8 font-mono text-sm font-bold tracking-wider text-muted-foreground uppercase">
+            <Loader2 className="size-4 animate-spin text-bauhaus-deep" />
             {t.generator.reading}
           </CardContent>
         </Card>
       )}
 
       {error && (
-        <Card className="border-destructive/30 bg-destructive/10">
-          <CardContent className="flex items-center gap-2 py-4 font-mono text-sm text-destructive">
+        <Card className="border-destructive bg-destructive/10 shadow-none">
+          <CardContent className="flex items-center gap-2 py-4 font-mono text-sm font-bold text-destructive uppercase">
             <AlertTriangle className="size-4" />
             {error}
           </CardContent>

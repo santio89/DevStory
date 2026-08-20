@@ -1,6 +1,5 @@
 "use client";
 
-import { useId } from "react";
 import type { Era } from "@/lib/devstory/story";
 import {
   pickTokenForName,
@@ -9,6 +8,7 @@ import {
 } from "@/lib/devstory/tokens";
 
 const ACCENT = "#22d3ee";
+const STROKE = "var(--bauhaus-sky)";
 
 function renderToken(token: TokenId, stroke: string) {
   switch (token) {
@@ -130,7 +130,6 @@ function renderToken(token: TokenId, stroke: string) {
 }
 
 export function Sigil({ token, className }: { token: TokenId; className?: string }) {
-  const id = useId();
   return (
     <svg
       viewBox="0 0 64 64"
@@ -138,14 +137,7 @@ export function Sigil({ token, className }: { token: TokenId; className?: string
       className={className}
       aria-hidden="true"
     >
-      <defs>
-        <linearGradient id={id} x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#38bdf8" />
-          <stop offset="55%" stopColor="#7dd3fc" />
-          <stop offset="100%" stopColor="#818cf8" />
-        </linearGradient>
-      </defs>
-      {renderToken(token, `url(#${id})`)}
+      {renderToken(token, STROKE)}
     </svg>
   );
 }

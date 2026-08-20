@@ -12,16 +12,16 @@ export function HeroTitle({
   const FIRST_LINE = first.split("");
 
   return (
-    <h1 className="mt-8 max-w-3xl font-heading text-5xl leading-[1.05] font-semibold tracking-tight text-balance sm:text-7xl">
-      <span className="aurora-text title-glow inline-block">
+    <h1 className="mt-8 max-w-3xl font-heading text-5xl leading-[0.95] font-black tracking-tighter text-balance uppercase sm:text-7xl">
+      <span className="block text-foreground">
         {FIRST_LINE.map((letter, i) => (
           <motion.span
             key={`code-${i}`}
-            initial={{ opacity: 0, y: 26, filter: "blur(6px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            initial={{ opacity: 0, y: 26 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{
-              duration: 0.6,
-              delay: 0.12 + i * 0.05,
+              duration: 0.5,
+              delay: 0.1 + i * 0.045,
               ease: [0.22, 1, 0.36, 1],
             }}
             className="inline-block"
@@ -29,17 +29,13 @@ export function HeroTitle({
             {letter === " " ? "\u00A0" : letter}
           </motion.span>
         ))}
-      </span>{" "}
-      <span className="inline-block title-glow">
+      </span>
+      <span className="mt-2 inline-block bg-bauhaus-yellow px-3 py-1 text-bauhaus-ink shadow-hard">
         <motion.span
-          initial={{ opacity: 0, y: 34, filter: "blur(10px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          transition={{
-            duration: 0.8,
-            delay: 0.55,
-            ease: [0.22, 1, 0.36, 1],
-          }}
-          className="aurora-text-b inline-block"
+          className="inline-block"
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.55, delay: 0.45, ease: [0.22, 1, 0.36, 1] }}
         >
           {second}
         </motion.span>

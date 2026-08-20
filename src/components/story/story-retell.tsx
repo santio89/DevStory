@@ -208,7 +208,7 @@ export function StoryRetell({
                   size="sm"
                   disabled={remixing !== null}
                   data-voice={voice}
-                  className="shrink-0 snap-start"
+                  className="snap-start"
                   onClick={(e) => {
                     if (suppressClick.current) {
                       suppressClick.current = false;
@@ -237,11 +237,11 @@ export function StoryRetell({
 
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <Button
-            variant="outline"
+            variant="default"
             size="sm"
             disabled={generatingAudio}
             onClick={() => void handleListen()}
-            className="border-dashed border-foreground/60 hover:border-foreground"
+            className="border-foreground/40 hover:border-foreground"
           >
             {generatingAudio ? (
               <Loader2 className="size-3.5 animate-spin" />
@@ -254,7 +254,7 @@ export function StoryRetell({
               ? t.play.generating
               : playing
                 ? t.play.stop
-                : t.play.listen}
+                : t.play.hearStory}
           </Button>
           {audioError && (
             <p className="font-mono text-xs font-bold text-destructive uppercase">

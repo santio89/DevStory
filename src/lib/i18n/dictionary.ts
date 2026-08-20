@@ -106,6 +106,7 @@ const en = {
     remixFailed: "The remix failed. Try again.",
     noAI: "The AI isn't configured yet.",
     listen: "Hear it again",
+    hearStory: "Hear story",
     stop: "Stop",
     generating: "preparing audio…",
     audioFailed: "Couldn't generate audio. Try another narrator.",
@@ -273,12 +274,13 @@ const es: Messages = {
     embed: "Copiar código de inserción",
     embedCopied: "¡Código de inserción copiado!",
   },
-  play: {
+play: {
     title: "Re-cuenta tu historia",
     subtitle: "Doce narradores, una historia. Elige una voz y vuelve a escucharla.",
     remixFailed: "Falló el remix. Inténtalo de nuevo.",
     noAI: "La IA aún no está configurada.",
     listen: "Escúchalo otra vez",
+    hearStory: "Escucha la historia",
     stop: "Detener",
     generating: "preparando audio…",
     audioFailed: "No pude generar el audio. Prueba con otro narrador.",

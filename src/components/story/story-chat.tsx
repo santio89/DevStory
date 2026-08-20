@@ -112,7 +112,7 @@ export function StoryChat({
           >
             <div className="flex items-center justify-between border-b-2 border-foreground bg-bauhaus-deep px-4 py-3 text-white">
               <div className="flex items-center gap-2">
-                <Bot className="size-4 text-bauhaus-yellow" />
+                <Bot className="size-5 text-bauhaus-yellow" />
                 <div>
                   <p className="font-heading text-sm font-black tracking-normal uppercase">
                     {t.chat.title}

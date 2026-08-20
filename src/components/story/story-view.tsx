@@ -28,7 +28,7 @@ function storyToText(story: DevStory): string {
       era.description,
       "",
     ]),
-    "— written by DevStory",
+    "— written by Your Dev Story",
   ].join("\n");
 }
 

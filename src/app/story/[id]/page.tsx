@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/site-header";
 import { StoryContent } from "@/components/story/story-content";
+import { FloatingSymbol } from "@/components/motion/floating-symbol";
 import { getDb, hasDatabase } from "@/lib/db";
 import { stories } from "@/lib/db/schema";
 import { dictionary, isLocale } from "@/lib/i18n/dictionary";
@@ -34,11 +35,11 @@ export async function generateMetadata({
   const story = await getStory(id);
 
   if (!story) {
-    return { title: "Story not found · DevStory" };
+    return { title: "Story not found · Your Dev Story" };
   }
 
   return {
-    title: `${story.title} · DevStory`,
+    title: `${story.title} · Your Dev Story`,
     description: story.summary,
     openGraph: {
       title: story.title,
@@ -73,14 +74,21 @@ export default async function StoryPage({
 
       <main className="flex-1">
         <section className="relative overflow-hidden pt-28 pb-10 text-center">
-          <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+          <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
             <div className="bauhaus-grid absolute inset-0 opacity-40 [mask-image:linear-gradient(to_bottom,black,transparent_90%)]" />
-            <span className="absolute right-[10%] bottom-2 rotate-6 rounded-none border-2 border-foreground bg-bauhaus-deep px-2.5 py-1 font-mono text-base font-black text-white shadow-hard-sm">
+            <FloatingSymbol
+              className="pointer-events-auto absolute right-[10%] bottom-2 rounded-none border-2 border-foreground bg-bauhaus-deep px-2.5 py-1 font-mono text-base font-black text-white shadow-hard-sm"
+              idleRotate={6}
+            >
               {"&&"}
-            </span>
-            <span className="absolute bottom-8 left-[8%] -rotate-3 rounded-none border-2 border-foreground bg-bauhaus-yellow px-2.5 py-1 font-mono text-sm font-black text-bauhaus-ink shadow-hard-sm">
+            </FloatingSymbol>
+            <FloatingSymbol
+              className="pointer-events-auto absolute bottom-8 left-[8%] rounded-none border-2 border-foreground bg-bauhaus-yellow px-2.5 py-1 font-mono text-sm font-black text-bauhaus-ink shadow-hard-sm"
+              drift={2}
+              idleRotate={-3}
+            >
               {"{ }"}
-            </span>
+            </FloatingSymbol>
           </div>
           <p className="font-mono text-xs font-bold tracking-[0.3em] text-muted-foreground uppercase">
             {t.sharePage.of(story.username)}

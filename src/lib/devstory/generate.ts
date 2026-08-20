@@ -14,7 +14,7 @@ export type StoryResult = {
 };
 
 const OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";
-const APP_NAME = "DevStory";
+const APP_NAME = "Your Dev Story";
 
 export function hasAIProviderConfigured(): boolean {
   return Boolean(process.env.OPENROUTER_API_KEY);
@@ -25,7 +25,7 @@ export function createModel() {
     apiKey: process.env.OPENROUTER_API_KEY,
     baseURL: OPENROUTER_BASE_URL,
     headers: {
-      "HTTP-Referer": "https://devstory.app",
+      "HTTP-Referer": "https://yourdevstory.vercel.app",
       "X-Title": APP_NAME,
     },
   });
@@ -69,7 +69,7 @@ export const emailCopySchema = z.object({
 
 export type EmailCopy = z.infer<typeof emailCopySchema>;
 
-const EMAIL_SYSTEM_PROMPT = `You are DevStory's letter writer. Given a developer's story (title, summary, and eras), write two short pieces of email copy:
+const EMAIL_SYSTEM_PROMPT = `You are Your Dev Story's letter writer. Given a developer's story (title, summary, and eras), write two short pieces of email copy:
 1. A subject line (max 90 chars) that feels personal and evokes the arc of the story.
 2. A single "P.S." line (max 240 chars) that closes the email like a handwritten letter — warm, human, a little poetic. Never generic.
 
@@ -89,7 +89,7 @@ export async function generateEmailCopy(story: DevStory): Promise<EmailCopy> {
       model: createModel(),
       output: Output.object({
         name: "EmailCopy",
-        description: "An email subject line and closing P.S. for a DevStory email",
+        description: "An email subject line and closing P.S. for a Your Dev Story email",
         schema: emailCopySchema,
       }),
       system: EMAIL_SYSTEM_PROMPT,

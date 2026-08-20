@@ -39,7 +39,7 @@ export async function sendStoryEmail({
   const html = await render(email);
   const text = await render(email, { plainText: true });
 
-  const from = process.env.RESEND_FROM ?? "DevStory <onboarding@resend.dev>";
+  const from = process.env.RESEND_FROM ?? "Your Dev Story <onboarding@resend.dev>";
 
   const { error } = await resend.emails.send({
     from,

@@ -4,6 +4,7 @@ import { GithubSignIn } from "@/components/auth/github-sign-in";
 import { UserMenu } from "@/components/auth/user-menu";
 import { HeroTitle } from "@/components/hero-title";
 import { FadeIn } from "@/components/motion/fade-in";
+import { FloatingSymbol } from "@/components/motion/floating-symbol";
 import { SiteHeader } from "@/components/site-header";
 import { Marquee } from "@/components/story/marquee";
 import { StoryGenerator } from "@/components/story/story-generator";
@@ -51,7 +52,7 @@ async function HeroCta({ t }: { t: Messages }) {
 
   if (session?.user) {
     return (
-      <div className="flex flex-col items-center gap-3">
+      <div className="pointer-events-auto flex flex-col items-center gap-3">
         <p className="text-sm text-muted-foreground">
           {t.hero.signedInAs}{" "}
           <span className="font-mono text-foreground">
@@ -114,29 +115,52 @@ export default async function Home() {
 
       <main className="flex-1">
         <section className="relative overflow-hidden">
-          <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+          <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
             <div className="bauhaus-grid absolute inset-0 opacity-40 [mask-image:linear-gradient(to_bottom,black,transparent_90%)]" />
-            <span className="absolute top-20 right-[6%] -rotate-6 rounded-none border-2 border-foreground bg-bauhaus-deep px-2.5 py-1 font-mono text-lg font-black text-white shadow-hard-sm">
-              {"{ }"}
-            </span>
-            <span className="absolute top-44 left-[7%] rotate-3 rounded-none border-2 border-foreground bg-bauhaus-yellow px-2.5 py-1 font-mono text-sm font-black text-bauhaus-ink shadow-hard-sm">
+            <FloatingSymbol
+              className="pointer-events-auto absolute top-[240px] left-[30%] rounded-none border-2 border-foreground bg-bauhaus-yellow px-2.5 py-1 font-mono text-sm font-black text-bauhaus-ink shadow-hard-sm"
+              drift={2}
+              idleRotate={3}
+            >
               {"< />"}
-            </span>
-            <span className="absolute right-[11%] bottom-40 rotate-6 rounded-none border-2 border-foreground bg-bauhaus-pink px-2 py-0.5 font-mono text-base font-black text-bauhaus-deep shadow-hard-sm">
-              {"||"}
-            </span>
-            <span className="absolute bottom-24 left-[5%] rotate-12 rounded-none border-2 border-foreground bg-bauhaus-sky/25 px-2.5 py-1 font-mono text-lg font-black text-bauhaus-deep shadow-hard-sm">
+            </FloatingSymbol>
+            <FloatingSymbol
+              className="pointer-events-auto absolute top-[240px] right-[32%] rounded-none border-2 border-foreground bg-bauhaus-deep px-2.5 py-1 font-mono text-lg font-black text-white shadow-hard-sm"
+              idleRotate={-3}
+            >
+              {"{ }"}
+            </FloatingSymbol>
+            <FloatingSymbol
+              className="pointer-events-auto absolute top-[330px] left-[29%] rounded-none border-2 border-foreground bg-bauhaus-sky/25 px-2.5 py-1 font-mono text-lg font-black text-bauhaus-deep shadow-hard-sm"
+              drift={1}
+              idleRotate={6}
+            >
               {"&&"}
-            </span>
-            <span className="absolute top-16 right-[26%] -rotate-3 font-mono text-2xl font-black text-bauhaus-cyan">
+            </FloatingSymbol>
+            <FloatingSymbol
+              className="pointer-events-auto absolute top-[330px] right-[31%] rounded-none border-2 border-foreground bg-bauhaus-pink px-2 py-0.5 font-mono text-base font-black text-bauhaus-deep shadow-hard-sm"
+              drift={3}
+              idleRotate={-6}
+            >
+              {"||"}
+            </FloatingSymbol>
+            <FloatingSymbol
+              className="pointer-events-auto absolute top-[430px] left-[29%] rounded-none border-2 border-foreground bg-bauhaus-cyan px-2 py-0.5 font-mono text-base font-black text-bauhaus-ink shadow-hard-sm"
+              drift={2.5}
+              idleRotate={4}
+            >
               ;
-            </span>
-            <span className="absolute right-[30%] bottom-12 rotate-2 rounded-none border-2 border-foreground bg-background px-2 py-0.5 font-mono text-sm font-black text-foreground shadow-hard-sm">
+            </FloatingSymbol>
+            <FloatingSymbol
+              className="pointer-events-auto absolute top-[430px] right-[31%] rounded-none border-2 border-foreground bg-background px-2 py-0.5 font-mono text-sm font-black text-foreground shadow-hard-sm"
+              drift={4}
+              idleRotate={-4}
+            >
               {"=>"}
-            </span>
+            </FloatingSymbol>
           </div>
 
-          <div className="mx-auto flex w-full max-w-5xl flex-col items-center px-4 py-24 text-center sm:px-6 sm:py-36">
+          <div className="mx-auto flex w-full max-w-5xl flex-col items-center px-4 py-24 text-center sm:px-6 sm:py-36 pointer-events-none">
             <FadeIn>
               <span className="inline-flex items-center gap-2 rounded-none border-2 border-foreground bg-background px-3 py-1 font-mono text-xs font-bold tracking-[0.2em] text-foreground uppercase shadow-hard-sm">
                 <span className="inline-block size-2 animate-[blink-dot_1.6s_ease-in-out_infinite] rounded-none bg-bauhaus-cyan" />
@@ -210,7 +234,7 @@ export default async function Home() {
             {t.footer.tagline}
           </span>
           <span className="font-mono text-xs font-bold tracking-widest uppercase">
-            DevStory © {new Date().getFullYear()}
+            Your Dev Story © {new Date().getFullYear()}
           </span>
         </div>
       </footer>

@@ -13,6 +13,7 @@ export function GithubSignIn({
 }) {
   return (
     <form
+      className="pointer-events-auto"
       action={async () => {
         "use server";
         await signIn("github", { redirectTo: "/" });

@@ -14,7 +14,7 @@ const en = {
     titleFirst: "Your Code.",
     titleSecond: "Your Story.",
     subtitle:
-      "Every late-night debug. Every green build. Every repo you abandoned at 3am. DevStory reads your GitHub history and turns it into a narrative timeline of your growth as a developer.",
+      "Every late-night debug. Every green build. Every repo you abandoned at 3am. Your Dev Story reads your GitHub history and turns it into a narrative timeline of your growth as a developer.",
     signedInAs: "Signed in as",
     seeData: "See your harvested GitHub data",
     cta: "Connect GitHub to see your invisible hours",
@@ -63,7 +63,7 @@ const en = {
   },
   generator: {
     phase: "phase 03 · the biographer",
-    title: "Your DevStory",
+    title: "Your Dev Story",
     writing: "Writing…",
     rewrite: "Rewrite my story",
     generate: "Generate my story",
@@ -72,7 +72,7 @@ const en = {
     failed: "Story generation failed. Try again.",
   },
   share: {
-    title: "Share your DevStory",
+    title: "Share your Dev Story",
     erasLabel: (n: number) => `${n} eras`,
     noLanguages: "no languages",
     copyText: "Copy as text",
@@ -95,10 +95,10 @@ const en = {
     translating: "Translating…",
   },
   sharePage: {
-    of: (name: string) => `${name}'s DevStory`,
+    of: (name: string) => `${name}'s Dev Story`,
     writeYours: "Write your own story.",
     ctaDesc:
-      "Every commit is a chapter. Connect GitHub and let DevStory turn your invisible hours into a narrative timeline.",
+      "Every commit is a chapter. Connect GitHub and let Your Dev Story turn your invisible hours into a narrative timeline.",
     tellYours: "Tell your story",
   },
 };
@@ -118,7 +118,7 @@ const es: Messages = {
     titleFirst: "Tu Código.",
     titleSecond: "Tu Historia.",
     subtitle:
-      "Cada debug de madrugada. Cada build en verde. Cada repo que abandonaste a las 3am. DevStory lee tu historial de GitHub y lo convierte en una línea de tiempo narrativa de tu crecimiento como desarrollador.",
+      "Cada debug de madrugada. Cada build en verde. Cada repo que abandonaste a las 3am. Your Dev Story lee tu historial de GitHub y lo convierte en una línea de tiempo narrativa de tu crecimiento como desarrollador.",
     signedInAs: "Conectado como",
     seeData: "Ver tus datos de GitHub",
     cta: "Conecta GitHub para ver tus horas invisibles",
@@ -167,7 +167,7 @@ const es: Messages = {
   },
   generator: {
     phase: "fase 03 · el biógrafo",
-    title: "Tu DevStory",
+    title: "Tu Dev Story",
     writing: "Escribiendo…",
     rewrite: "Reescribir mi historia",
     generate: "Generar mi historia",
@@ -176,7 +176,7 @@ const es: Messages = {
     failed: "No se pudo generar la historia. Inténtalo de nuevo.",
   },
   share: {
-    title: "Comparte tu DevStory",
+    title: "Comparte tu Dev Story",
     erasLabel: (n: number) => `${n} épocas`,
     noLanguages: "sin lenguajes",
     copyText: "Copiar como texto",
@@ -199,10 +199,10 @@ const es: Messages = {
     translating: "Traduciendo…",
   },
   sharePage: {
-    of: (name: string) => `La DevStory de ${name}`,
+    of: (name: string) => `La Dev Story de ${name}`,
     writeYours: "Escribe tu propia historia.",
     ctaDesc:
-      "Cada commit es un capítulo. Conecta GitHub y deja que DevStory convierta tus horas invisibles en una línea de tiempo narrativa.",
+      "Cada commit es un capítulo. Conecta GitHub y deja que Your Dev Story convierta tus horas invisibles en una línea de tiempo narrativa.",
     tellYours: "Cuenta tu historia",
   },
 };

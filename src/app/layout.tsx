@@ -19,7 +19,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DevStory",
+  title: "Your Dev Story",
   description:
     "Your code. Your story. Connect GitHub to see your invisible hours.",
 };

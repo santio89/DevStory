@@ -146,7 +146,7 @@ export function DevStoryEmail({
       <Preview>{summary}</Preview>
       <Body style={body}>
         <Container style={container}>
-          <Text style={brand}>DevStory</Text>
+          <Text style={brand}>Your Dev Story</Text>
           <Heading style={heading}>{title}</Heading>
           <Text style={subtitle}>
             The story of {username}&apos;s invisible hours.
@@ -162,7 +162,7 @@ export function DevStoryEmail({
           ))}
           <Hr style={hr} />
           <Text style={muted}>
-            {username}&apos;s DevStory is a narrative timeline generated from
+            {username}&apos;s Dev Story is a narrative timeline generated from
             their GitHub history — commits are letters, repos are chapters.
           </Text>
           <Section style={cta}>
@@ -172,7 +172,7 @@ export function DevStoryEmail({
           </Section>
           {ps ? <Text style={psText}>P.S. {ps}</Text> : null}
           <Hr style={hr} />
-          <Text style={footer}>— crafted by DevStory</Text>
+          <Text style={footer}>— crafted by Your Dev Story</Text>
         </Container>
       </Body>
     </Html>

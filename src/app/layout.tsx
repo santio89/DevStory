@@ -6,6 +6,7 @@ import { MotionProvider } from "@/components/motion/motion-provider";
 import { LocaleProvider } from "@/components/locale/locale-provider";
 import { isLocale, type Locale } from "@/lib/i18n/dictionary";
 import { THEME_SCRIPT } from "@/lib/theme";
+import { siteName, siteDescription, siteUrl } from "@/lib/site";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -18,11 +19,47 @@ const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Your Dev Story",
-  description:
-    "Your code. Your story. Connect GitHub to see your invisible hours.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const cookieStore = await cookies();
+  const storedLocale = cookieStore.get("devstory-locale")?.value;
+  const locale: Locale = isLocale(storedLocale) ? storedLocale : "en";
+
+  return {
+    metadataBase: new URL(siteUrl),
+    title: {
+      default: siteName,
+      template: `%s · ${siteName}`,
+    },
+    description: siteDescription,
+    applicationName: siteName,
+    alternates: {
+      canonical: "/",
+    },
+    openGraph: {
+      type: "website",
+      siteName,
+      locale: locale === "es" ? "es_ES" : "en_US",
+      url: siteUrl,
+      title: siteName,
+      description: siteDescription,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: siteName,
+      description: siteDescription,
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
+    },
+  };
+}
 
 export default async function RootLayout({
   children,

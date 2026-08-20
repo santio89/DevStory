@@ -8,6 +8,7 @@ import { ShareMenu } from "@/components/story/share-menu";
 import { FloatingSymbol } from "@/components/motion/floating-symbol";
 import { getStory } from "@/lib/stories";
 import { dictionary, isLocale } from "@/lib/i18n/dictionary";
+import { siteName, siteDescription, siteUrl } from "@/lib/site";
 import type { Messages } from "@/lib/i18n/dictionary";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
@@ -25,18 +26,41 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const story = await getStory(id);
+  const url = `${siteUrl}/story/${id}`;
 
   if (!story) {
-    return { title: "Story not found · Your Dev Story" };
+    return {
+      title: "Story not found",
+      description: siteDescription,
+      robots: { index: false, follow: false },
+    };
   }
 
   return {
-    title: `${story.title} · Your Dev Story`,
+    title: story.title,
     description: story.summary,
+    alternates: { canonical: url },
     openGraph: {
       title: story.title,
       description: story.summary,
       type: "website",
+      url,
+      siteName,
+      locale: "en_US",
+      images: [
+        {
+          url: `${url}/opengraph-image`,
+          width: 1200,
+          height: 630,
+          alt: `${story.title} — ${siteName}`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: story.title,
+      description: story.summary,
+      images: [`${url}/opengraph-image`],
     },
   };
 }

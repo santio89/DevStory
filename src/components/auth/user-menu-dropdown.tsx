@@ -4,7 +4,7 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { signOut } from "@/auth";
+import { signOut } from "next-auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useLocale } from "@/components/locale/locale-provider";
 import { setLocaleCookie } from "@/app/actions";
@@ -116,7 +116,7 @@ export function UserMenuDropdown({ user }: { user: MenuUser }) {
             <button
               type="button"
               role="menuitem"
-              onClick={() => void signOut({ redirectTo: "/" })}
+              onClick={() => void signOut({ callbackUrl: "/" })}
               className="flex w-full items-center gap-2 rounded-none px-2 py-2 text-sm font-bold text-bauhaus-deep transition-colors hover:bg-muted"
             >
               <LogOut className="size-3.5" />

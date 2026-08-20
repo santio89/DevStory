@@ -42,7 +42,7 @@ export function StoryContent({
             {mode === "ai" ? t.story.crafted : t.story.previewSample}
           </span>
 
-          <h3 className="mt-6 max-w-3xl font-heading text-4xl leading-[1] font-black tracking-tight text-balance uppercase sm:text-5xl">
+          <h3 className="mt-6 max-w-3xl font-heading text-4xl leading-[1.1] font-black tracking-normal text-balance uppercase sm:text-5xl">
             {words.map((word, i) => (
               <span
                 key={`${word}-${i}`}

@@ -12,7 +12,7 @@ export function HeroTitle({
   const FIRST_LINE = first.split("");
 
   return (
-    <h1 className="mt-8 max-w-3xl font-heading text-5xl leading-[0.95] font-black tracking-tighter text-balance uppercase sm:text-7xl">
+    <h1 className="mt-8 max-w-3xl font-heading text-5xl leading-[1.02] font-black tracking-tight text-balance uppercase sm:text-7xl">
       <span className="block text-foreground">
         {FIRST_LINE.map((letter, i) => (
           <motion.span

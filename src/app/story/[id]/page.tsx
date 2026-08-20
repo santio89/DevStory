@@ -90,7 +90,7 @@ export default async function StoryPage({
               {"{ }"}
             </FloatingSymbol>
           </div>
-          <p className="font-mono text-xs font-bold tracking-[0.3em] text-muted-foreground uppercase">
+          <p className="relative z-10 font-mono text-xs font-bold tracking-[0.3em] text-muted-foreground uppercase">
             {t.sharePage.of(story.username)}
           </p>
         </section>
@@ -103,7 +103,7 @@ export default async function StoryPage({
           <div className="relative rounded-none border-2 border-foreground bg-bauhaus-deep p-8 text-center text-white shadow-hard-lg sm:p-12">
             <span className="pointer-events-none absolute top-6 left-6 size-4 rotate-45 rounded-none bg-bauhaus-yellow" />
             <span className="pointer-events-none absolute right-8 bottom-8 size-10 rounded-full border-2 border-white/40" />
-            <h2 className="font-heading text-2xl font-black tracking-tight uppercase sm:text-3xl">
+            <h2 className="font-heading text-2xl font-black tracking-normal uppercase sm:text-3xl">
               {t.sharePage.writeYours}
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-sm text-white/80 sm:text-base">

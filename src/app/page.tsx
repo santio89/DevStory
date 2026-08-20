@@ -160,9 +160,9 @@ export default async function Home() {
             </FloatingSymbol>
           </div>
 
-          <div className="mx-auto flex w-full max-w-5xl flex-col items-center px-4 py-24 text-center sm:px-6 sm:py-36 pointer-events-none">
+          <div className="pointer-events-none relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center px-4 py-24 text-center sm:px-6 sm:py-36">
             <FadeIn>
-              <span className="inline-flex items-center gap-2 rounded-none border-2 border-foreground bg-background px-3 py-1 font-mono text-xs font-bold tracking-[0.2em] text-foreground uppercase shadow-hard-sm">
+              <span className="inline-flex items-center gap-2 rounded-none border-2 border-foreground bg-white px-3 py-1 font-mono text-xs font-bold tracking-[0.2em] text-black uppercase shadow-hard-sm dark:bg-black dark:text-white">
                 <span className="inline-block size-2 animate-[blink-dot_1.6s_ease-in-out_infinite] rounded-none bg-bauhaus-cyan" />
                 {t.hero.badge}
               </span>
@@ -200,7 +200,7 @@ export default async function Home() {
 
         <section className="mx-auto w-full max-w-5xl px-4 pb-24 sm:px-6">
           <FadeIn>
-            <h2 className="text-center font-heading text-2xl font-black tracking-tight uppercase sm:text-3xl">
+            <h2 className="text-center font-heading text-2xl font-black tracking-normal uppercase sm:text-3xl">
               {t.features.title}
               <span className="ml-2 inline-block size-3 rounded-full border-2 border-foreground bg-bauhaus-yellow" />
             </h2>

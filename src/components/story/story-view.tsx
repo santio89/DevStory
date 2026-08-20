@@ -9,7 +9,6 @@ import type { DevStory } from "@/lib/devstory/story";
 import {
   Check,
   Copy,
-  Download,
   Link2,
   Loader2,
   Mail,
@@ -60,20 +59,6 @@ export function StoryView({
     } catch {
       setCopied(false);
     }
-  }
-
-  function downloadStory() {
-    const blob = new Blob([JSON.stringify(story, null, 2)], {
-      type: "application/json",
-    });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "devstory.json";
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
   async function copyLink() {
@@ -133,7 +118,7 @@ export function StoryView({
             <div>
               <div className="flex items-center gap-2">
                 <Share2 className="size-4 text-bauhaus-yellow" />
-                <h4 className="font-heading text-lg font-black tracking-tight uppercase">
+                <h4 className="font-heading text-lg font-black tracking-normal uppercase">
                   {t.share.title}
                 </h4>
               </div>
@@ -155,14 +140,6 @@ export function StoryView({
               </Button>
               <Button
                 variant="outline"
-                onClick={downloadStory}
-                className="border-white bg-transparent text-white shadow-none hover:bg-white/10"
-              >
-                <Download />
-                {t.share.downloadJson}
-              </Button>
-              <Button
-                variant="outline"
                 onClick={() => void copyLink()}
                 disabled={!storyId}
                 className="border-white bg-transparent text-white shadow-none hover:bg-white/10"
@@ -176,7 +153,7 @@ export function StoryView({
           <div className="mt-6 border-t-2 border-white/30 pt-6">
             <div className="flex items-center gap-2">
               <Mail className="size-4 text-bauhaus-yellow" />
-              <h5 className="font-heading text-sm font-bold tracking-tight uppercase">
+              <h5 className="font-heading text-sm font-bold tracking-normal uppercase">
                 {t.share.emailTitle}
               </h5>
             </div>

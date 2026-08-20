@@ -43,7 +43,7 @@ function TimelineItem({ era, index }: { era: Era; index: number }) {
               {era.year}
             </span>
           </div>
-          <h4 className="mt-3 font-heading text-xl font-bold tracking-tight uppercase">
+          <h4 className="mt-3 font-heading text-xl font-bold tracking-normal uppercase">
             {era.name}
           </h4>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">

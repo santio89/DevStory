@@ -58,7 +58,7 @@ export function StoryPreview({
           <p className="font-mono text-xs font-bold tracking-[0.2em] text-muted-foreground uppercase">
             {t.preview.phase}
           </p>
-          <h2 className="mt-1 font-heading text-2xl font-black tracking-tight uppercase">
+          <h2 className="mt-1 font-heading text-2xl font-black tracking-normal uppercase">
             {t.preview.title}
           </h2>
         </div>

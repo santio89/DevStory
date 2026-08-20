@@ -29,7 +29,7 @@ export function SiteHeader({ children }: { children?: ReactNode }) {
           "relative mx-auto flex items-center justify-between rounded-none transition-all duration-500 ease-out",
           scrolled
             ? "max-w-xl border-2 border-foreground bg-background px-4 py-2 shadow-hard-sm"
-            : "max-w-5xl border-b-2 border-foreground bg-transparent px-6 py-4",
+            : "max-w-5xl border-2 border-transparent bg-transparent px-6 py-4",
         )}
       >
         <Link href="/" className="shrink-0">

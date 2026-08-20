@@ -12,29 +12,42 @@ type Moment = { title: string; text: string; year: string };
 
 const STORAGE_KEY = "devstory-moment";
 
-type StoredMoment = { fingerprint: string; moment: Moment };
+type StoredMoment = {
+  fingerprint: string;
+  byLocale: Record<string, Moment>;
+  moment?: Moment;
+  locale?: string;
+};
 
-function readStored(fingerprint: string): Moment | null {
+function readStored(fingerprint: string): Record<string, Moment> | null {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as StoredMoment;
+    if (parsed?.fingerprint !== fingerprint) return null;
     if (
-      parsed?.fingerprint === fingerprint &&
-      parsed?.moment &&
-      typeof parsed.moment.title === "string"
+      parsed.byLocale &&
+      typeof parsed.byLocale === "object" &&
+      Object.keys(parsed.byLocale).length > 0
     ) {
-      return parsed.moment;
+      return parsed.byLocale;
+    }
+    if (
+      parsed?.moment &&
+      typeof parsed.moment.title === "string" &&
+      typeof parsed.locale === "string"
+    ) {
+      return { [parsed.locale]: parsed.moment };
     }
   } catch {}
   return null;
 }
 
-function writeStored(fingerprint: string, moment: Moment) {
+function writeStored(fingerprint: string, byLocale: Record<string, Moment>) {
   try {
     window.localStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({ fingerprint, moment }),
+      JSON.stringify({ fingerprint, byLocale }),
     );
   } catch {}
 }
@@ -52,6 +65,7 @@ export function StoryMoment({
   const [moment, setMoment] = useState<Moment | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [translating, setTranslating] = useState(false);
 
   async function handleMoment() {
     setLoading(true);
@@ -68,7 +82,7 @@ export function StoryMoment({
       }
       const next = { title: json.title, text: json.text, year: json.year };
       setMoment(next);
-      writeStored(fingerprint, next);
+      writeStored(fingerprint, { [locale]: next });
     } catch (e) {
       setError(
         e instanceof Error && e.message.includes("503")
@@ -80,13 +94,52 @@ export function StoryMoment({
     }
   }
 
+  async function handleTranslate(
+    current: Moment,
+    byLocale: Record<string, Moment>,
+  ) {
+    setTranslating(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/story/moment/translate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ moment: current, locale }),
+      });
+      const json = (await res.json()) as { error?: string } & Moment;
+      if (!res.ok) {
+        throw new Error(json.error ?? t.moment.failed);
+      }
+      const next = { ...current, title: json.title, text: json.text };
+      setMoment(next);
+      writeStored(fingerprint, { ...byLocale, [locale]: next });
+    } catch (e) {
+      setError(
+        e instanceof Error && e.message.includes("503")
+          ? t.moment.noAI
+          : t.moment.failed,
+      );
+    } finally {
+      setTranslating(false);
+    }
+  }
+
   useEffect(() => {
     let active = true;
     queueMicrotask(() => {
       if (!active) return;
-      const stored = readStored(fingerprint);
-      if (stored) {
-        setMoment(stored);
+      const byLocale = readStored(fingerprint);
+      if (byLocale) {
+        const cached = byLocale[locale];
+        if (cached) {
+          setMoment(cached);
+          return;
+        }
+        const anyMoment = Object.values(byLocale)[0];
+        if (anyMoment) {
+          setMoment(anyMoment);
+          void handleTranslate(anyMoment, byLocale);
+        }
         return;
       }
       void handleMoment();
@@ -95,7 +148,7 @@ export function StoryMoment({
       active = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fingerprint]);
+  }, [fingerprint, locale]);
 
   return (
     <motion.div
@@ -124,20 +177,22 @@ export function StoryMoment({
           <Button
             variant="outline"
             size="sm"
-            disabled={loading}
+            disabled={loading || translating}
             onClick={() => void handleMoment()}
             className="border-dashed border-foreground/60 hover:border-foreground"
           >
-            {loading ? (
+            {loading || translating ? (
               <Loader2 className="size-3.5 animate-spin" />
             ) : (
               <RefreshCw className="size-3.5" />
             )}
             {loading
               ? t.moment.loading
-              : moment
-                ? t.moment.summonAnother
-                : t.moment.summon}
+              : translating
+                ? t.moment.translating
+                : moment
+                  ? t.moment.summonAnother
+                  : t.moment.summon}
           </Button>
         </div>
 

@@ -195,6 +195,9 @@ export function StoryGenerator() {
               mode={mode ?? "mock"}
               storyId={storyId}
               data={data}
+              fingerprint={story.eras
+                .map((era) => `${era.year}|${era.name}`)
+                .join("§")}
             />
           )}
         </FadeIn>

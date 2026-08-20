@@ -45,11 +45,13 @@ export function StoryView({
   mode,
   storyId,
   data = null,
+  fingerprint,
 }: {
   story: DevStory;
   mode: "ai" | "mock";
   storyId: string | null;
   data?: StoryDataSnapshot | null;
+  fingerprint: string;
 }) {
   const { t, locale } = useLocale();
   const storyTopRef = useRef<HTMLDivElement>(null);
@@ -64,9 +66,6 @@ export function StoryView({
   );
 
   const displayStory = remix?.story ?? story;
-  const fingerprint = story.eras
-    .map((era) => `${era.year}|${era.name}`)
-    .join("§");
   const shareUrl = storyId
     ? new URL(`/story/${storyId}`, window.location.origin).href
     : null;

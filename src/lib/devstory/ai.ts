@@ -217,6 +217,35 @@ ${langInstruction(locale)}`;
   return { title: output.title, text: output.text, year: era.year };
 }
 
+export async function translateMoment(
+  moment: { title: string; text: string },
+  locale: Locale,
+): Promise<{ title: string; text: string }> {
+  if (!hasAIProviderConfigured()) throw new NoAIError();
+
+  const system = `You are the translator of Your Dev Story. You translate a single remembered moment faithfully into the target language, preserving the narrator's voice, tone and warmth exactly — it must read as a natural, original text in that language, not a translation.
+Rules:
+- Keep the title short and evocative; keep the same meaning and emotional register.
+- Do not add, remove, or invent any facts, names, years or details.
+- Output only the translated title and text.
+${langInstruction(locale)}`;
+
+  const { output } = await generateText({
+    model: createModel(),
+    output: Output.object({
+      name: "TranslatedMoment",
+      description: "A remembered moment translated into the target language",
+      schema: momentSchema,
+    }),
+    system,
+    prompt: `Translate this moment:\nTitle: ${moment.title}\n\n${moment.text}`,
+    temperature: 0.6,
+    maxOutputTokens: 400,
+  });
+
+  return { title: output.title, text: output.text };
+}
+
 export function chatSystemPrompt(
   story: DevStory,
   data: StoryDataSnapshot | null,

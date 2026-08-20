@@ -199,6 +199,18 @@ export function StoryRetell({
             onPointerMove={onDragMove}
             onPointerUp={onDragEnd}
             onPointerCancel={onDragEnd}
+            onClick={(e) => {
+              if (suppressClick.current) {
+                suppressClick.current = false;
+                return;
+              }
+              const btn = (e.target as HTMLElement).closest("button");
+              if (!btn) return;
+              const voice = btn.dataset.voice as RemixVoice | undefined;
+              if (!voice) return;
+              centerVoice(btn);
+              void handleRemix(voice);
+            }}
             className={cn(
               "no-scrollbar cursor-grab touch-pan-y overflow-x-auto select-none active:cursor-grabbing",
               dragging ? "snap-none" : "snap-x snap-mandatory",
@@ -211,15 +223,8 @@ export function StoryRetell({
                   variant={remix?.voice === voice ? "default" : "outline"}
                   size="sm"
                   disabled={remixing !== null}
+                  data-voice={voice}
                   className="shrink-0 snap-start"
-                  onClick={(e) => {
-                    if (suppressClick.current) {
-                      suppressClick.current = false;
-                      return;
-                    }
-                    centerVoice(e.currentTarget);
-                    void handleRemix(voice);
-                  }}
                 >
                   {remixing === voice ? (
                     <Loader2 className="size-3.5 animate-spin" />

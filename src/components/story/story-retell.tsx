@@ -121,7 +121,6 @@ export function StoryRetell({
       moved: false,
     };
     setDragging(true);
-    el.setPointerCapture(e.pointerId);
   }
 
   function onDragMove(e: React.PointerEvent<HTMLDivElement>) {
@@ -139,9 +138,6 @@ export function StoryRetell({
     if (!s.dragging || !el) return;
     s.dragging = false;
     setDragging(false);
-    try {
-      el.releasePointerCapture(e.pointerId);
-    } catch {}
     if (s.moved) suppressClick.current = true;
   }
 
@@ -199,18 +195,6 @@ export function StoryRetell({
             onPointerMove={onDragMove}
             onPointerUp={onDragEnd}
             onPointerCancel={onDragEnd}
-            onClick={(e) => {
-              if (suppressClick.current) {
-                suppressClick.current = false;
-                return;
-              }
-              const btn = (e.target as HTMLElement).closest("button");
-              if (!btn) return;
-              const voice = btn.dataset.voice as RemixVoice | undefined;
-              if (!voice) return;
-              centerVoice(btn);
-              void handleRemix(voice);
-            }}
             className={cn(
               "no-scrollbar cursor-grab touch-pan-y overflow-x-auto select-none active:cursor-grabbing",
               dragging ? "snap-none" : "snap-x snap-mandatory",
@@ -225,6 +209,14 @@ export function StoryRetell({
                   disabled={remixing !== null}
                   data-voice={voice}
                   className="shrink-0 snap-start"
+                  onClick={(e) => {
+                    if (suppressClick.current) {
+                      suppressClick.current = false;
+                      return;
+                    }
+                    centerVoice(e.currentTarget);
+                    void handleRemix(voice);
+                  }}
                 >
                   {remixing === voice ? (
                     <Loader2 className="size-3.5 animate-spin" />

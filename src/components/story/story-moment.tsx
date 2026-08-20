@@ -8,7 +8,7 @@ import type { DevStory } from "@/lib/devstory/story";
 import type { StoryDataSnapshot } from "@/lib/devstory/minify";
 import { BookOpen, Clock3, Loader2, RefreshCw } from "lucide-react";
 
-type Moment = { title: string; text: string; year: string };
+type Moment = { title: string; text: string; year: string; dateLabel?: string };
 
 const STORAGE_KEY = "devstory-moment";
 
@@ -80,7 +80,7 @@ export function StoryMoment({
       if (!res.ok) {
         throw new Error(json.error ?? t.moment.failed);
       }
-      const next = { title: json.title, text: json.text, year: json.year };
+      const next = { title: json.title, text: json.text, year: json.year, dateLabel: json.dateLabel };
       setMoment(next);
       writeStored(fingerprint, { [locale]: next });
     } catch (e) {
@@ -206,7 +206,7 @@ export function StoryMoment({
             <div className="flex items-center gap-2">
               <BookOpen className="size-3.5 text-bauhaus-deep" />
               <span className="bg-bauhaus-yellow px-2 py-0.5 font-mono text-xs font-bold text-bauhaus-ink uppercase">
-                {t.moment.of(moment.year)}
+                {t.moment.of(moment.dateLabel ?? moment.year)}
               </span>
             </div>
             <p className="mt-3 font-heading text-lg leading-snug font-black tracking-normal uppercase">

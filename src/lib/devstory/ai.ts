@@ -1,6 +1,7 @@
 import { generateText, Output, streamText } from "ai";
 import { z } from "zod";
 import { createModel, hasAIProviderConfigured } from "./generate";
+import type { MomentAnchor } from "./moment";
 import type { DevStory, Era } from "./story";
 import type { StoryDataSnapshot } from "./minify";
 import type { Locale } from "@/lib/i18n/dictionary";
@@ -190,14 +191,36 @@ const momentSchema = z.object({
 export async function todayMoment(
   story: DevStory,
   data: StoryDataSnapshot | null,
-  era: Era,
+  anchor: MomentAnchor,
   locale: Locale,
-): Promise<{ title: string; text: string; year: string }> {
+): Promise<{ title: string; text: string; year: string; dateLabel: string }> {
   if (!hasAIProviderConfigured()) throw new NoAIError();
 
-  const system = `You are the memory-keeper of Your Dev Story. Given one era and the raw facts around it, you pick a single believable, vivid moment from that era and narrate it in the developer's own voice — as if they were remembering it.
+  let focus: string;
+  let year: string;
+  let dateLabel: string;
+  if (anchor.kind === "memory") {
+    focus = `Memory: ${anchor.event} (${anchor.dateLabel})`;
+    year = anchor.year;
+    dateLabel = anchor.dateLabel;
+  } else {
+    focus = `Era: ${anchor.era.year} — ${anchor.era.name}\n${anchor.era.description}`;
+    year = anchor.era.year;
+    dateLabel = anchor.era.year;
+  }
+
+  const ctxEra =
+    anchor.kind === "era"
+      ? anchor.era
+      : story.eras.find((e) => e.year.startsWith(year.slice(0, 4))) ??
+        story.eras[0];
+  const eraData = eraContext(ctxEra, data);
+
+  const system = `You are the memory-keeper of Your Dev Story. You narrate a single believable, vivid memory from the developer's history in their own voice — as if they were remembering it.
 Rules:
-- Ground it in the given facts when available; otherwise invent nothing specific — keep it warm, specific to the era, and honest.
+- Ground it in the given facts when available; otherwise invent nothing specific — keep it warm, specific, and honest.
+- If the focus is a dated memory, narrate that exact event and its date.
+- If the focus is an era, pick one believable moment from that era.
 - The title is short and evocative. The text is 2-4 sentences.
 ${langInstruction(locale)}`;
 
@@ -205,16 +228,16 @@ ${langInstruction(locale)}`;
     model: createModel(),
     output: Output.object({
       name: "TodayMoment",
-      description: "A single remembered moment from one era of a developer's journey",
+      description: "A single remembered moment from a developer's journey",
       schema: momentSchema,
     }),
     system,
-    prompt: `Era: ${era.year} — ${era.name}\n${era.description}\n\nRaw data context:\n${eraContext(era, data) || "(no detailed data available)"}`,
+    prompt: `Today's focus:\n${focus}\n\nRaw data context:\n${eraData || "(no detailed data available)"}`,
     temperature: 0.95,
     maxOutputTokens: 400,
   });
 
-  return { title: output.title, text: output.text, year: era.year };
+  return { title: output.title, text: output.text, year, dateLabel };
 }
 
 export async function translateMoment(

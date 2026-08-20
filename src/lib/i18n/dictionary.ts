@@ -105,6 +105,10 @@ const en = {
     subtitle: "Twelve narrators, one story. Pick a voice and hear it again.",
     remixFailed: "The remix failed. Try again.",
     noAI: "The AI isn't configured yet.",
+    listen: "Hear it again",
+    stop: "Stop",
+    generating: "preparing audio…",
+    audioFailed: "Couldn't generate audio. Try another narrator.",
     remixedAs: (voice: string) => `retold as ${voice}`,
     restore: "restore original",
     voice: {
@@ -127,7 +131,7 @@ const en = {
     deepDiveHighlights: "quotes worth keeping",
   },
   moment: {
-    title: "On a day like today",
+    title: "Summon a memory",
     subtitle: "A random memory from your timeline.",
     summon: "Summon a memory",
     summonAnother: "Summon another memory",
@@ -135,7 +139,7 @@ const en = {
     translating: "translating…",
     failed: "Couldn't summon a memory. Try again.",
     noAI: "The AI isn't configured yet.",
-    of: (year: string) => `today in ${year}`,
+    of: (date: string) => `from ${date}`,
   },
   chat: {
     open: "Ask your story",
@@ -274,6 +278,10 @@ const es: Messages = {
     subtitle: "Doce narradores, una historia. Elige una voz y vuelve a escucharla.",
     remixFailed: "Falló el remix. Inténtalo de nuevo.",
     noAI: "La IA aún no está configurada.",
+    listen: "Escúchalo otra vez",
+    stop: "Detener",
+    generating: "preparando audio…",
+    audioFailed: "No pude generar el audio. Prueba con otro narrador.",
     remixedAs: (voice: string) => `recontada como ${voice}`,
     restore: "restaurar original",
     voice: {
@@ -296,7 +304,7 @@ const es: Messages = {
     deepDiveHighlights: "frases que vale la pena guardar",
   },
   moment: {
-    title: "Un día como hoy",
+    title: "Evocar un recuerdo",
     subtitle: "Un recuerdo al azar de tu línea de tiempo.",
     summon: "Evocar un recuerdo",
     summonAnother: "Evocar otro recuerdo",
@@ -304,7 +312,7 @@ const es: Messages = {
     translating: "traduciendo…",
     failed: "No pude evocar un recuerdo. Inténtalo de nuevo.",
     noAI: "La IA aún no está configurada.",
-    of: (year: string) => `hoy en ${year}`,
+    of: (date: string) => `del ${date}`,
   },
   chat: {
     open: "Pregúntale a tu historia",

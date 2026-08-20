@@ -148,7 +148,12 @@ export function StoryView({
 
       <StoryMoment story={displayStory} data={data} fingerprint={fingerprint} />
 
-      <StoryRetell remix={remix} onRemix={(voice) => handleRemix(voice)} />
+      <StoryRetell
+        remix={remix}
+        onRemix={(voice) => handleRemix(voice)}
+        story={displayStory}
+        fingerprint={fingerprint}
+      />
 
       <motion.div
         initial={{ opacity: 0, y: 24 }}

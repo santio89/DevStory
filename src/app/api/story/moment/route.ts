@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { todayMoment, NoAIError } from "@/lib/devstory/ai";
+import { pickMomentAnchor } from "@/lib/devstory/moment";
 import { validateStory } from "@/lib/devstory/translate";
 import type { StoryDataSnapshot } from "@/lib/devstory/minify";
 import { isLocale, type Locale } from "@/lib/i18n/dictionary";
@@ -26,9 +27,10 @@ export async function POST(request: Request) {
   const locale: Locale = isLocale(localeValue) ? localeValue : "en";
 
   const era = story.eras[Math.floor(Math.random() * story.eras.length)] ?? story.eras[0];
+  const anchor = pickMomentAnchor(data, era, locale);
 
   try {
-    const moment = await todayMoment(story, data, era, locale);
+    const moment = await todayMoment(story, data, anchor, locale);
     return NextResponse.json(moment);
   } catch (error) {
     if (error instanceof NoAIError) {

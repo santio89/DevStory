@@ -45,7 +45,7 @@ export const storySchema = z.object({
     ),
   closing: z
     .string()
-    .optional()
+    .nullable()
     .describe(
       "1-2 warm, optimistic closing sentences that look back on the whole journey and leave the developer feeling proud — the road traveled, and the road still ahead. Personal, never generic.",
     ),

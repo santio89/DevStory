@@ -12,7 +12,7 @@ const translatedEraSchema = z.object({
 const translatedStorySchema = z.object({
   title: z.string(),
   summary: z.string(),
-  closing: z.string().optional(),
+  closing: z.string().nullable(),
   eras: z.array(translatedEraSchema).min(3).max(5),
 });
 
@@ -23,6 +23,7 @@ You will receive a developer's story (a title, a short summary, and a few "Eras"
 Rules:
 - Preserve the tone: vivid, slightly nostalgic, warm, human. Never corporate or clichéd.
 - Keep proper nouns, era year labels, programming language names, and any quoted strings as they are.
+- Return each era's name as a clean translated title WITHOUT the year or any prefix; the year is a separate field.
 - Do not invent facts or change the meaning. If an idiom has no direct equivalent, find the closest natural one.
 - Return exactly the requested schema.`;
 
@@ -41,7 +42,7 @@ export async function translateStory(
   if (sourceLocale === targetLocale) return story;
 
   const eras = story.eras
-    .map((era) => `- ${era.year}: ${era.name}. ${era.description}`)
+    .map((era, i) => `Era ${i + 1} — year: ${era.year}, name: ${era.name}, description: ${era.description}`)
     .join("\n");
 
   const prompt = `Title: ${story.title}\n\nSummary: ${story.summary}\n${story.closing ? `Closing: ${story.closing}\n` : ""}Eras:\n${eras}\n\nTranslate the whole story into ${targetLocale === "es" ? "Spanish" : "English"}.`;
@@ -78,5 +79,10 @@ export async function translateStory(
 
 export function validateStory(value: unknown): DevStory | null {
   const result = storySchema.safeParse(value);
-  return result.success ? result.data : null;
+  if (result.success) return result.data;
+  if (typeof value === "object" && value !== null && !("closing" in value)) {
+    const retry = storySchema.safeParse({ ...value, closing: null });
+    if (retry.success) return retry.data;
+  }
+  return null;
 }

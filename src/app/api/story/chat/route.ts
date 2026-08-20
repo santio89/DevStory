@@ -1,7 +1,14 @@
 import { NextResponse } from "next/server";
-import { chatStream, chatSystemPrompt, NoAIError, type ChatRole } from "@/lib/devstory/ai";
+import {
+  chatStream,
+  chatSystemPrompt,
+  isOffTopic,
+  NoAIError,
+  type ChatRole,
+} from "@/lib/devstory/ai";
 import { validateStory } from "@/lib/devstory/translate";
 import type { StoryDataSnapshot } from "@/lib/devstory/minify";
+import { dictionary, type Locale } from "@/lib/i18n/dictionary";
 
 export const maxDuration = 60;
 
@@ -10,6 +17,7 @@ export async function POST(request: Request) {
     messages?: unknown;
     story?: unknown;
     data?: unknown;
+    locale?: unknown;
   };
 
   const story = validateStory(body.story);
@@ -21,6 +29,8 @@ export async function POST(request: Request) {
     body.data && typeof body.data === "object"
       ? (body.data as StoryDataSnapshot)
       : null;
+
+  const locale: Locale = body.locale === "es" ? "es" : "en";
 
   const rawMessages = Array.isArray(body.messages) ? body.messages : [];
   const messages = rawMessages
@@ -38,6 +48,11 @@ export async function POST(request: Request) {
       { error: "At least one message is required." },
       { status: 400 },
     );
+  }
+
+  const lastUserMessage = [...messages].reverse().find((m) => m.role === "user");
+  if (lastUserMessage && isOffTopic(lastUserMessage.content)) {
+    return NextResponse.json({ message: dictionary[locale].chat.offTopic });
   }
 
   try {

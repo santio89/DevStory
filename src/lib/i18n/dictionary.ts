@@ -147,6 +147,8 @@ const en = {
     failed: "The narrator went quiet. Try again.",
     greeting:
       "Ask me anything about your journey — your eras, your languages, your 2am commits.",
+    offTopic:
+      "That's outside my story. I'm the narrator of your Dev Story — ask me about your eras, your languages, the commits that shaped you, and I'll tell you the tale.",
   },
   story: {
     crafted: "crafted by the biographer",
@@ -313,6 +315,8 @@ const es: Messages = {
     failed: "El narrador se quedó mudo. Inténtalo de nuevo.",
     greeting:
       "Pregúntame lo que quieras sobre tu viaje — tus épocas, tus lenguajes, tus commits de las 2am.",
+    offTopic:
+      "Eso queda fuera de tu historia. Soy el narrador de tu Dev Story — pregúntame por tus épocas, tus lenguajes, los commits que te formaron, y te lo contaré.",
   },
   story: {
     crafted: "creada por el biógrafo",

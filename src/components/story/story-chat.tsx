@@ -17,7 +17,7 @@ export function StoryChat({
   story: DevStory;
   data: StoryDataSnapshot | null;
 }) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -61,11 +61,19 @@ export function StoryChat({
       const res = await fetch("/api/story/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: next, story, data }),
+        body: JSON.stringify({ messages: next, story, data, locale }),
       });
       if (!res.ok) {
         const json = (await res.json().catch(() => ({}))) as { error?: string };
         throw new Error(json.error ?? t.chat.failed);
+      }
+      if (res.headers.get("content-type")?.includes("application/json")) {
+        const json = (await res.json()) as { message?: string };
+        setMessages((prev) => [
+          ...prev,
+          { role: "assistant", content: json.message ?? t.chat.failed },
+        ]);
+        return;
       }
       if (!res.body) throw new Error(t.chat.failed);
 

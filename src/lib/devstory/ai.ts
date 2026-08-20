@@ -5,7 +5,20 @@ import type { DevStory, Era } from "./story";
 import type { StoryDataSnapshot } from "./minify";
 import type { Locale } from "@/lib/i18n/dictionary";
 
-export const REMIX_VOICES = ["cyberpunk", "noir", "letter", "fantasy"] as const;
+export const REMIX_VOICES = [
+  "cyberpunk",
+  "noir",
+  "letter",
+  "fantasy",
+  "western",
+  "space",
+  "fairy",
+  "documentary",
+  "arcade",
+  "sportscast",
+  "myth",
+  "changelog",
+] as const;
 export type RemixVoice = (typeof REMIX_VOICES)[number];
 
 export class NoAIError extends Error {
@@ -33,6 +46,14 @@ const REMIX_PROMPTS: Record<RemixVoice, string> = {
   noir: `Re-tell this developer's journey as a hard-boiled noir: rain-slicked streets, a lone figure in a dim office, commits arriving like confessions. Same arc and facts, but narrated by a world-weary detective who has seen it all.`,
   letter: `Re-write this journey as a letter to the developer's younger self: second person, warm, tender, a little funny. Same facts and arc, but addressed to the person who wrote the first line of code.`,
   fantasy: `Re-tell this developer's journey as an epic fantasy: guilds of frameworks, dungeons of legacy code, a hero who keeps answering the call. Same arc and facts, in the voice of a tavern bard telling a legend.`,
+  western: `Re-tell this developer's journey as a spaghetti western: dust-blown towns, a lone coder riding into town, showdowns at the merge. Same arc and facts, narrated like a laconic gunslinger's tall tale.`,
+  space: `Re-tell this developer's journey as a space mission log: launch windows, orbital burns, the crew aboard a tiny ship. Same arc and facts, in the clipped, awed voice of a mission transcript.`,
+  fairy: `Re-tell this developer's journey as a fairy tale: once upon a time, a village with a single lantern, a quest through the dark wood of old code. Same arc and facts, with the rhythm of a bedtime story.`,
+  documentary: `Re-tell this developer's journey as a dry nature documentary: an observer studying the habits of a rare creature — the developer — across seasons. Same arc and facts, deadpan, quietly reverent, faintly absurd.`,
+  arcade: `Re-tell this developer's journey as an 8-bit arcade quest: a pixel hero, level after level, bosses made of bugs. Same arc and facts, with the energy of a high-score chase and a "GAME OVER? PRESS START" beat.`,
+  sportscast: `Re-tell this developer's journey as a sports underdog story: the crowd, the comeback, the last-second commit. Same arc and facts, narrated by an announcer who cannot believe what they're seeing.`,
+  myth: `Re-tell this developer's journey as a Greek myth: a mortal who stole fire from the machines, trials, mentors, a fateful return. Same arc and facts, in the elevated, fateful voice of an ancient bard.`,
+  changelog: `Re-tell this developer's journey as an ironic changelog: terse version headings, breaking changes, deprecation notices, and a changelog-writer with opinions. Same arc and facts, deadpan, precise, quietly funny.`,
 };
 
 const REMIX_RULES = `Rewrite EVERYTHING into that voice — the title must change completely (a new, evocative title in that register), the summary, each era's name and description, the closing, and the archetype (recast it in that world, e.g. noir keeps it human, fantasy makes it a title). Keep the facts, the arc, the years, and the structure identical. Never generic.`;

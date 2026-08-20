@@ -1,13 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useLocale } from "@/components/locale/locale-provider";
 import { REMIX_VOICES, type RemixVoice } from "@/lib/devstory/ai";
 import type { DevStory } from "@/lib/devstory/story";
 import type { StoryDataSnapshot } from "@/lib/devstory/minify";
-import { BookOpen, Clock3, Image as ImageIcon, Loader2, Sparkles, Wand2 } from "lucide-react";
+import {
+  BookOpen,
+  ChevronLeft,
+  ChevronRight,
+  Clock3,
+  Image as ImageIcon,
+  Loader2,
+  Sparkles,
+  Wand2,
+} from "lucide-react";
 
 type Moment = { title: string; text: string; year: string };
 
@@ -25,11 +34,45 @@ export function StoryPlay({
   onRemix: (voice: RemixVoice) => Promise<void>;
 }) {
   const { t, locale } = useLocale();
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [scrollState, setScrollState] = useState({ left: false, right: false });
   const [remixing, setRemixing] = useState<RemixVoice | null>(null);
   const [remixError, setRemixError] = useState<string | null>(null);
   const [moment, setMoment] = useState<Moment | null>(null);
   const [momentLoading, setMomentLoading] = useState(false);
   const [momentError, setMomentError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    setScrollState({
+      left: el.scrollLeft > 4,
+      right: el.scrollLeft < el.scrollWidth - el.clientWidth - 4,
+    });
+  }, []);
+
+  function updateArrows() {
+    const el = trackRef.current;
+    if (!el) return;
+    setScrollState({
+      left: el.scrollLeft > 4,
+      right: el.scrollLeft < el.scrollWidth - el.clientWidth - 4,
+    });
+  }
+
+  function nudge(dir: 1 | -1) {
+    const el = trackRef.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: "smooth" });
+  }
+
+  function centerVoice(btn: HTMLButtonElement) {
+    const el = trackRef.current;
+    if (!el) return;
+    const target =
+      btn.offsetLeft - el.offsetLeft - el.clientWidth / 2 + btn.clientWidth / 2;
+    el.scrollTo({ left: Math.max(0, target), behavior: "smooth" });
+  }
 
   async function handleRemix(voice: RemixVoice) {
     if (remix?.voice === voice) return;
@@ -101,23 +144,55 @@ export function StoryPlay({
           <p className="font-mono text-xs font-bold tracking-[0.2em] text-muted-foreground uppercase">
             {t.play.remixTitle}
           </p>
-          <div className="mt-2.5 flex flex-wrap gap-2.5">
-            {REMIX_VOICES.map((voice) => (
-              <Button
-                key={voice}
-                variant={remix?.voice === voice ? "default" : "outline"}
-                size="sm"
-                disabled={remixing !== null}
-                onClick={() => void handleRemix(voice)}
-              >
-                {remixing === voice ? (
-                  <Loader2 className="size-3.5 animate-spin" />
-                ) : (
-                  <Wand2 className="size-3.5" />
-                )}
-                {t.play.voice[voice]}
-              </Button>
-            ))}
+          <div className="mt-2.5 flex items-center gap-1.5">
+            <Button
+              variant="outline"
+              size="icon-sm"
+              onClick={() => nudge(-1)}
+              disabled={!scrollState.left}
+              aria-label="Previous tone"
+              className="shrink-0"
+            >
+              <ChevronLeft />
+            </Button>
+            <div
+              ref={trackRef}
+              onScroll={updateArrows}
+              className="no-scrollbar flex-1 overflow-x-auto scroll-smooth snap-x snap-mandatory"
+            >
+              <div className="flex w-max gap-2.5 snap-x snap-mandatory">
+                {REMIX_VOICES.map((voice) => (
+                  <Button
+                    key={voice}
+                    variant={remix?.voice === voice ? "default" : "outline"}
+                    size="sm"
+                    disabled={remixing !== null}
+                    className="shrink-0 snap-start"
+                    onClick={(e) => {
+                      centerVoice(e.currentTarget);
+                      void handleRemix(voice);
+                    }}
+                  >
+                    {remixing === voice ? (
+                      <Loader2 className="size-3.5 animate-spin" />
+                    ) : (
+                      <Wand2 className="size-3.5" />
+                    )}
+                    {t.play.voice[voice]}
+                  </Button>
+                ))}
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="icon-sm"
+              onClick={() => nudge(1)}
+              disabled={!scrollState.right}
+              aria-label="Next tone"
+              className="shrink-0"
+            >
+              <ChevronRight />
+            </Button>
           </div>
           {remixError && (
             <p className="mt-2 font-mono text-xs font-bold text-destructive uppercase">
@@ -126,30 +201,42 @@ export function StoryPlay({
           )}
         </div>
 
-        <div className="mt-6 flex flex-wrap gap-2.5">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={momentLoading}
-            onClick={() => void handleMoment()}
-          >
-            {momentLoading ? (
-              <Loader2 className="size-3.5 animate-spin" />
-            ) : (
-              <Clock3 className="size-3.5" />
-            )}
-            {momentLoading ? t.play.todayLoading : t.play.today}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={!storyId}
-            onClick={handlePoster}
-            title={t.play.posterHint}
-          >
-            <ImageIcon className="size-3.5" />
-            {t.play.poster}
-          </Button>
+        <div className="mt-6 border-t-2 border-dashed border-foreground/25 pt-5">
+          <p className="font-mono text-xs font-bold tracking-[0.2em] text-muted-foreground uppercase">
+            {t.play.revisitTitle}
+          </p>
+          <div className="mt-2.5 flex flex-wrap gap-2.5">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={momentLoading}
+              onClick={() => void handleMoment()}
+              className="border-dashed border-foreground/60 hover:border-foreground"
+            >
+              {momentLoading ? (
+                <Loader2 className="size-3.5 animate-spin" />
+              ) : (
+                <Clock3 className="size-3.5" />
+              )}
+              {momentLoading ? t.play.todayLoading : t.play.today}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!storyId}
+              onClick={handlePoster}
+              title={t.play.posterHint}
+              className="border-dashed border-foreground/60 hover:border-foreground"
+            >
+              <ImageIcon className="size-3.5" />
+              {t.play.poster}
+            </Button>
+          </div>
+          {!storyId && (
+            <p className="mt-3 font-mono text-[10px] tracking-wider text-muted-foreground uppercase">
+              {t.play.noStoryId}
+            </p>
+          )}
         </div>
 
         {moment && (
@@ -176,11 +263,6 @@ export function StoryPlay({
         {momentError && (
           <p className="mt-2 font-mono text-xs font-bold text-destructive uppercase">
             {momentError}
-          </p>
-        )}
-        {!storyId && (
-          <p className="mt-3 font-mono text-[10px] tracking-wider text-muted-foreground uppercase">
-            {t.play.noStoryId}
           </p>
         )}
       </div>

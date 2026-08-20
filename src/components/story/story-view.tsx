@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { motion } from "framer-motion";
 import { StoryContent } from "@/components/story/story-content";
 import { StoryPlay } from "@/components/story/story-play";
@@ -51,6 +51,7 @@ export function StoryView({
   data?: StoryDataSnapshot | null;
 }) {
   const { t, locale } = useLocale();
+  const storyTopRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
   const [email, setEmail] = useState("");
   const [emailStatus, setEmailStatus] = useState<
@@ -87,6 +88,9 @@ export function StoryView({
     }
     const json = (await res.json()) as { story: DevStory };
     setRemix({ voice, story: json.story });
+    requestAnimationFrame(() => {
+      storyTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
   }
 
   async function handleEmail(event: FormEvent<HTMLFormElement>) {
@@ -119,23 +123,25 @@ export function StoryView({
 
   return (
     <div className="space-y-10">
-      {remix && (
-        <div className="flex items-center justify-between gap-3 rounded-none border-2 border-foreground bg-bauhaus-cyan/15 px-4 py-3 shadow-hard-sm">
-          <p className="font-mono text-xs font-bold tracking-[0.2em] text-foreground uppercase">
-            {t.play.remixedAs(t.play.voice[remix.voice])}
-          </p>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setRemix(null)}
-          >
-            <RotateCcw className="size-3.5" />
-            {t.play.restore}
-          </Button>
-        </div>
-      )}
+      <div ref={storyTopRef} className="scroll-mt-6 space-y-10">
+        {remix && (
+          <div className="flex items-center justify-between gap-3 rounded-none border-2 border-foreground bg-bauhaus-cyan/15 px-4 py-3 shadow-hard-sm">
+            <p className="font-mono text-xs font-bold tracking-[0.2em] text-foreground uppercase">
+              {t.play.remixedAs(t.play.voice[remix.voice])}
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setRemix(null)}
+            >
+              <RotateCcw className="size-3.5" />
+              {t.play.restore}
+            </Button>
+          </div>
+        )}
 
-      <StoryContent story={displayStory} mode={mode} data={data} />
+        <StoryContent story={displayStory} mode={mode} data={data} />
+      </div>
 
       <StoryPlay
         story={displayStory}

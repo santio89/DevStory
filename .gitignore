@@ -34,6 +34,9 @@ yarn-error.log*
 .env*
 !.env.example
 
+# local agent docs (never push)
+/AGENTS.local.md
+
 # vercel
 .vercel
 

@@ -13,16 +13,10 @@ export function readStoredTheme(): Theme {
   }
 }
 
-export function applyTheme(theme: Theme) {
-  if (typeof window === "undefined") return;
-  document.documentElement.classList.toggle("dark", theme === "dark");
-  document.documentElement.style.colorScheme = theme;
-}
-
 export function toggleTheme() {
   const next: Theme = readStoredTheme() === "dark" ? "light" : "dark";
   try {
     window.localStorage.setItem("devstory-theme", next);
   } catch {}
-  applyTheme(next);
+  document.documentElement.classList.toggle("dark", next === "dark");
 }

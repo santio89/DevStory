@@ -8,7 +8,7 @@ export function Brand() {
           {"{ }"}
         </span>
       </span>
-      <span className="font-heading text-base font-black tracking-tight uppercase">
+      <span className="font-heading text-base font-black tracking-tight uppercase text-foreground">
         Dev<span className="text-bauhaus-deep">Story</span>
       </span>
     </span>

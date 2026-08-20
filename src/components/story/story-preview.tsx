@@ -58,7 +58,7 @@ export function StoryPreview({
           <p className="font-mono text-xs font-bold tracking-[0.2em] text-muted-foreground uppercase">
             {t.preview.phase}
           </p>
-          <h2 className="mt-1 font-heading text-2xl font-black tracking-normal uppercase">
+          <h2 className="mt-1 font-heading text-2xl font-black tracking-normal text-balance uppercase">
             {t.preview.title}
           </h2>
         </div>
@@ -205,7 +205,7 @@ export function StoryPreview({
                           {formatDate(m.date, locale)}
                         </span>
                       </div>
-                      <p className="mt-1 text-sm">{m.message}</p>
+                      <p className="mt-1 text-sm text-pretty">{m.message}</p>
                       <p className="mt-0.5 font-mono text-xs font-bold tracking-wider text-muted-foreground uppercase">
                         {m.repo}
                       </p>

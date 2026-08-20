@@ -114,7 +114,7 @@ export function StoryChat({
               <div className="flex items-center gap-2">
                 <Bot className="size-5 text-bauhaus-yellow" />
                 <div>
-                  <p className="font-heading text-sm font-black tracking-normal uppercase">
+                  <p className="font-heading text-sm font-black tracking-normal text-balance uppercase">
                     {t.chat.title}
                   </p>
                   <p className="font-mono text-[10px] text-white/70 uppercase">
@@ -141,8 +141,8 @@ export function StoryChat({
                   key={i}
                   className={
                     m.role === "user"
-                      ? "self-end max-w-[85%] rounded-none border-2 border-foreground bg-bauhaus-yellow px-3 py-2 font-mono text-sm font-bold text-bauhaus-ink"
-                      : "self-start max-w-[90%] rounded-none border-2 border-foreground bg-muted px-3 py-2 font-mono text-sm text-foreground"
+                      ? "self-end max-w-[85%] rounded-none border-2 border-foreground bg-bauhaus-yellow px-3 py-2 font-mono text-sm font-bold text-balance text-bauhaus-ink"
+                      : "self-start max-w-[90%] rounded-none border-2 border-foreground bg-muted px-3 py-2 font-mono text-sm text-pretty text-foreground"
                   }
                 >
                   {m.content || (streaming && i === messages.length - 1 ? "…" : "")}

@@ -184,11 +184,11 @@ export function StoryRetell({
       <div className="relative">
         <div className="flex items-center gap-2">
           <Sparkles className="size-4 text-bauhaus-deep" />
-          <h4 className="font-heading text-lg font-black tracking-normal uppercase">
+          <h4 className="font-heading text-lg font-black tracking-normal text-balance uppercase">
             {t.play.title}
           </h4>
         </div>
-        <p className="mt-1 max-w-md text-sm text-muted-foreground">
+        <p className="mt-1 max-w-md text-sm text-pretty text-muted-foreground">
           {t.play.subtitle}
         </p>
 

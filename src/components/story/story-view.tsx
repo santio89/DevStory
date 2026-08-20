@@ -168,11 +168,11 @@ export function StoryView({
             <div>
               <div className="flex items-center gap-2">
                 <Share2 className="size-4 text-bauhaus-yellow" />
-                <h4 className="font-heading text-lg font-black tracking-normal uppercase">
+                <h4 className="font-heading text-lg font-black tracking-normal text-balance uppercase">
                   {t.share.title}
                 </h4>
               </div>
-              <p className="mt-1.5 max-w-md text-sm text-white/80">
+              <p className="mt-1.5 max-w-md text-sm text-pretty text-white/80">
                 {t.share.erasLabel(displayStory.eras.length)},{" "}
                 {allLanguages.length > 0
                   ? `${allLanguages.join(" → ")}`
@@ -201,7 +201,7 @@ export function StoryView({
           <div className="mt-6 border-t-2 border-white/30 pt-6">
             <div className="flex items-center gap-2">
               <Mail className="size-4 text-bauhaus-yellow" />
-              <h5 className="font-heading text-sm font-bold tracking-normal uppercase">
+              <h5 className="font-heading text-sm font-bold tracking-normal text-balance uppercase">
                 {t.share.emailTitle}
               </h5>
             </div>

@@ -64,7 +64,7 @@ export function StoryContent({
             ))}
           </h3>
 
-          <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-pretty text-muted-foreground sm:text-lg">
             {story.summary}
           </p>
         </div>
@@ -84,7 +84,7 @@ export function StoryContent({
           <p className="font-mono text-xs font-bold tracking-[0.25em] uppercase">
             {t.story.closingLabel}
           </p>
-          <p className="mt-3 font-heading text-lg leading-relaxed font-bold sm:text-xl">
+          <p className="mt-3 font-heading text-lg leading-relaxed font-bold text-balance sm:text-xl">
             {story.closing}
           </p>
         </motion.div>

@@ -149,7 +149,7 @@ export function StoryGenerator() {
           <p className="font-mono text-xs font-bold tracking-[0.2em] text-muted-foreground uppercase">
             {t.generator.phase}
           </p>
-          <h2 className="mt-1 font-heading text-2xl font-black tracking-normal uppercase">
+          <h2 className="mt-1 font-heading text-2xl font-black tracking-normal text-balance uppercase">
             {t.generator.title}
           </h2>
         </div>

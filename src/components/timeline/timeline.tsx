@@ -86,10 +86,10 @@ function TimelineItem({
               {era.year}
             </span>
           </div>
-          <h4 className="mt-3 font-heading text-xl font-bold tracking-normal uppercase">
+          <h4 className="mt-3 font-heading text-xl font-bold tracking-normal text-balance uppercase">
             {era.name}
           </h4>
-          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+          <p className="mt-2 text-sm leading-relaxed text-pretty text-muted-foreground">
             {era.description}
           </p>
           {era.keyLanguages.length > 0 && (
@@ -111,20 +111,22 @@ function TimelineItem({
           <button
             type="button"
             onClick={() => void handleDeepDive()}
-            className="mt-5 inline-flex items-center gap-2 font-mono text-xs font-bold tracking-[0.2em] text-bauhaus-deep uppercase transition-colors hover:text-foreground"
+            className="mt-5 inline-flex items-center justify-start gap-2 text-left font-mono text-xs font-bold tracking-[0.2em] text-bauhaus-deep uppercase transition-colors hover:text-foreground"
           >
             {diving ? (
-              <Loader2 className="size-3.5 animate-spin" />
+              <Loader2 className="size-3.5 shrink-0 animate-spin" />
             ) : dive ? (
-              <BookOpen className="size-3.5 text-muted-foreground" />
+              <BookOpen className="size-3.5 shrink-0 text-muted-foreground" />
             ) : (
-              <BookOpen className="size-3.5" />
+              <BookOpen className="size-3.5 shrink-0" />
             )}
-            {diving
-              ? t.play.deepDiveLoading
-              : dive
-                ? t.play.deepDive
-                : t.play.deepDive}
+            <span className="text-balance">
+              {diving
+                ? t.play.deepDiveLoading
+                : dive
+                  ? t.play.deepDive
+                  : t.play.deepDive}
+            </span>
           </button>
 
           {diveError && (
@@ -140,7 +142,7 @@ function TimelineItem({
               transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
               className="mt-5 rounded-none border-2 border-foreground bg-background p-4 shadow-hard-sm"
             >
-              <p className="text-sm leading-relaxed whitespace-pre-line">
+              <p className="text-sm leading-relaxed whitespace-pre-line text-pretty">
                 {dive.narrative}
               </p>
               <p className="mt-4 font-mono text-[10px] font-bold tracking-[0.25em] text-muted-foreground uppercase">

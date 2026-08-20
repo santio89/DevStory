@@ -153,7 +153,7 @@ export function ShareMenu({
               </button>
             ))}
           </div>
-          <p className="mt-1 px-2 pt-2 font-mono text-[10px] leading-relaxed text-muted-foreground uppercase">
+          <p className="mt-1 px-2 pt-2 font-mono text-[10px] leading-relaxed text-pretty text-muted-foreground uppercase">
             {t.share.embedTitle}: {t.share.embedHint}
           </p>
         </div>

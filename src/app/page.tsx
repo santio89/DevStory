@@ -200,7 +200,7 @@ export default async function Home() {
 
         <section className="mx-auto w-full max-w-5xl px-4 pb-24 sm:px-6">
           <FadeIn>
-            <h2 className="text-center font-heading text-2xl font-black tracking-normal uppercase sm:text-3xl">
+            <h2 className="text-center font-heading text-2xl font-black tracking-normal text-balance uppercase sm:text-3xl">
               {t.features.title}
               <span className="ml-2 inline-block size-3 rounded-full border-2 border-foreground bg-bauhaus-yellow" />
             </h2>

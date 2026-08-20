@@ -166,11 +166,11 @@ export function StoryMoment({
           <div>
             <div className="flex items-center gap-2">
               <Clock3 className="size-4 text-bauhaus-deep" />
-              <h4 className="font-heading text-lg font-black tracking-normal uppercase">
+              <h4 className="font-heading text-lg font-black tracking-normal text-balance uppercase">
                 {t.moment.title}
               </h4>
             </div>
-            <p className="mt-1 max-w-md text-sm text-muted-foreground">
+            <p className="mt-1 max-w-md text-sm text-pretty text-muted-foreground">
               {t.moment.subtitle}
             </p>
           </div>
@@ -209,10 +209,10 @@ export function StoryMoment({
                 {t.moment.of(moment.dateLabel ?? moment.year)}
               </span>
             </div>
-            <p className="mt-3 font-heading text-lg leading-snug font-black tracking-normal uppercase">
+            <p className="mt-3 font-heading text-lg leading-snug font-black tracking-normal text-balance uppercase">
               {moment.title}
             </p>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            <p className="mt-2 text-sm leading-relaxed text-pretty text-muted-foreground">
               {moment.text}
             </p>
           </motion.div>

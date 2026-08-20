@@ -4,34 +4,26 @@ import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useLocale } from "@/components/locale/locale-provider";
+import { cn } from "@/lib/utils";
 import { REMIX_VOICES, type RemixVoice } from "@/lib/devstory/ai";
 import type { DevStory } from "@/lib/devstory/story";
-import type { StoryDataSnapshot } from "@/lib/devstory/minify";
 import {
-  BookOpen,
-  Clock3,
   Image as ImageIcon,
   Loader2,
   Sparkles,
   Wand2,
 } from "lucide-react";
 
-type Moment = { title: string; text: string; year: string };
-
 export function StoryPlay({
-  story,
-  data,
   storyId,
   remix,
   onRemix,
 }: {
-  story: DevStory;
-  data: StoryDataSnapshot | null;
   storyId: string | null;
   remix: { voice: RemixVoice; story: DevStory } | null;
   onRemix: (voice: RemixVoice) => Promise<void>;
 }) {
-  const { t, locale } = useLocale();
+  const { t } = useLocale();
   const trackRef = useRef<HTMLDivElement>(null);
   const dragState = useRef({
     pointerId: 0,
@@ -41,11 +33,9 @@ export function StoryPlay({
     moved: false,
   });
   const suppressClick = useRef(false);
+  const [dragging, setDragging] = useState(false);
   const [remixing, setRemixing] = useState<RemixVoice | null>(null);
   const [remixError, setRemixError] = useState<string | null>(null);
-  const [moment, setMoment] = useState<Moment | null>(null);
-  const [momentLoading, setMomentLoading] = useState(false);
-  const [momentError, setMomentError] = useState<string | null>(null);
 
   function onDragStart(e: React.PointerEvent<HTMLDivElement>) {
     if (e.pointerType !== "mouse") return;
@@ -58,6 +48,7 @@ export function StoryPlay({
       dragging: true,
       moved: false,
     };
+    setDragging(true);
     el.setPointerCapture(e.pointerId);
   }
 
@@ -75,6 +66,7 @@ export function StoryPlay({
     const el = trackRef.current;
     if (!s.dragging || !el) return;
     s.dragging = false;
+    setDragging(false);
     try {
       el.releasePointerCapture(e.pointerId);
     } catch {}
@@ -104,31 +96,7 @@ export function StoryPlay({
     }
   }
 
-  async function handleMoment() {
-    setMomentLoading(true);
-    setMomentError(null);
-    setMoment(null);
-    try {
-      const res = await fetch("/api/story/moment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ story, data, locale }),
-      });
-      const json = (await res.json()) as { error?: string } & Moment;
-      if (!res.ok) {
-        throw new Error(json.error ?? t.play.todayFailed);
-      }
-      setMoment({ title: json.title, text: json.text, year: json.year });
-    } catch (e) {
-      setMomentError(
-        e instanceof Error && e.message.includes("503") ? t.play.noAI : t.play.todayFailed,
-      );
-    } finally {
-      setMomentLoading(false);
-    }
-  }
-
-  function handlePoster() {
+  async function handlePoster() {
     if (!storyId) return;
     window.open(`/story/${storyId}/opengraph-image`, "_blank", "noopener");
   }
@@ -166,7 +134,10 @@ export function StoryPlay({
               onPointerMove={onDragMove}
               onPointerUp={onDragEnd}
               onPointerCancel={onDragEnd}
-              className="no-scrollbar flex-1 cursor-grab touch-pan-y overflow-x-auto select-none snap-x snap-mandatory active:cursor-grabbing"
+              className={cn(
+                "no-scrollbar flex-1 cursor-grab touch-pan-y overflow-x-auto select-none active:cursor-grabbing",
+                dragging ? "snap-none" : "snap-x snap-mandatory",
+              )}
             >
               <div className="flex w-max gap-2.5 snap-x snap-mandatory">
                 {REMIX_VOICES.map((voice) => (
@@ -211,20 +182,6 @@ export function StoryPlay({
             <Button
               variant="outline"
               size="sm"
-              disabled={momentLoading}
-              onClick={() => void handleMoment()}
-              className="border-dashed border-foreground/60 hover:border-foreground"
-            >
-              {momentLoading ? (
-                <Loader2 className="size-3.5 animate-spin" />
-              ) : (
-                <Clock3 className="size-3.5" />
-              )}
-              {momentLoading ? t.play.todayLoading : t.play.today}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
               disabled={!storyId}
               onClick={handlePoster}
               title={t.play.posterHint}
@@ -240,33 +197,6 @@ export function StoryPlay({
             </p>
           )}
         </div>
-
-        {moment && (
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-6 rounded-none border-2 border-foreground bg-background p-5 shadow-hard-sm"
-          >
-            <div className="flex items-center gap-2">
-              <BookOpen className="size-3.5 text-bauhaus-deep" />
-              <span className="bg-bauhaus-yellow px-2 py-0.5 font-mono text-xs font-bold text-bauhaus-ink uppercase">
-                {t.play.todayOf(moment.year)}
-              </span>
-            </div>
-            <p className="mt-3 font-heading text-lg leading-snug font-black tracking-normal uppercase">
-              {moment.title}
-            </p>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              {moment.text}
-            </p>
-          </motion.div>
-        )}
-        {momentError && (
-          <p className="mt-2 font-mono text-xs font-bold text-destructive uppercase">
-            {momentError}
-          </p>
-        )}
       </div>
     </motion.div>
   );

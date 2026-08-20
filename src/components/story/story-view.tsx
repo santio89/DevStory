@@ -4,6 +4,7 @@ import { useRef, useState, type FormEvent } from "react";
 import { motion } from "framer-motion";
 import { StoryContent } from "@/components/story/story-content";
 import { StoryPlay } from "@/components/story/story-play";
+import { StoryMoment } from "@/components/story/story-moment";
 import { StoryChat } from "@/components/story/story-chat";
 import { ShareMenu } from "@/components/story/share-menu";
 import { Button } from "@/components/ui/button";
@@ -143,9 +144,9 @@ export function StoryView({
         <StoryContent story={displayStory} mode={mode} data={data} />
       </div>
 
+      <StoryMoment story={displayStory} data={data} />
+
       <StoryPlay
-        story={displayStory}
-        data={data}
         storyId={storyId}
         remix={remix}
         onRemix={(voice) => handleRemix(voice)}

@@ -131,7 +131,7 @@ export default async function Home() {
               {"{ }"}
             </FloatingSymbol>
             <FloatingSymbol
-              className="pointer-events-auto absolute top-[330px] left-[29%] rounded-none border-2 border-foreground bg-bauhaus-sky/25 px-2.5 py-1 font-mono text-lg font-black text-bauhaus-deep shadow-hard-sm"
+              className="pointer-events-auto absolute top-[330px] left-[29%] rounded-none border-2 border-foreground bg-bauhaus-sky px-2.5 py-1 font-mono text-lg font-black text-bauhaus-deep shadow-hard-sm"
               drift={1}
               idleRotate={6}
             >

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMotionValueEvent, useScroll } from "framer-motion";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
@@ -11,10 +11,16 @@ import { ThemeToggle } from "@/components/theme/theme-toggle";
 export function SiteHeader({ children }: { children?: ReactNode }) {
   const { scrollY } = useScroll();
   const [scrolled, setScrolled] = useState(false);
+  const rafRef = useRef<number | null>(null);
 
   useMotionValueEvent(scrollY, "change", (value) => {
-    if (value > 48) setScrolled(true);
-    else if (value < 12) setScrolled(false);
+    const next = value > 48 ? true : value < 12 ? false : null;
+    if (next === null || next === scrolled) return;
+    if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = null;
+      setScrolled(next);
+    });
   });
 
   return (

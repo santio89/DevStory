@@ -3,7 +3,7 @@
 import { useRef, useState, type FormEvent } from "react";
 import { motion } from "framer-motion";
 import { StoryContent } from "@/components/story/story-content";
-import { StoryPlay } from "@/components/story/story-play";
+import { StoryRetell } from "@/components/story/story-retell";
 import { StoryMoment } from "@/components/story/story-moment";
 import { StoryChat } from "@/components/story/story-chat";
 import { ShareMenu } from "@/components/story/share-menu";
@@ -146,11 +146,7 @@ export function StoryView({
 
       <StoryMoment story={displayStory} data={data} />
 
-      <StoryPlay
-        storyId={storyId}
-        remix={remix}
-        onRemix={(voice) => handleRemix(voice)}
-      />
+      <StoryRetell remix={remix} onRemix={(voice) => handleRemix(voice)} />
 
       <motion.div
         initial={{ opacity: 0, y: 24 }}

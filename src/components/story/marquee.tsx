@@ -4,7 +4,7 @@ import { useLocale } from "@/components/locale/locale-provider";
 
 export function Marquee() {
   const { t } = useLocale();
-  const row = t.marquee.join("  ·  ");
+  const row = `${t.marquee.join("  ·  ")}  ·  `;
 
   return (
     <div className="relative overflow-hidden border-y-2 border-foreground bg-bauhaus-yellow py-3 [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">

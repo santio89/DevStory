@@ -47,20 +47,11 @@ export async function generateMetadata({
       url,
       siteName,
       locale: "en_US",
-      images: [
-        {
-          url: `${url}/opengraph-image`,
-          width: 1200,
-          height: 630,
-          alt: `${story.title} — ${siteName}`,
-        },
-      ],
     },
     twitter: {
-      card: "summary_large_image",
+      card: "summary",
       title: story.title,
       description: story.summary,
-      images: [`${url}/opengraph-image`],
     },
   };
 }

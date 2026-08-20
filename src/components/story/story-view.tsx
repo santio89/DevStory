@@ -3,15 +3,20 @@
 import { useState, type FormEvent } from "react";
 import { motion } from "framer-motion";
 import { StoryContent } from "@/components/story/story-content";
+import { StoryPlay } from "@/components/story/story-play";
+import { StoryChat } from "@/components/story/story-chat";
+import { ShareMenu } from "@/components/story/share-menu";
 import { Button } from "@/components/ui/button";
 import { useLocale } from "@/components/locale/locale-provider";
 import type { DevStory } from "@/lib/devstory/story";
+import type { StoryDataSnapshot } from "@/lib/devstory/minify";
+import type { RemixVoice } from "@/lib/devstory/ai";
 import {
   Check,
   Copy,
-  Link2,
   Loader2,
   Mail,
+  RotateCcw,
   Send,
   Share2,
 } from "lucide-react";
@@ -38,23 +43,32 @@ export function StoryView({
   story,
   mode,
   storyId,
+  data = null,
 }: {
   story: DevStory;
   mode: "ai" | "mock";
   storyId: string | null;
+  data?: StoryDataSnapshot | null;
 }) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const [copied, setCopied] = useState(false);
-  const [linkCopied, setLinkCopied] = useState(false);
   const [email, setEmail] = useState("");
   const [emailStatus, setEmailStatus] = useState<
     "idle" | "loading" | "success" | "error"
   >("idle");
   const [emailError, setEmailError] = useState<string | null>(null);
+  const [remix, setRemix] = useState<{ voice: RemixVoice; story: DevStory } | null>(
+    null,
+  );
+
+  const displayStory = remix?.story ?? story;
+  const shareUrl = storyId
+    ? new URL(`/story/${storyId}`, window.location.origin).href
+    : null;
 
   async function copyStory() {
     try {
-      await navigator.clipboard.writeText(storyToText(story));
+      await navigator.clipboard.writeText(storyToText(displayStory));
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -62,16 +76,17 @@ export function StoryView({
     }
   }
 
-  async function copyLink() {
-    if (!storyId) return;
-    const url = new URL(`/story/${storyId}`, window.location.origin).href;
-    try {
-      await navigator.clipboard.writeText(url);
-      setLinkCopied(true);
-      setTimeout(() => setLinkCopied(false), 2000);
-    } catch {
-      setLinkCopied(false);
+  async function handleRemix(voice: RemixVoice) {
+    const res = await fetch("/api/story/remix", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ story, voice, locale }),
+    });
+    if (!res.ok) {
+      throw new Error(String(res.status));
     }
+    const json = (await res.json()) as { story: DevStory };
+    setRemix({ voice, story: json.story });
   }
 
   async function handleEmail(event: FormEvent<HTMLFormElement>) {
@@ -99,12 +114,36 @@ export function StoryView({
   }
 
   const allLanguages = [
-    ...new Set(story.eras.flatMap((era) => era.keyLanguages)),
+    ...new Set(displayStory.eras.flatMap((era) => era.keyLanguages)),
   ];
 
   return (
     <div className="space-y-10">
-      <StoryContent story={story} mode={mode} />
+      {remix && (
+        <div className="flex items-center justify-between gap-3 rounded-none border-2 border-foreground bg-bauhaus-cyan/15 px-4 py-3 shadow-hard-sm">
+          <p className="font-mono text-xs font-bold tracking-[0.2em] text-foreground uppercase">
+            {t.play.remixedAs(t.play.voice[remix.voice])}
+          </p>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setRemix(null)}
+          >
+            <RotateCcw className="size-3.5" />
+            {t.play.restore}
+          </Button>
+        </div>
+      )}
+
+      <StoryContent story={displayStory} mode={mode} data={data} />
+
+      <StoryPlay
+        story={displayStory}
+        data={data}
+        storyId={storyId}
+        remix={remix}
+        onRemix={(voice) => handleRemix(voice)}
+      />
 
       <motion.div
         initial={{ opacity: 0, y: 24 }}
@@ -124,7 +163,7 @@ export function StoryView({
                 </h4>
               </div>
               <p className="mt-1.5 max-w-md text-sm text-white/80">
-                {t.share.erasLabel(story.eras.length)},{" "}
+                {t.share.erasLabel(displayStory.eras.length)},{" "}
                 {allLanguages.length > 0
                   ? `${allLanguages.join(" → ")}`
                   : t.share.noLanguages}
@@ -139,15 +178,13 @@ export function StoryView({
                 {copied ? <Check /> : <Copy />}
                 {copied ? t.share.copied : t.share.copyText}
               </Button>
-              <Button
-                variant="outline"
-                onClick={() => void copyLink()}
-                disabled={!storyId}
-                className="border-white bg-transparent text-white shadow-none hover:bg-white/10"
-              >
-                {linkCopied ? <Check /> : <Link2 />}
-                {linkCopied ? t.share.linkCopied : t.share.copyLink}
-              </Button>
+              {shareUrl && (
+                <ShareMenu
+                  url={shareUrl}
+                  text={`${displayStory.title} — ${t.common.shareTagline}`}
+                  buttonClassName="border-white bg-transparent text-white shadow-none hover:bg-white/10"
+                />
+              )}
             </div>
           </div>
 
@@ -214,6 +251,8 @@ export function StoryView({
           </div>
         </div>
       </motion.div>
+
+      <StoryChat story={displayStory} data={data} />
     </div>
   );
 }

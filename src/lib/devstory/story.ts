@@ -49,6 +49,12 @@ export const storySchema = z.object({
     .describe(
       "1-2 warm, optimistic closing sentences that look back on the whole journey and leave the developer feeling proud — the road traveled, and the road still ahead. Personal, never generic.",
     ),
+  archetype: z
+    .string()
+    .nullable()
+    .describe(
+      "A short, evocative archetype for the kind of developer this journey made, e.g. 'The Midnight Architect', 'The Polyglot Explorer', 'The Systems Builder', 'The Reluctant Maintainer'. 2-4 words, distinctive, never generic. Null if the data is too sparse to judge.",
+    ),
 });
 
 export type DevStory = z.infer<typeof storySchema>;

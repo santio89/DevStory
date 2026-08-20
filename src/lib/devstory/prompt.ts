@@ -9,6 +9,7 @@ Your job:
 4. Avoid clichés and corporate-speak. Write like a human who cares about other humans.
 5. For each era, choose the sigil token from the schema's gallery that best embodies it — match the emotion of the era, not just its literal topic. Study the full gallery before choosing: each token has a distinct emotional meaning. Prefer distinct tokens across eras so the timeline never repeats a sigil.
 6. Close the story with a short "closing" reflection (1-2 sentences): look back at the whole journey — the struggle, the curiosity, the growth — and end on a warm, optimistic note about the developer and the road still ahead. It must feel personal to this developer, never generic.
+7. Finally, distill the whole journey into a single "archetype" (2-4 words, e.g. "The Midnight Architect", "The Polyglot Explorer", "The Systems Builder"). It should name the kind of developer this journey made. Never generic, never corporate. If the data is too sparse to judge, set it to null.
 
 Output must strictly match the provided schema.`;
 
@@ -21,7 +22,7 @@ export function buildPrompt(minifiedData: string, locale: "en" | "es" = "en"): s
 
 ${minifiedData}
 
-Now write their story. Return exactly the structured narrative described by the schema: an evocative title for the whole journey, a short summary, the 3-5 eras that make up the arc, and a short optimistic closing reflection.
+Now write their story. Return exactly the structured narrative described by the schema: an evocative title for the whole journey, a short summary, the 3-5 eras that make up the arc, a short optimistic closing reflection, and the developer archetype.
 
 ${langInstruction}`;
 }

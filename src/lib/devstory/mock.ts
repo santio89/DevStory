@@ -107,5 +107,7 @@ export function generateMockStory(data: DevStoryData): DevStory {
 
   const closing = `Every repo, every late-night commit, every language left behind — it all adds up to one thing: ${data.username} keeps showing up. The next chapter starts with the next commit.`;
 
-  return { title, summary, eras, closing };
+  const archetype = "The Persistent Builder";
+
+  return { title, summary, eras, closing, archetype };
 }

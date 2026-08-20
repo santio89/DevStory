@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { buildDevStoryData } from "@/lib/devstory/aggregate";
 import { generateStory } from "@/lib/devstory/generate";
+import { summarizeStoryData } from "@/lib/devstory/minify";
 import { getDb, hasDatabase } from "@/lib/db";
 import { stories } from "@/lib/db/schema";
 import { isLocale, type Locale } from "@/lib/i18n/dictionary";
@@ -51,7 +52,7 @@ export async function POST(request: Request) {
       storyId = row.id;
     }
 
-    return NextResponse.json({ story, mode, storyId });
+    return NextResponse.json({ story, mode, storyId, data: summarizeStoryData(data) });
   } catch (error) {
     console.error("Story generation failed:", error);
     return NextResponse.json(

@@ -7,14 +7,17 @@ import { useLocale } from "@/components/locale/locale-provider";
 import { cn } from "@/lib/utils";
 import type { DevStory } from "@/lib/devstory/story";
 import type { TokenId } from "@/lib/devstory/tokens";
-import { Wand2 } from "lucide-react";
+import type { StoryDataSnapshot } from "@/lib/devstory/minify";
+import { Award, Wand2 } from "lucide-react";
 
 export function StoryContent({
   story,
   mode,
+  data = null,
 }: {
   story: DevStory;
   mode: "ai" | "mock";
+  data?: StoryDataSnapshot | null;
 }) {
   const { t } = useLocale();
   const lastEra = story.eras[story.eras.length - 1] ?? story.eras[0];
@@ -37,10 +40,18 @@ export function StoryContent({
         </div>
 
         <div className="relative">
-          <span className="inline-flex w-fit items-center gap-1.5 rounded-none border-2 border-foreground bg-background px-2.5 py-1 font-mono text-xs font-bold tracking-[0.2em] text-foreground uppercase shadow-hard-sm">
-            <Wand2 className="size-3 text-bauhaus-deep" />
-            {mode === "ai" ? t.story.crafted : t.story.previewSample}
-          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex w-fit items-center gap-1.5 rounded-none border-2 border-foreground bg-background px-2.5 py-1 font-mono text-xs font-bold tracking-[0.2em] text-foreground uppercase shadow-hard-sm">
+              <Wand2 className="size-3 text-bauhaus-deep" />
+              {mode === "ai" ? t.story.crafted : t.story.previewSample}
+            </span>
+            {story.archetype && (
+              <span className="inline-flex w-fit items-center gap-1.5 rounded-none border-2 border-foreground bg-bauhaus-pink/20 px-2.5 py-1 font-mono text-xs font-bold tracking-[0.2em] text-foreground uppercase shadow-hard-sm">
+                <Award className="size-3 text-bauhaus-deep" />
+                {t.story.archetype} · {story.archetype}
+              </span>
+            )}
+          </div>
 
           <h3 className="mt-6 max-w-3xl font-heading text-4xl leading-[1.1] font-black tracking-normal text-balance uppercase sm:text-5xl">
             {words.map((word, i) => (
@@ -59,7 +70,7 @@ export function StoryContent({
         </div>
       </motion.div>
 
-      <Timeline eras={story.eras} />
+      <Timeline eras={story.eras} data={data} />
 
       {story.closing ? (
         <motion.div

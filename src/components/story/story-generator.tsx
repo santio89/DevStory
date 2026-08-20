@@ -8,6 +8,7 @@ import { StoryView } from "@/components/story/story-view";
 import { StoryTranslating } from "@/components/story/story-translating";
 import { useLocale } from "@/components/locale/locale-provider";
 import type { DevStory } from "@/lib/devstory/story";
+import type { StoryDataSnapshot } from "@/lib/devstory/minify";
 import type { Locale } from "@/lib/i18n/dictionary";
 import { Sparkles, Loader2, AlertTriangle } from "lucide-react";
 
@@ -19,6 +20,7 @@ type PersistedStory = {
   storyId: string | null;
   authoredLocale: Locale;
   translations: Partial<Record<Locale, DevStory>>;
+  data: StoryDataSnapshot | null;
 };
 
 export function StoryGenerator() {
@@ -30,6 +32,7 @@ export function StoryGenerator() {
   >({});
   const [mode, setMode] = useState<"ai" | "mock" | null>(null);
   const [storyId, setStoryId] = useState<string | null>(null);
+  const [data, setData] = useState<StoryDataSnapshot | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -47,6 +50,7 @@ export function StoryGenerator() {
         setStoryId(parsed.storyId ?? null);
         setAuthoredLocale(parsed.authoredLocale ?? "en");
         setTranslations(parsed.translations ?? {});
+        setData(parsed.data ?? null);
       } catch {}
     });
     return () => {
@@ -65,10 +69,11 @@ export function StoryGenerator() {
           storyId,
           authoredLocale,
           translations,
+          data,
         } satisfies PersistedStory),
       );
     } catch {}
-  }, [story, mode, storyId, authoredLocale, translations]);
+  }, [story, mode, storyId, authoredLocale, translations, data]);
 
   async function handleGenerate() {
     setLoading(true);
@@ -91,12 +96,14 @@ export function StoryGenerator() {
         story: DevStory;
         mode: "ai" | "mock";
         storyId: string | null;
+        data: StoryDataSnapshot | null;
       };
       setStory(json.story);
       setMode(json.mode);
       setStoryId(json.storyId);
       setAuthoredLocale(json.mode === "ai" ? locale : "en");
       setTranslations({});
+      setData(json.data ?? null);
     } catch (e) {
       setError(e instanceof Error ? e.message : t.generator.failed);
     } finally {
@@ -187,6 +194,7 @@ export function StoryGenerator() {
               story={activeStory ?? story}
               mode={mode ?? "mock"}
               storyId={storyId}
+              data={data}
             />
           )}
         </FadeIn>

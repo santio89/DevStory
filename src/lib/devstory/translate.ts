@@ -13,6 +13,7 @@ const translatedStorySchema = z.object({
   title: z.string(),
   summary: z.string(),
   closing: z.string().nullable(),
+  archetype: z.string().nullable(),
   eras: z.array(translatedEraSchema).min(3).max(5),
 });
 
@@ -45,7 +46,7 @@ export async function translateStory(
     .map((era, i) => `Era ${i + 1} — year: ${era.year}, name: ${era.name}, description: ${era.description}`)
     .join("\n");
 
-  const prompt = `Title: ${story.title}\n\nSummary: ${story.summary}\n${story.closing ? `Closing: ${story.closing}\n` : ""}Eras:\n${eras}\n\nTranslate the whole story into ${targetLocale === "es" ? "Spanish" : "English"}.`;
+  const prompt = `Title: ${story.title}\n\nSummary: ${story.summary}\n${story.closing ? `Closing: ${story.closing}\n` : ""}${story.archetype ? `Archetype: ${story.archetype}\n` : ""}Eras:\n${eras}\n\nTranslate the whole story into ${targetLocale === "es" ? "Spanish" : "English"}.`;
 
   try {
     const { output } = await generateText({
@@ -65,6 +66,7 @@ export async function translateStory(
       title: output.title,
       summary: output.summary,
       closing: output.closing ?? story.closing,
+      archetype: output.archetype ?? story.archetype,
       eras: story.eras.map((era, i) => ({
         ...era,
         name: output.eras[i]?.name ?? era.name,
@@ -80,9 +82,14 @@ export async function translateStory(
 export function validateStory(value: unknown): DevStory | null {
   const result = storySchema.safeParse(value);
   if (result.success) return result.data;
-  if (typeof value === "object" && value !== null && !("closing" in value)) {
-    const retry = storySchema.safeParse({ ...value, closing: null });
-    if (retry.success) return retry.data;
+  if (typeof value === "object" && value !== null) {
+    const patch: Record<string, unknown> = {};
+    if (!("closing" in value)) patch.closing = null;
+    if (!("archetype" in value)) patch.archetype = null;
+    if (Object.keys(patch).length > 0) {
+      const retry = storySchema.safeParse({ ...value, ...patch });
+      if (retry.success) return retry.data;
+    }
   }
   return null;
 }

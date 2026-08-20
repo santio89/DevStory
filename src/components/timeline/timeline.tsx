@@ -1,16 +1,59 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { langColor } from "@/components/story/languages";
 import { resolveToken, Sigil } from "@/components/story/sigil";
 import { useLocale } from "@/components/locale/locale-provider";
 import { cn } from "@/lib/utils";
 import type { Era } from "@/lib/devstory/story";
+import type { StoryDataSnapshot } from "@/lib/devstory/minify";
+import { BookOpen, Loader2 } from "lucide-react";
 
-function TimelineItem({ era, index }: { era: Era; index: number }) {
-  const { t } = useLocale();
+type Dive = { narrative: string; highlights: string[] };
+
+function TimelineItem({
+  era,
+  index,
+  data,
+}: {
+  era: Era;
+  index: number;
+  data: StoryDataSnapshot | null;
+}) {
+  const { t, locale } = useLocale();
   const isLeft = index % 2 === 0;
   const token = resolveToken(era);
+  const [diving, setDiving] = useState(false);
+  const [dive, setDive] = useState<Dive | null>(null);
+  const [diveError, setDiveError] = useState<string | null>(null);
+
+  async function handleDeepDive() {
+    if (dive) {
+      setDive(null);
+      return;
+    }
+    setDiving(true);
+    setDiveError(null);
+    try {
+      const res = await fetch("/api/story/deepdive", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ era, data, locale }),
+      });
+      const json = (await res.json()) as { error?: string } & Dive;
+      if (!res.ok) {
+        throw new Error(json.error ?? t.play.deepDiveFailed);
+      }
+      setDive({ narrative: json.narrative, highlights: json.highlights });
+    } catch (e) {
+      setDiveError(
+        e instanceof Error && e.message.includes("503") ? t.play.noAI : t.play.deepDiveFailed,
+      );
+    } finally {
+      setDiving(false);
+    }
+  }
 
   return (
     <motion.div
@@ -65,13 +108,70 @@ function TimelineItem({ era, index }: { era: Era; index: number }) {
               ))}
             </div>
           )}
+          <button
+            type="button"
+            onClick={() => void handleDeepDive()}
+            className="mt-5 inline-flex items-center gap-2 font-mono text-xs font-bold tracking-[0.2em] text-bauhaus-deep uppercase transition-colors hover:text-foreground"
+          >
+            {diving ? (
+              <Loader2 className="size-3.5 animate-spin" />
+            ) : dive ? (
+              <BookOpen className="size-3.5 text-muted-foreground" />
+            ) : (
+              <BookOpen className="size-3.5" />
+            )}
+            {diving
+              ? t.play.deepDiveLoading
+              : dive
+                ? t.play.deepDive
+                : t.play.deepDive}
+          </button>
+
+          {diveError && (
+            <p className="mt-2 font-mono text-xs font-bold text-destructive uppercase">
+              {diveError}
+            </p>
+          )}
+
+          {dive && (
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              className="mt-5 rounded-none border-2 border-foreground bg-background p-4 shadow-hard-sm"
+            >
+              <p className="text-sm leading-relaxed whitespace-pre-line">
+                {dive.narrative}
+              </p>
+              <p className="mt-4 font-mono text-[10px] font-bold tracking-[0.25em] text-muted-foreground uppercase">
+                {t.play.deepDiveHighlights}
+              </p>
+              <ul className="mt-2 space-y-1.5">
+                {dive.highlights.map((h, i) => (
+                  <li
+                    key={i}
+                    className="flex items-start gap-2 font-mono text-xs font-bold text-bauhaus-deep"
+                  >
+                    <span className="mt-1 inline-block size-1.5 shrink-0 rotate-45 bg-bauhaus-yellow" />
+                    {h}
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          )}
         </article>
       </div>
     </motion.div>
   );
 }
 
-export function Timeline({ eras }: { eras: Era[] }) {
+export function Timeline({
+  eras,
+  data,
+}: {
+  eras: Era[];
+  data?: StoryDataSnapshot | null;
+}) {
   return (
     <div className="relative">
       <div className="absolute top-0 bottom-0 left-4 h-full w-[3px] -translate-x-1/2 bg-foreground sm:left-1/2" />
@@ -81,6 +181,7 @@ export function Timeline({ eras }: { eras: Era[] }) {
             key={`${era.year}-${era.name}`}
             era={era}
             index={index}
+            data={data ?? null}
           />
         ))}
       </div>

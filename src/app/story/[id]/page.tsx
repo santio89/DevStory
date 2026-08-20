@@ -1,24 +1,16 @@
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 import type { Metadata } from "next";
-import { eq } from "drizzle-orm";
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/site-header";
 import { StoryContent } from "@/components/story/story-content";
+import { ShareMenu } from "@/components/story/share-menu";
 import { FloatingSymbol } from "@/components/motion/floating-symbol";
-import { getDb, hasDatabase } from "@/lib/db";
-import { stories } from "@/lib/db/schema";
+import { getStory } from "@/lib/stories";
 import { dictionary, isLocale } from "@/lib/i18n/dictionary";
 import type { Messages } from "@/lib/i18n/dictionary";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-
-async function getStory(id: string) {
-  if (!hasDatabase()) return null;
-  const db = getDb();
-  const [row] = await db.select().from(stories).where(eq(stories.id, id));
-  return row ?? null;
-}
 
 async function getLocale(): Promise<Messages> {
   const cookieStore = await cookies();
@@ -119,6 +111,13 @@ export default async function StoryPage({
                 <ArrowRight />
               </Link>
             </Button>
+            <div className="mt-6 flex justify-center">
+              <ShareMenu
+                url={`${process.env.NEXT_PUBLIC_APP_URL ?? ""}/story/${id}`}
+                text={`${story.title} — ${t.common.shareTagline}`}
+                buttonClassName="border-white bg-transparent text-white shadow-none hover:bg-white/10"
+              />
+            </div>
           </div>
         </section>
       </main>

@@ -12,6 +12,7 @@ const translatedEraSchema = z.object({
 const translatedStorySchema = z.object({
   title: z.string(),
   summary: z.string(),
+  closing: z.string().optional(),
   eras: z.array(translatedEraSchema).min(3).max(5),
 });
 
@@ -43,7 +44,7 @@ export async function translateStory(
     .map((era) => `- ${era.year}: ${era.name}. ${era.description}`)
     .join("\n");
 
-  const prompt = `Title: ${story.title}\n\nSummary: ${story.summary}\n\nEras:\n${eras}\n\nTranslate the whole story into ${targetLocale === "es" ? "Spanish" : "English"}.`;
+  const prompt = `Title: ${story.title}\n\nSummary: ${story.summary}\n${story.closing ? `Closing: ${story.closing}\n` : ""}Eras:\n${eras}\n\nTranslate the whole story into ${targetLocale === "es" ? "Spanish" : "English"}.`;
 
   try {
     const { output } = await generateText({
@@ -62,6 +63,7 @@ export async function translateStory(
     return {
       title: output.title,
       summary: output.summary,
+      closing: output.closing ?? story.closing,
       eras: story.eras.map((era, i) => ({
         ...era,
         name: output.eras[i]?.name ?? era.name,

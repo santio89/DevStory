@@ -124,6 +124,91 @@ function renderToken(token: TokenId, stroke: string) {
           <path d="M32 28 C32 24 33 21 36 18" strokeWidth={1.5} />
         </g>
       );
+    case "dawn":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M32 36 V10" strokeWidth={1.5} />
+          <path d="M21 38 L15 28" strokeWidth={1.5} />
+          <path d="M43 38 L49 28" strokeWidth={1.5} />
+          <path d="M18 46 A14 14 0 0 1 46 46" />
+          <path d="M8 46 H56" />
+          <circle cx="32" cy="46" r="2" fill={ACCENT} stroke="none" />
+        </g>
+      );
+    case "orbit":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <ellipse cx="32" cy="32" rx="24" ry="9" />
+          <ellipse cx="32" cy="32" rx="9" ry="24" />
+          <circle cx="32" cy="32" r="2" fill={ACCENT} stroke="none" />
+          <circle cx="50" cy="32" r="2.5" fill={ACCENT} stroke="none" />
+        </g>
+      );
+    case "signal":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="32" cy="46" r="3" fill={ACCENT} stroke="none" />
+          <path d="M24 38 A12 12 0 0 1 40 38" />
+          <path d="M16 30 A24 24 0 0 1 48 30" />
+          <path d="M8 22 A36 36 0 0 1 56 22" strokeWidth={1.5} />
+        </g>
+      );
+    case "current":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M10 20 H46" />
+          <path d="M42 16 L48 20 L42 24" />
+          <path d="M18 32 H54" />
+          <path d="M50 28 L56 32 L50 36" />
+          <path d="M10 44 H38" />
+          <path d="M34 40 L40 44 L34 48" />
+          <circle cx="10" cy="20" r="2" fill={ACCENT} stroke="none" />
+        </g>
+      );
+    case "forge":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M32 14 L33.5 21 L40 22.5 L33.5 24 L32 31 L30.5 24 L24 22.5 L30.5 21 Z" strokeWidth={1.5} />
+          <path d="M16 30 H48" />
+          <path d="M18 30 L14 44 H50 L46 30" />
+          <path d="M14 44 H50" />
+          <path d="M14 48 H50" strokeWidth={1.5} />
+          <circle cx="48" cy="18" r="2" fill={ACCENT} stroke="none" />
+        </g>
+      );
+    case "gate":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M16 50 V28 A16 16 0 0 1 48 28 V50" />
+          <path d="M16 40 H48" />
+          <path d="M24 32 H44" />
+          <path d="M40 28 L46 32 L40 36" />
+          <circle cx="16" cy="50" r="2" fill={ACCENT} stroke="none" />
+        </g>
+      );
+    case "mirror":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <ellipse cx="32" cy="24" rx="13" ry="15" />
+          <path d="M32 39 V50" />
+          <path d="M24 52 H40" />
+          <path d="M24 19 C24 25 27 28 32 28 C37 28 40 25 40 19" strokeWidth={1.5} strokeDasharray="3 3" />
+          <circle cx="32" cy="24" r="2" fill={ACCENT} stroke="none" />
+        </g>
+      );
+    case "constellation":
+      return (
+        <g stroke={stroke} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M14 18 L32 14 L44 26" />
+          <path d="M44 26 L36 40 L28 48" />
+          <path d="M32 14 L36 40" strokeDasharray="3 3" />
+          <circle cx="14" cy="18" r="2" fill={ACCENT} stroke="none" />
+          <circle cx="32" cy="14" r="2" fill={ACCENT} stroke="none" />
+          <circle cx="44" cy="26" r="2" fill={ACCENT} stroke="none" />
+          <circle cx="36" cy="40" r="2" fill={ACCENT} stroke="none" />
+          <circle cx="28" cy="48" r="2" fill={ACCENT} stroke="none" />
+        </g>
+      );
     default:
       return null;
   }

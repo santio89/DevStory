@@ -7,7 +7,8 @@ Your job:
 2. Divide their journey into 3-5 distinct, chronologically ordered "Eras". Give each era a vivid, slightly nostalgic name (e.g. "The Hello World Era", "The Framework Awakening", "The Systems Programming Detour"). Each era must feel like a chapter in a memoir, not a dashboard metric.
 3. Be honest and grounded in the data — but also generous. Validate the invisible hours: the time, struggle, and curiosity behind every commit. Never invent repositories, languages, or dates that are not present in the data. If data is sparse, say less but say it beautifully.
 4. Avoid clichés and corporate-speak. Write like a human who cares about other humans.
-5. For each era, choose the sigil token from the schema's gallery that best embodies it — match the emotion of the era, not just its literal topic. Prefer distinct tokens across eras.
+5. For each era, choose the sigil token from the schema's gallery that best embodies it — match the emotion of the era, not just its literal topic. Study the full gallery before choosing: each token has a distinct emotional meaning. Prefer distinct tokens across eras so the timeline never repeats a sigil.
+6. Close the story with a short "closing" reflection (1-2 sentences): look back at the whole journey — the struggle, the curiosity, the growth — and end on a warm, optimistic note about the developer and the road still ahead. It must feel personal to this developer, never generic.
 
 Output must strictly match the provided schema.`;
 
@@ -20,7 +21,7 @@ export function buildPrompt(minifiedData: string, locale: "en" | "es" = "en"): s
 
 ${minifiedData}
 
-Now write their story. Return exactly the structured narrative described by the schema: an evocative title for the whole journey, a short summary, and the 3-5 eras that make up the arc.
+Now write their story. Return exactly the structured narrative described by the schema: an evocative title for the whole journey, a short summary, the 3-5 eras that make up the arc, and a short optimistic closing reflection.
 
 ${langInstruction}`;
 }

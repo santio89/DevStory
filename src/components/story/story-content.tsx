@@ -60,6 +60,24 @@ export function StoryContent({
       </motion.div>
 
       <Timeline eras={story.eras} />
+
+      {story.closing ? (
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="relative rounded-none border-2 border-foreground bg-bauhaus-yellow p-6 text-bauhaus-ink shadow-hard sm:p-8"
+        >
+          <span className="pointer-events-none absolute top-4 right-4 size-4 rotate-45 rounded-none bg-bauhaus-deep" />
+          <p className="font-mono text-xs font-bold tracking-[0.25em] uppercase">
+            {t.story.closingLabel}
+          </p>
+          <p className="mt-3 font-heading text-lg leading-relaxed font-bold sm:text-xl">
+            {story.closing}
+          </p>
+        </motion.div>
+      ) : null}
     </div>
   );
 }

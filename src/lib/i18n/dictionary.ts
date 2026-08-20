@@ -17,7 +17,7 @@ const en = {
       "Every late-night debug. Every green build. Every repo you abandoned at 3am. Your Dev Story reads your GitHub history and turns it into a narrative timeline of your growth as a developer.",
     signedInAs: "Signed in as",
     seeData: "See your harvested GitHub data",
-    cta: "Connect GitHub to see your invisible hours",
+    cta: "Connect GitHub to see your journey",
   },
   features: {
     title: "How it works",
@@ -93,6 +93,7 @@ const en = {
     previewSample: "preview sample · add an AI key for the real story",
     era: (n: number) => `era ${String(n).padStart(2, "0")}`,
     translating: "Translating…",
+    closingLabel: "the journey continues",
   },
   sharePage: {
     of: (name: string) => `${name}'s Dev Story`,
@@ -121,7 +122,7 @@ const es: Messages = {
       "Cada debug de madrugada. Cada build en verde. Cada repo que abandonaste a las 3am. Your Dev Story lee tu historial de GitHub y lo convierte en una línea de tiempo narrativa de tu crecimiento como desarrollador.",
     signedInAs: "Conectado como",
     seeData: "Ver tus datos de GitHub",
-    cta: "Conecta GitHub para ver tus horas invisibles",
+    cta: "Conecta GitHub para ver tu viaje",
   },
   features: {
     title: "Cómo funciona",
@@ -197,6 +198,7 @@ const es: Messages = {
     previewSample: "muestra de vista previa · añade una clave de IA para la historia real",
     era: (n: number) => `época ${String(n).padStart(2, "0")}`,
     translating: "Traduciendo…",
+    closingLabel: "el viaje continúa",
   },
   sharePage: {
     of: (name: string) => `La Dev Story de ${name}`,

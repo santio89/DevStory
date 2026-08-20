@@ -11,6 +11,16 @@ import type { DevStory } from "@/lib/devstory/story";
 import type { Locale } from "@/lib/i18n/dictionary";
 import { Sparkles, Loader2, AlertTriangle } from "lucide-react";
 
+const STORAGE_KEY = "devstory-story";
+
+type PersistedStory = {
+  story: DevStory;
+  mode: "ai" | "mock";
+  storyId: string | null;
+  authoredLocale: Locale;
+  translations: Partial<Record<Locale, DevStory>>;
+};
+
 export function StoryGenerator() {
   const { t, locale } = useLocale();
   const [story, setStory] = useState<DevStory | null>(null);
@@ -22,6 +32,43 @@ export function StoryGenerator() {
   const [storyId, setStoryId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    queueMicrotask(() => {
+      if (!active) return;
+      try {
+        const raw = window.localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw) as PersistedStory;
+        if (!parsed?.story) return;
+        setStory(parsed.story);
+        setMode(parsed.mode ?? "mock");
+        setStoryId(parsed.storyId ?? null);
+        setAuthoredLocale(parsed.authoredLocale ?? "en");
+        setTranslations(parsed.translations ?? {});
+      } catch {}
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!story) return;
+    try {
+      window.localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          story,
+          mode: mode ?? "mock",
+          storyId,
+          authoredLocale,
+          translations,
+        } satisfies PersistedStory),
+      );
+    } catch {}
+  }, [story, mode, storyId, authoredLocale, translations]);
 
   async function handleGenerate() {
     setLoading(true);

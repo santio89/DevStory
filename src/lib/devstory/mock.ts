@@ -10,7 +10,28 @@ const ERA_TEMPLATES = [
   "The Mastery Era",
 ];
 
-const ERA_TOKEN: TokenId[] = ["sprout", "frame", "spark", "bridge", "peak"];
+const ERA_TOKEN: TokenId[] = [
+  "sprout",
+  "spark",
+  "frame",
+  "bridge",
+  "flame",
+  "compass",
+  "tide",
+  "rocket",
+  "roots",
+  "key",
+  "peak",
+  "dawn",
+  "orbit",
+  "signal",
+  "current",
+  "forge",
+  "gate",
+  "mirror",
+  "constellation",
+  "labyrinth",
+];
 
 export function generateMockStory(data: DevStoryData): DevStory {
   const byYear = data.languagesByYear;
@@ -84,5 +105,7 @@ export function generateMockStory(data: DevStoryData): DevStory {
 
   const summary = `Across ${repoCount} repos${span ? ` ${span}` : ""}, ${data.username} moved through ${eras.length} distinct eras — from ${eras[0]?.name.toLowerCase() ?? "first commits"} to ${eras[eras.length - 1]?.name.toLowerCase() ?? "where they are now"} — each one a stepping stone in the making of a developer.`;
 
-  return { title, summary, eras };
+  const closing = `Every repo, every late-night commit, every language left behind — it all adds up to one thing: ${data.username} keeps showing up. The next chapter starts with the next commit.`;
+
+  return { title, summary, eras, closing };
 }

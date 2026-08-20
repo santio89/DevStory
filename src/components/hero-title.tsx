@@ -2,12 +2,18 @@
 
 import { motion } from "framer-motion";
 
-const FIRST_LINE = "Your Code.".split("");
+export function HeroTitle({
+  first,
+  second,
+}: {
+  first: string;
+  second: string;
+}) {
+  const FIRST_LINE = first.split("");
 
-export function HeroTitle() {
   return (
     <h1 className="mt-8 max-w-3xl font-heading text-5xl leading-[1.05] font-semibold tracking-tight text-balance sm:text-7xl">
-      <span className="inline-block">
+      <span className="aurora-text title-glow inline-block">
         {FIRST_LINE.map((letter, i) => (
           <motion.span
             key={`code-${i}`}
@@ -33,9 +39,9 @@ export function HeroTitle() {
             delay: 0.55,
             ease: [0.22, 1, 0.36, 1],
           }}
-          className="aurora-text inline-block"
+          className="aurora-text-b inline-block"
         >
-          Your Story.
+          {second}
         </motion.span>
       </span>
     </h1>

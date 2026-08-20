@@ -11,10 +11,16 @@ Your job:
 
 Output must strictly match the provided schema.`;
 
-export function buildPrompt(minifiedData: string): string {
+export function buildPrompt(minifiedData: string, locale: "en" | "es" = "en"): string {
+  const langInstruction =
+    locale === "es"
+      ? "Write the entire story in Spanish (es-ES)."
+      : "Write the entire story in English.";
   return `Here is the developer's GitHub history as minified JSON:
 
 ${minifiedData}
 
-Now write their story. Return exactly the structured narrative described by the schema: an evocative title for the whole journey, a short summary, and the 3-5 eras that make up the arc.`;
+Now write their story. Return exactly the structured narrative described by the schema: an evocative title for the whole journey, a short summary, and the 3-5 eras that make up the arc.
+
+${langInstruction}`;
 }

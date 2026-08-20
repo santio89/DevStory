@@ -6,6 +6,7 @@ import { minifyDevStory } from "./minify";
 import { BIOGRAPHER_SYSTEM_PROMPT, buildPrompt } from "./prompt";
 import { storySchema, type DevStory } from "./story";
 import type { DevStoryData } from "./aggregate";
+import type { Locale } from "@/lib/i18n/dictionary";
 
 export type StoryResult = {
   story: DevStory;
@@ -19,7 +20,7 @@ export function hasAIProviderConfigured(): boolean {
   return Boolean(process.env.OPENROUTER_API_KEY);
 }
 
-function createModel() {
+export function createModel() {
   const openai = createOpenAI({
     apiKey: process.env.OPENROUTER_API_KEY,
     baseURL: OPENROUTER_BASE_URL,
@@ -33,6 +34,7 @@ function createModel() {
 
 export async function generateStory(
   data: DevStoryData,
+  locale: Locale = "en",
 ): Promise<StoryResult> {
   if (!hasAIProviderConfigured()) {
     return { story: generateMockStory(data), mode: "mock" };
@@ -49,7 +51,7 @@ export async function generateStory(
         schema: storySchema,
       }),
       system: BIOGRAPHER_SYSTEM_PROMPT,
-      prompt: buildPrompt(minified),
+      prompt: buildPrompt(minified, locale),
       temperature: 0.8,
       maxOutputTokens: 2048,
     });

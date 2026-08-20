@@ -1,9 +1,10 @@
 import { auth } from "@/auth";
-import { Brand } from "@/components/brand";
+import { cookies } from "next/headers";
 import { GithubSignIn } from "@/components/auth/github-sign-in";
 import { UserMenu } from "@/components/auth/user-menu";
 import { HeroTitle } from "@/components/hero-title";
 import { FadeIn } from "@/components/motion/fade-in";
+import { SiteHeader } from "@/components/site-header";
 import { Marquee } from "@/components/story/marquee";
 import { StoryGenerator } from "@/components/story/story-generator";
 import { StoryPreview } from "@/components/story/story-preview";
@@ -19,6 +20,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { dictionary, isLocale } from "@/lib/i18n/dictionary";
+import type { Locale, Messages } from "@/lib/i18n/dictionary";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { ArrowRight, GitCommit, Sparkles, TerminalSquare } from "lucide-react";
 
@@ -30,42 +34,28 @@ const LANGUAGES = [
   { name: "Go", color: "#00add8" },
 ];
 
-const FEATURES = [
-  {
-    icon: GitCommit,
-    title: "Every commit is a chapter",
-    description:
-      "We read your repository history, from the first hello world to your latest refactor, and find the moments that mattered.",
-  },
-  {
-    icon: Sparkles,
-    title: "AI-written narrative",
-    description:
-      "A language model trained as your biographer turns raw git data into eras: The Hello World Era, The Framework Awakening.",
-  },
-  {
-    icon: TerminalSquare,
-    title: "A timeline that moves you",
-    description:
-      "Scroll through a beautifully animated vertical timeline that builds your story in front of your eyes.",
-  },
+const FEATURE_ICONS = [GitCommit, Sparkles, TerminalSquare];
+const FEATURE_ICON_COLORS = [
+  "text-sky-400",
+  "text-cyan-400",
+  "text-blue-400",
 ];
 
-async function HeroCta() {
+async function HeroCta({ t }: { t: Messages }) {
   const session = await auth();
 
   if (session?.user) {
     return (
       <div className="flex flex-col items-center gap-3">
         <p className="text-sm text-muted-foreground">
-          Signed in as{" "}
+          {t.hero.signedInAs}{" "}
           <span className="font-mono text-foreground">
             {session.user.username ?? session.user.name}
           </span>
         </p>
         <Button asChild size="lg" variant="outline">
           <Link href="#story">
-            See your harvested GitHub data
+            {t.hero.seeData}
             <ArrowRight />
           </Link>
         </Button>
@@ -73,12 +63,7 @@ async function HeroCta() {
     );
   }
 
-  return (
-    <GithubSignIn
-      label="Connect GitHub to see your invisible hours"
-      size="lg"
-    />
-  );
+  return <GithubSignIn label={t.hero.cta} size="lg" />;
 }
 
 async function StorySection() {
@@ -99,7 +84,7 @@ async function StorySection() {
   return (
     <section
       id="story"
-      className="mx-auto w-full max-w-5xl scroll-mt-16 px-4 pb-24 sm:px-6"
+      className="mx-auto w-full max-w-5xl scroll-mt-20 px-4 pb-24 sm:px-6"
     >
       <StoryPreview initialData={preview} initialError={error} />
       <div className="mt-20 mb-16">
@@ -110,29 +95,29 @@ async function StorySection() {
   );
 }
 
-export default function Home() {
+export default async function Home() {
+  const cookieStore = await cookies();
+  const storedLocale = cookieStore.get("devstory-locale")?.value;
+  const locale: Locale = isLocale(storedLocale) ? storedLocale : "en";
+  const t = dictionary[locale];
+
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-border/40 bg-zinc-950/80 backdrop-blur-md">
-        <div className="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-4 sm:px-6">
-          <Link href="/">
-            <Brand />
-          </Link>
-          <UserMenu />
-        </div>
-      </header>
+      <SiteHeader>
+        <UserMenu />
+      </SiteHeader>
 
       <main className="flex-1">
         <section className="relative overflow-hidden">
           <div className="pointer-events-none absolute inset-0 -z-10">
-            <div className="absolute -top-48 left-1/2 h-[520px] w-[760px] -translate-x-1/2 rounded-full bg-blue-500/15 blur-[140px]" />
-            <div className="absolute top-24 -right-24 h-[420px] w-[420px] rounded-full bg-amber-400/10 blur-[120px]" />
-            <div className="absolute bottom-0 -left-32 h-[380px] w-[380px] rounded-full bg-violet-500/10 blur-[120px]" />
+            <div className="absolute -top-64 left-1/2 h-[560px] w-[960px] -translate-x-1/2 rounded-full bg-sky-500/25 blur-[140px]" />
+            <div className="absolute top-24 -right-24 h-[420px] w-[420px] rounded-full bg-fuchsia-500/15 blur-[120px]" />
+            <div className="absolute bottom-0 -left-32 h-[380px] w-[380px] rounded-full bg-violet-500/12 blur-[120px]" />
             <div
               className="absolute inset-0 opacity-[0.04]"
               style={{
                 backgroundImage:
-                  "linear-gradient(to right, rgb(255 255 255 / 60%) 1px, transparent 1px), linear-gradient(to bottom, rgb(255 255 255 / 60%) 1px, transparent 1px)",
+                  "linear-gradient(to right, color-mix(in srgb, var(--foreground) 7%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in srgb, var(--foreground) 7%, transparent) 1px, transparent 1px)",
                 backgroundSize: "72px 72px",
               }}
             />
@@ -140,27 +125,25 @@ export default function Home() {
 
           <div className="mx-auto flex w-full max-w-5xl flex-col items-center px-4 py-24 text-center sm:px-6 sm:py-36">
             <FadeIn>
-              <span className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-zinc-900/60 px-3 py-1 font-mono text-xs text-muted-foreground">
+              <span className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-muted/60 px-3 py-1 font-mono text-xs text-muted-foreground">
                 <span className="relative flex size-1.5">
-                  <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex size-1.5 rounded-full bg-emerald-400" />
+                  <span className="absolute inline-flex size-full animate-ping rounded-full bg-cyan-400 opacity-75" />
+                  <span className="relative inline-flex size-1.5 rounded-full bg-cyan-400" />
                 </span>
-                Your invisible hours, validated
+                {t.hero.badge}
               </span>
             </FadeIn>
 
-            <HeroTitle />
+            <HeroTitle first={t.hero.titleFirst} second={t.hero.titleSecond} />
 
             <FadeIn delay={0.2}>
               <p className="mt-6 max-w-xl text-lg text-muted-foreground text-balance">
-                Every late-night debug. Every green build. Every repo you
-                abandoned at 3am. DevStory reads your GitHub history and turns
-                it into a narrative timeline of your growth as a developer.
+                {t.hero.subtitle}
               </p>
             </FadeIn>
 
             <FadeIn delay={0.3} className="mt-10 flex flex-col items-center gap-6">
-              <HeroCta />
+              <HeroCta t={t} />
               <div className="flex items-center gap-3 font-mono text-xs text-muted-foreground">
                 {LANGUAGES.map((lang) => (
                   <span key={lang.name} className="flex items-center gap-1.5">
@@ -181,21 +164,24 @@ export default function Home() {
         <section className="mx-auto w-full max-w-5xl px-4 pb-24 sm:px-6">
           <FadeIn>
             <h2 className="text-center font-heading text-2xl font-semibold tracking-tight sm:text-3xl">
-              How it works
+              {t.features.title}
             </h2>
           </FadeIn>
           <div className="mt-10 grid gap-4 sm:grid-cols-3">
-            {FEATURES.map((feature, i) => (
-              <FadeIn key={feature.title} delay={0.1 * i}>
-                <Card className="h-full bg-zinc-900/40 ring-1 ring-border/50 transition-colors hover:ring-foreground/20">
-                  <CardHeader>
-                    <feature.icon className="size-5 text-amber-400" />
-                    <CardTitle>{feature.title}</CardTitle>
-                    <CardDescription>{feature.description}</CardDescription>
-                  </CardHeader>
-                </Card>
-              </FadeIn>
-            ))}
+            {FEATURE_ICONS.map((Icon, i) => {
+              const feature = t.features[i === 0 ? "one" : i === 1 ? "two" : "three"];
+              return (
+                <FadeIn key={i} delay={0.1 * i}>
+                  <Card className="h-full bg-muted/40 ring-1 ring-border/50 transition-colors hover:ring-cyan-400/40">
+                    <CardHeader>
+                      <Icon className={cn("size-5", FEATURE_ICON_COLORS[i])} />
+                      <CardTitle>{feature.t}</CardTitle>
+                      <CardDescription>{feature.d}</CardDescription>
+                    </CardHeader>
+                  </Card>
+                </FadeIn>
+              );
+            })}
           </div>
         </section>
       </main>
@@ -203,8 +189,8 @@ export default function Home() {
       <footer className="border-t border-border/40">
         <div className="mx-auto flex w-full max-w-5xl flex-col items-center justify-between gap-2 px-4 py-8 sm:flex-row sm:px-6">
           <span className="flex items-center gap-2 font-mono text-xs text-muted-foreground">
-            <ArrowRight className="size-3 text-amber-400" />
-            commits are letters, repos are chapters
+            <ArrowRight className="size-3 text-cyan-400" />
+            {t.footer.tagline}
           </span>
           <span className="font-mono text-xs text-muted-foreground">
             DevStory © {new Date().getFullYear()}

@@ -4,19 +4,24 @@ import { buildDevStoryData } from "@/lib/devstory/aggregate";
 import { generateStory } from "@/lib/devstory/generate";
 import { getDb, hasDatabase } from "@/lib/db";
 import { stories } from "@/lib/db/schema";
+import { isLocale, type Locale } from "@/lib/i18n/dictionary";
 
 export const maxDuration = 60;
 
-export async function POST() {
+export async function POST(request: Request) {
   const session = await auth();
 
   if (!session?.accessToken) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const body = (await request.json().catch(() => ({}))) as { locale?: unknown };
+  const localeValue = typeof body.locale === "string" ? body.locale : undefined;
+  const locale: Locale = isLocale(localeValue) ? localeValue : "en";
+
   try {
     const data = await buildDevStoryData(session.accessToken);
-    const { story, mode } = await generateStory(data);
+    const { story, mode } = await generateStory(data, locale);
 
     let storyId: string | null = null;
     if (hasDatabase()) {

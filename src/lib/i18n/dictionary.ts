@@ -1,0 +1,214 @@
+export const locales = ["en", "es"] as const;
+export type Locale = (typeof locales)[number];
+
+const en = {
+  common: {
+    signOut: "Sign out",
+    signIn: "Sign in with GitHub",
+    toggleTheme: "Toggle theme",
+    toggleLocale: "Switch language",
+    shareTagline: "a story from the invisible hours",
+  },
+  hero: {
+    badge: "Your invisible hours, validated",
+    titleFirst: "Your Code.",
+    titleSecond: "Your Story.",
+    subtitle:
+      "Every late-night debug. Every green build. Every repo you abandoned at 3am. DevStory reads your GitHub history and turns it into a narrative timeline of your growth as a developer.",
+    signedInAs: "Signed in as",
+    seeData: "See your harvested GitHub data",
+    cta: "Connect GitHub to see your invisible hours",
+  },
+  features: {
+    title: "How it works",
+    one: {
+      t: "Every commit is a chapter",
+      d: "We read your repository history, from the first hello world to your latest refactor, and find the moments that mattered.",
+    },
+    two: {
+      t: "AI-written narrative",
+      d: "A language model trained as your biographer turns raw git data into eras: The Hello World Era, The Framework Awakening.",
+    },
+    three: {
+      t: "A timeline that moves you",
+      d: "Scroll through a beautifully animated vertical timeline that builds your story in front of your eyes.",
+    },
+  },
+  marquee: [
+    "commits are letters",
+    "repos are chapters",
+    "every build is a heartbeat",
+    "the invisible hours are the whole story",
+  ],
+  footer: {
+    tagline: "commits are letters, repos are chapters",
+  },
+  preview: {
+    phase: "phase 02 · the brain",
+    title: "Raw GitHub data",
+    refresh: "Re-fetch",
+    digging: "Digging…",
+    harvesting: "harvesting commit history…",
+    repos: "repos",
+    stars: "stars",
+    commitsAnalyzed: "commits analyzed",
+    firstRepo: "first repo",
+    languagesTitle: "Languages over time",
+    noLanguageData: "no language data yet",
+    earliestCommits: "Earliest commits",
+    noCommits: "no commits found in your oldest repos",
+    signInError: "You need to be signed in to fetch your story data.",
+    fetchError: (status: number) => `GitHub data fetch failed (${status}).`,
+    genericError: "Something went wrong.",
+  },
+  generator: {
+    phase: "phase 03 · the biographer",
+    title: "Your DevStory",
+    writing: "Writing…",
+    rewrite: "Rewrite my story",
+    generate: "Generate my story",
+    reading: "the biographer is reading your commits…",
+    signInError: "You need to be signed in to generate a story.",
+    failed: "Story generation failed. Try again.",
+  },
+  share: {
+    title: "Share your DevStory",
+    erasLabel: (n: number) => `${n} eras`,
+    noLanguages: "no languages",
+    copyText: "Copy as text",
+    copied: "Copied!",
+    downloadJson: "Download JSON",
+    copyLink: "Copy link",
+    linkCopied: "Link copied!",
+    emailTitle: "Email me my story",
+    emailSuccess: "Check your inbox — the story is on its way.",
+    emailPlaceholder: "you@example.com",
+    send: "Send it",
+    sending: "Sending…",
+    emailFailed: "Couldn't send the email.",
+    unlock: "Sign in and generate a story to unlock sharing and email.",
+  },
+  story: {
+    crafted: "crafted by the biographer",
+    previewSample: "preview sample · add an AI key for the real story",
+    era: (n: number) => `era ${String(n).padStart(2, "0")}`,
+    translating: "Translating…",
+  },
+  sharePage: {
+    of: (name: string) => `${name}'s DevStory`,
+    writeYours: "Write your own story.",
+    ctaDesc:
+      "Every commit is a chapter. Connect GitHub and let DevStory turn your invisible hours into a narrative timeline.",
+    tellYours: "Tell your story",
+  },
+};
+
+export type Messages = typeof en;
+
+const es: Messages = {
+  common: {
+    signOut: "Cerrar sesión",
+    signIn: "Iniciar sesión con GitHub",
+    toggleTheme: "Cambiar tema",
+    toggleLocale: "Cambiar idioma",
+    shareTagline: "una historia de las horas invisibles",
+  },
+  hero: {
+    badge: "Tus horas invisibles, validadas",
+    titleFirst: "Tu Código.",
+    titleSecond: "Tu Historia.",
+    subtitle:
+      "Cada debug de madrugada. Cada build en verde. Cada repo que abandonaste a las 3am. DevStory lee tu historial de GitHub y lo convierte en una línea de tiempo narrativa de tu crecimiento como desarrollador.",
+    signedInAs: "Conectado como",
+    seeData: "Ver tus datos de GitHub",
+    cta: "Conecta GitHub para ver tus horas invisibles",
+  },
+  features: {
+    title: "Cómo funciona",
+    one: {
+      t: "Cada commit es un capítulo",
+      d: "Leemos el historial de tus repositorios, desde el primer hola mundo hasta tu último refactor, y encontramos los momentos que importaron.",
+    },
+    two: {
+      t: "Narrativa escrita por IA",
+      d: "Un modelo de lenguaje entrenado como tu biógrafo convierte los datos crudos de git en épocas: La Era del Hola Mundo, El Despertar de los Frameworks.",
+    },
+    three: {
+      t: "Una línea de tiempo que te emociona",
+      d: "Desplázate por una línea de tiempo vertical bellamente animada que construye tu historia frente a tus ojos.",
+    },
+  },
+  marquee: [
+    "los commits son letras",
+    "los repos son capítulos",
+    "cada build es un latido",
+    "las horas invisibles son toda la historia",
+  ],
+  footer: {
+    tagline: "los commits son letras, los repos son capítulos",
+  },
+  preview: {
+    phase: "fase 02 · el cerebro",
+    title: "Datos brutos de GitHub",
+    refresh: "Recargar",
+    digging: "Rastreando…",
+    harvesting: "recolectando historial de commits…",
+    repos: "repos",
+    stars: "estrellas",
+    commitsAnalyzed: "commits analizados",
+    firstRepo: "primer repo",
+    languagesTitle: "Lenguajes a lo largo del tiempo",
+    noLanguageData: "aún no hay datos de lenguajes",
+    earliestCommits: "Primeros commits",
+    noCommits: "no hay commits en tus repos más antiguos",
+    signInError: "Debes iniciar sesión para obtener tus datos.",
+    fetchError: (status: number) => `Error al obtener los datos de GitHub (${status}).`,
+    genericError: "Algo salió mal.",
+  },
+  generator: {
+    phase: "fase 03 · el biógrafo",
+    title: "Tu DevStory",
+    writing: "Escribiendo…",
+    rewrite: "Reescribir mi historia",
+    generate: "Generar mi historia",
+    reading: "el biógrafo está leyendo tus commits…",
+    signInError: "Debes iniciar sesión para generar una historia.",
+    failed: "No se pudo generar la historia. Inténtalo de nuevo.",
+  },
+  share: {
+    title: "Comparte tu DevStory",
+    erasLabel: (n: number) => `${n} épocas`,
+    noLanguages: "sin lenguajes",
+    copyText: "Copiar como texto",
+    copied: "¡Copiado!",
+    downloadJson: "Descargar JSON",
+    copyLink: "Copiar enlace",
+    linkCopied: "¡Enlace copiado!",
+    emailTitle: "Envíame mi historia por email",
+    emailSuccess: "Revisa tu bandeja de entrada — la historia va en camino.",
+    emailPlaceholder: "tu@ejemplo.com",
+    send: "Enviar",
+    sending: "Enviando…",
+    emailFailed: "No se pudo enviar el email.",
+    unlock: "Inicia sesión y genera una historia para desbloquear compartir y el email.",
+  },
+  story: {
+    crafted: "creada por el biógrafo",
+    previewSample: "muestra de vista previa · añade una clave de IA para la historia real",
+    era: (n: number) => `época ${String(n).padStart(2, "0")}`,
+    translating: "Traduciendo…",
+  },
+  sharePage: {
+    of: (name: string) => `La DevStory de ${name}`,
+    writeYours: "Escribe tu propia historia.",
+    ctaDesc:
+      "Cada commit es un capítulo. Conecta GitHub y deja que DevStory convierta tus horas invisibles en una línea de tiempo narrativa.",
+    tellYours: "Cuenta tu historia",
+  },
+};
+
+export const dictionary: Record<Locale, Messages> = { en, es };
+
+export function isLocale(value: string | undefined | null): value is Locale {
+  return value === "en" || value === "es";
+}

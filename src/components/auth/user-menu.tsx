@@ -1,41 +1,27 @@
-import { auth, signOut } from "@/auth";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { auth } from "@/auth";
+import { cookies } from "next/headers";
+import { dictionary, isLocale } from "@/lib/i18n/dictionary";
 import { GithubSignIn } from "./github-sign-in";
+import { UserMenuDropdown } from "./user-menu-dropdown";
 
 export async function UserMenu() {
   const session = await auth();
+  const cookieStore = await cookies();
+  const storedLocale = cookieStore.get("devstory-locale")?.value;
+  const locale = isLocale(storedLocale) ? storedLocale : "en";
+  const t = dictionary[locale];
 
   if (!session?.user) {
-    return <GithubSignIn size="sm" variant="outline" />;
+    return <GithubSignIn label={t.common.signIn} size="sm" variant="outline" />;
   }
 
-  const initial = (session.user.name ?? session.user.username ?? "D")
-    ?.slice(0, 1)
-    .toUpperCase();
-
   return (
-    <div className="flex items-center gap-3">
-      <span className="hidden text-sm text-muted-foreground sm:inline">
-        {session.user.name}
-      </span>
-      <Avatar size="sm">
-        <AvatarImage
-          src={session.user.image ?? undefined}
-          alt={session.user.name ?? "User"}
-        />
-        <AvatarFallback>{initial}</AvatarFallback>
-      </Avatar>
-      <form
-        action={async () => {
-          "use server";
-          await signOut({ redirectTo: "/" });
-        }}
-      >
-        <Button type="submit" size="sm" variant="ghost">
-          Sign out
-        </Button>
-      </form>
-    </div>
+    <UserMenuDropdown
+      user={{
+        name: session.user.name ?? null,
+        username: session.user.username ?? null,
+        image: session.user.image ?? null,
+      }}
+    />
   );
 }

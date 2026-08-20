@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { motion } from "framer-motion";
 import { StoryContent } from "@/components/story/story-content";
 import { Button } from "@/components/ui/button";
+import { useLocale } from "@/components/locale/locale-provider";
 import type { DevStory } from "@/lib/devstory/story";
 import {
   Check,
@@ -45,6 +46,7 @@ export function StoryView({
   mode: "ai" | "mock";
   storyId: string | null;
 }) {
+  const { t } = useLocale();
   const [copied, setCopied] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
   const [email, setEmail] = useState("");
@@ -102,12 +104,14 @@ export function StoryView({
       });
       const json = (await res.json()) as { error?: string };
       if (!res.ok) {
-        throw new Error(json.error ?? "Couldn't send the email.");
+        throw new Error(json.error ?? t.share.emailFailed);
       }
       setEmailStatus("success");
     } catch (e) {
       setEmailStatus("error");
-      setEmailError(e instanceof Error ? e.message : "Something went wrong.");
+      setEmailError(
+        e instanceof Error ? e.message : t.preview.genericError,
+      );
     }
   }
 
@@ -124,7 +128,7 @@ export function StoryView({
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-40px" }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-amber-400/[0.08] via-transparent to-blue-500/[0.08] p-6 sm:p-8"
+        className="relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-sky-400/[0.14] via-transparent to-blue-500/[0.1] p-6 sm:p-8"
       >
         <div
           className="pointer-events-none absolute inset-0 opacity-[0.05] mix-blend-overlay"
@@ -135,27 +139,27 @@ export function StoryView({
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <Share2 className="size-4 text-amber-400" />
+                <Share2 className="size-4 text-cyan-400" />
                 <h4 className="font-heading text-lg font-semibold tracking-tight">
-                  Share your DevStory
+                  {t.share.title}
                 </h4>
               </div>
-              <p className="mt-1.5 max-w-md text-sm text-zinc-400">
-                {story.eras.length} eras,{" "}
+              <p className="mt-1.5 max-w-md text-sm text-muted-foreground">
+                {t.share.erasLabel(story.eras.length)},{" "}
                 {allLanguages.length > 0
                   ? `${allLanguages.join(" → ")}`
-                  : "no languages"}
-                . Your invisible hours, validated.
+                  : t.share.noLanguages}
+                . {t.common.shareTagline}.
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
               <Button onClick={() => void copyStory()}>
                 {copied ? <Check /> : <Copy />}
-                {copied ? "Copied!" : "Copy as text"}
+                {copied ? t.share.copied : t.share.copyText}
               </Button>
               <Button variant="outline" onClick={downloadStory}>
                 <Download />
-                Download JSON
+                {t.share.downloadJson}
               </Button>
               <Button
                 variant="outline"
@@ -163,22 +167,22 @@ export function StoryView({
                 disabled={!storyId}
               >
                 {linkCopied ? <Check /> : <Link2 />}
-                {linkCopied ? "Link copied!" : "Copy link"}
+                {linkCopied ? t.share.linkCopied : t.share.copyLink}
               </Button>
             </div>
           </div>
 
-          <div className="mt-6 border-t border-white/10 pt-6">
+          <div className="mt-6 border-t border-border/60 pt-6">
             <div className="flex items-center gap-2">
-              <Mail className="size-4 text-amber-400" />
+              <Mail className="size-4 text-pink-400" />
               <h5 className="font-heading text-sm font-semibold tracking-tight">
-                Email me my story
+                {t.share.emailTitle}
               </h5>
             </div>
 
             {emailStatus === "success" ? (
               <p className="mt-3 font-mono text-sm text-emerald-400">
-                Check your inbox — the story is on its way.
+                {t.share.emailSuccess}
               </p>
             ) : (
               <form
@@ -190,10 +194,10 @@ export function StoryView({
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
+                  placeholder={t.share.emailPlaceholder}
                   disabled={emailStatus === "loading" || !storyId}
                   aria-label="Email address"
-                  className="h-9 flex-1 rounded-lg border border-border/60 bg-zinc-900/60 px-3 font-mono text-sm text-foreground placeholder:text-muted-foreground focus:border-amber-400/50 focus:outline-none disabled:opacity-50"
+                  className="h-9 flex-1 rounded-lg border border-border/60 bg-muted/60 px-3 font-mono text-sm text-foreground placeholder:text-muted-foreground focus:border-cyan-400/50 focus:outline-none disabled:opacity-50"
                 />
                 <Button
                   type="submit"
@@ -209,7 +213,9 @@ export function StoryView({
                   ) : (
                     <Send className="size-4" />
                   )}
-                  {emailStatus === "loading" ? "Sending…" : "Send it"}
+                  {emailStatus === "loading"
+                    ? t.share.sending
+                    : t.share.send}
                 </Button>
               </form>
             )}
@@ -222,7 +228,7 @@ export function StoryView({
 
             {!storyId && (
               <p className="mt-2 font-mono text-xs text-muted-foreground">
-                Sign in and generate a story to unlock sharing and email.
+                {t.share.unlock}
               </p>
             )}
           </div>

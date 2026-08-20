@@ -8,7 +8,7 @@ import {
   type TokenId,
 } from "@/lib/devstory/tokens";
 
-const ACCENT = "#fbbf24";
+const ACCENT = "#22d3ee";
 
 function renderToken(token: TokenId, stroke: string) {
   switch (token) {
@@ -140,9 +140,9 @@ export function Sigil({ token, className }: { token: TokenId; className?: string
     >
       <defs>
         <linearGradient id={id} x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#fcd34d" />
-          <stop offset="55%" stopColor="#f0abfc" />
-          <stop offset="100%" stopColor="#93c5fd" />
+          <stop offset="0%" stopColor="#38bdf8" />
+          <stop offset="55%" stopColor="#7dd3fc" />
+          <stop offset="100%" stopColor="#818cf8" />
         </linearGradient>
       </defs>
       {renderToken(token, `url(#${id})`)}

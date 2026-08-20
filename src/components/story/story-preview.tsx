@@ -4,12 +4,14 @@ import { useState } from "react";
 import { FadeIn } from "@/components/motion/fade-in";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { langColor } from "@/components/story/languages";
+import { useLocale } from "@/components/locale/locale-provider";
 import type { StoryPreviewData } from "@/lib/devstory/aggregate";
+import type { Locale } from "@/lib/i18n/dictionary";
 import { GitCommit, RefreshCw, Star, FolderGit2 } from "lucide-react";
 
-function formatDate(iso: string | null) {
+function formatDate(iso: string | null, locale: Locale) {
   if (!iso) return "—";
-  return new Date(iso).toLocaleDateString("en-US", {
+  return new Date(iso).toLocaleDateString(locale === "es" ? "es-ES" : "en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -23,6 +25,7 @@ export function StoryPreview({
   initialData: StoryPreviewData | null;
   initialError?: string | null;
 }) {
+  const { t, locale } = useLocale();
   const [data, setData] = useState<StoryPreviewData | null>(initialData);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(initialError);
@@ -35,14 +38,14 @@ export function StoryPreview({
       if (!res.ok) {
         throw new Error(
           res.status === 401
-            ? "You need to be signed in to fetch your story data."
-            : `GitHub data fetch failed (${res.status}).`,
+            ? t.preview.signInError
+            : t.preview.fetchError(res.status),
         );
       }
       const json = (await res.json()) as { preview: StoryPreviewData };
       setData(json.preview);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Something went wrong.");
+      setError(e instanceof Error ? e.message : t.preview.genericError);
     } finally {
       setLoading(false);
     }
@@ -53,10 +56,10 @@ export function StoryPreview({
       <div className="flex items-center justify-between">
         <div>
           <p className="font-mono text-xs text-muted-foreground">
-            phase 02 · the brain
+            {t.preview.phase}
           </p>
           <h2 className="mt-1 font-heading text-2xl font-semibold tracking-tight">
-            Raw GitHub data
+            {t.preview.title}
           </h2>
         </div>
         <button
@@ -66,15 +69,15 @@ export function StoryPreview({
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
         >
           <RefreshCw className={`size-3.5 ${loading ? "animate-spin" : ""}`} />
-          {loading ? "Digging…" : "Re-fetch"}
+          {loading ? t.preview.digging : t.preview.refresh}
         </button>
       </div>
 
       {loading && (
-        <Card className="bg-zinc-900/40">
+        <Card className="bg-muted/40">
           <CardContent className="flex items-center gap-3 py-8 font-mono text-sm text-muted-foreground">
-            <GitCommit className="size-4 animate-pulse text-amber-400" />
-            harvesting commit history…
+            <GitCommit className="size-4 animate-pulse text-cyan-400" />
+            {t.preview.harvesting}
           </CardContent>
         </Card>
       )}
@@ -92,32 +95,32 @@ export function StoryPreview({
           <div className="grid gap-4 sm:grid-cols-4">
             {[
               {
-                label: "repos",
+                label: t.preview.repos,
                 value: data.totals.repoCount,
                 icon: FolderGit2,
-                color: "text-blue-400",
+                color: "text-sky-400",
               },
               {
-                label: "stars",
+                label: t.preview.stars,
                 value: data.totals.totalStars,
                 icon: Star,
-                color: "text-amber-400",
+                color: "text-pink-400",
               },
               {
-                label: "commits analyzed",
+                label: t.preview.commitsAnalyzed,
                 value: data.totals.commitsAnalyzed,
                 icon: GitCommit,
-                color: "text-emerald-400",
+                color: "text-cyan-400",
               },
               {
-                label: "first repo",
-                value: formatDate(data.totals.oldestRepoDate),
+                label: t.preview.firstRepo,
+                value: formatDate(data.totals.oldestRepoDate, locale),
                 icon: GitCommit,
                 color: "text-violet-400",
               },
             ].map((stat, i) => (
               <FadeIn key={stat.label} delay={0.05 * i}>
-                <Card className="h-full bg-zinc-900/40 ring-1 ring-border/50">
+                <Card className="h-full bg-muted/40 ring-1 ring-border/50">
                   <CardContent className="flex flex-col gap-3 py-5">
                     <stat.icon className={`size-4 ${stat.color}`} />
                     <div>
@@ -136,14 +139,14 @@ export function StoryPreview({
 
           <div className="grid gap-4 lg:grid-cols-2">
             <FadeIn>
-              <Card className="h-full bg-zinc-900/40 ring-1 ring-border/50">
+              <Card className="h-full bg-muted/40 ring-1 ring-border/50">
                 <CardHeader>
-                  <CardTitle>Languages over time</CardTitle>
+                  <CardTitle>{t.preview.languagesTitle}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {data.languagesByYear.length === 0 && (
                     <p className="font-mono text-sm text-muted-foreground">
-                      no language data yet
+                      {t.preview.noLanguageData}
                     </p>
                   )}
                   {data.languagesByYear.map((year) => (
@@ -155,7 +158,7 @@ export function StoryPreview({
                         {year.languages.map((lang) => (
                           <span
                             key={lang.language}
-                            className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-zinc-800/60 px-2.5 py-1 font-mono text-xs"
+                            className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-muted/60 px-2.5 py-1 font-mono text-xs"
                           >
                             <span
                               className="inline-block size-1.5 rounded-full"
@@ -175,25 +178,25 @@ export function StoryPreview({
             </FadeIn>
 
             <FadeIn delay={0.1}>
-              <Card className="h-full bg-zinc-900/40 ring-1 ring-border/50">
+              <Card className="h-full bg-muted/40 ring-1 ring-border/50">
                 <CardHeader>
-                  <CardTitle>Earliest commits</CardTitle>
+                  <CardTitle>{t.preview.earliestCommits}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {data.milestones.length === 0 && (
                     <p className="font-mono text-sm text-muted-foreground">
-                      no commits found in your oldest repos
+                      {t.preview.noCommits}
                     </p>
                   )}
                   {data.milestones.map((m) => (
                     <div
                       key={`${m.repo}-${m.sha}`}
-                      className="border-l-2 border-amber-400/50 pl-3"
+                      className="border-l-2 border-cyan-400/50 pl-3"
                     >
                       <div className="flex items-center gap-2 font-mono text-xs">
-                        <span className="text-amber-400">{m.sha}</span>
+                        <span className="text-cyan-400">{m.sha}</span>
                         <span className="text-muted-foreground">
-                          {formatDate(m.date)}
+                          {formatDate(m.date, locale)}
                         </span>
                       </div>
                       <p className="mt-1 text-sm">{m.message}</p>

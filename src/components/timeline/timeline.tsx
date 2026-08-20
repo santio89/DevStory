@@ -3,10 +3,12 @@
 import { motion } from "framer-motion";
 import { langColor } from "@/components/story/languages";
 import { resolveToken, Sigil } from "@/components/story/sigil";
+import { useLocale } from "@/components/locale/locale-provider";
 import { cn } from "@/lib/utils";
 import type { Era } from "@/lib/devstory/story";
 
 function TimelineItem({ era, index }: { era: Era; index: number }) {
+  const { t } = useLocale();
   const isLeft = index % 2 === 0;
   const token = resolveToken(era);
 
@@ -19,9 +21,9 @@ function TimelineItem({ era, index }: { era: Era; index: number }) {
       className="relative grid grid-cols-1 gap-6 sm:grid-cols-2"
     >
       <span className="absolute top-2.5 left-4 z-10 -translate-x-1/2 sm:left-1/2">
-        <span className="flex size-11 items-center justify-center rounded-full bg-gradient-to-br from-amber-400/60 via-white/10 to-blue-500/60 p-px shadow-[0_0_20px_rgba(251,191,36,0.28)]">
-          <span className="flex size-full items-center justify-center rounded-full bg-zinc-950/95">
-            <Sigil token={token} className="size-7 drop-shadow-[0_0_6px_rgba(251,191,36,0.45)]" />
+        <span className="flex size-11 items-center justify-center rounded-full bg-gradient-to-br from-sky-400/70 via-white/10 to-blue-500/60 p-px shadow-[0_0_20px_rgba(34,211,238,0.28)]">
+          <span className="flex size-full items-center justify-center rounded-full bg-background/95">
+            <Sigil token={token} className="size-7 drop-shadow-[0_0_6px_rgba(34,211,238,0.45)]" />
           </span>
         </span>
       </span>
@@ -32,7 +34,7 @@ function TimelineItem({ era, index }: { era: Era; index: number }) {
           isLeft ? "sm:col-start-1 sm:pr-14" : "sm:col-start-2 sm:pl-14",
         )}
       >
-        <article className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-md transition-colors duration-300 hover:border-amber-400/30 hover:bg-white/[0.05] sm:p-7">
+        <article className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card/50 p-6 backdrop-blur-md transition-colors duration-300 hover:border-cyan-400/40 hover:bg-card/60 sm:p-7">
           <div
             className="pointer-events-none absolute -top-8 -right-8 opacity-[0.07]"
             aria-hidden="true"
@@ -40,20 +42,20 @@ function TimelineItem({ era, index }: { era: Era; index: number }) {
             <Sigil token={token} className="size-44" />
           </div>
           <div
-            className="pointer-events-none absolute -top-16 -right-16 size-40 rounded-full bg-amber-400/10 opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100"
+            className="pointer-events-none absolute -top-16 -right-16 size-40 rounded-full bg-fuchsia-500/12 opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100"
             aria-hidden="true"
           />
           <div className="flex items-center gap-3">
-            <span className="font-mono text-xs tracking-widest text-zinc-500 uppercase">
-              era {String(index + 1).padStart(2, "0")}
+            <span className="font-mono text-xs tracking-widest text-muted-foreground uppercase">
+              {t.story.era(index + 1)}
             </span>
-            <span className="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent" />
-            <span className="font-mono text-sm text-amber-400">{era.year}</span>
+            <span className="h-px flex-1 bg-gradient-to-r from-border/60 to-transparent" />
+            <span className="font-mono text-sm text-cyan-400">{era.year}</span>
           </div>
           <h4 className="mt-3 font-heading text-xl font-semibold tracking-tight">
             {era.name}
           </h4>
-          <p className="mt-2 text-sm leading-relaxed text-zinc-400">
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
             {era.description}
           </p>
           {era.keyLanguages.length > 0 && (
@@ -61,7 +63,7 @@ function TimelineItem({ era, index }: { era: Era; index: number }) {
               {era.keyLanguages.map((lang) => (
                 <span
                   key={lang}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-zinc-900/60 px-2.5 py-1 font-mono text-xs text-zinc-300"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-muted/60 px-2.5 py-1 font-mono text-xs text-foreground/80"
                 >
                   <span
                     className="inline-block size-1.5 rounded-full"
@@ -84,7 +86,7 @@ function TimelineItem({ era, index }: { era: Era; index: number }) {
 export function Timeline({ eras }: { eras: Era[] }) {
   return (
     <div className="relative">
-      <div className="absolute top-0 bottom-0 left-4 h-full w-px -translate-x-1/2 bg-gradient-to-b from-amber-400/70 via-violet-500/40 to-blue-500/70 sm:left-1/2" />
+      <div className="absolute top-0 bottom-0 left-4 h-full w-px -translate-x-1/2 bg-gradient-to-b from-sky-400/80 via-indigo-400/40 to-cyan-400/80 sm:left-1/2" />
       <div className="space-y-12 sm:space-y-16">
         {eras.map((era, index) => (
           <TimelineItem

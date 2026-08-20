@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Timeline } from "@/components/timeline/timeline";
 import { resolveToken, Sigil } from "@/components/story/sigil";
+import { useLocale } from "@/components/locale/locale-provider";
 import type { DevStory } from "@/lib/devstory/story";
 import type { TokenId } from "@/lib/devstory/tokens";
 import { Wand2 } from "lucide-react";
@@ -17,6 +18,7 @@ export function StoryContent({
   story: DevStory;
   mode: "ai" | "mock";
 }) {
+  const { t } = useLocale();
   const lastEra = story.eras[story.eras.length - 1] ?? story.eras[0];
   const heroToken: TokenId = lastEra ? resolveToken(lastEra) : "sprout";
 
@@ -26,7 +28,7 @@ export function StoryContent({
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.05] to-transparent px-6 py-10 sm:px-12 sm:py-14"
+        className="relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-b from-card/60 to-transparent px-6 py-10 sm:px-12 sm:py-14"
       >
         <div
           className="pointer-events-none absolute -top-14 -right-14 opacity-[0.08]"
@@ -40,20 +42,18 @@ export function StoryContent({
           aria-hidden="true"
         />
         <div
-          className="pointer-events-none absolute -top-32 right-0 size-96 rounded-full bg-amber-400/10 blur-[120px]"
+          className="pointer-events-none absolute -top-32 right-0 size-96 rounded-full bg-fuchsia-500/10 blur-[120px]"
           aria-hidden="true"
         />
         <div
-          className="pointer-events-none absolute -bottom-40 -left-20 size-96 rounded-full bg-blue-500/10 blur-[120px]"
+          className="pointer-events-none absolute -bottom-40 -left-20 size-96 rounded-full bg-cyan-400/10 blur-[120px]"
           aria-hidden="true"
         />
 
         <div className="relative">
-          <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-white/10 bg-zinc-900/70 px-3 py-1 font-mono text-xs text-zinc-400">
-            <Wand2 className="size-3 text-amber-400" />
-            {mode === "ai"
-              ? "crafted by the biographer"
-              : "preview sample · add an AI key for the real story"}
+          <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-border/60 bg-muted/70 px-3 py-1 font-mono text-xs text-muted-foreground">
+            <Wand2 className="size-3 text-cyan-400" />
+            {mode === "ai" ? t.story.crafted : t.story.previewSample}
           </span>
 
           <h3 className="mt-6 max-w-3xl font-heading text-4xl leading-[1.05] font-semibold tracking-tight text-balance sm:text-5xl">
@@ -71,7 +71,7 @@ export function StoryContent({
             ))}
           </h3>
 
-          <p className="mt-5 max-w-2xl text-base leading-relaxed text-zinc-400 sm:text-lg">
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
             {story.summary}
           </p>
         </div>

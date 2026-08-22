@@ -1,20 +1,23 @@
-import { createHash } from "node:crypto";
 import { createGitHubClient } from "@/lib/github/client";
 import {
   fetchRepoCommits,
   type CommitMilestone,
   type RepoCommitData,
 } from "@/lib/github/commits";
-import { fetchRepos, type RepoSnapshot } from "@/lib/github/repos";
+import {
+  DEFAULT_COMMIT_PROBE,
+  probeCommitsInBatches,
+  selectReposForCommitProbe,
+} from "@/lib/github/probe-repos";
+import {
+  fetchReposForUser,
+  type RepoSnapshot,
+} from "@/lib/github/repos";
+import { normalizeGitHubUsername } from "@/lib/github/username";
 
-const OLDEST_REPOS_TO_PROBE = 5;
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
 const dataCache = new Map<string, { data: DevStoryData; expiresAt: number }>();
-
-function cacheKey(accessToken: string): string {
-  return createHash("sha256").update(accessToken).digest("hex");
-}
 
 export type LanguageStat = { language: string; repoCount: number };
 export type LanguageYear = { year: string; languages: LanguageStat[] };
@@ -50,9 +53,7 @@ export type DevStoryData = {
   repoCommits: Record<string, RepoCommitData>;
 };
 
-function countLanguages(
-  repos: RepoSnapshot[],
-): LanguageStat[] {
+function countLanguages(repos: RepoSnapshot[]): LanguageStat[] {
   const counts = new Map<string, number>();
   for (const repo of repos) {
     if (!repo.language) continue;
@@ -111,53 +112,129 @@ export function toPreviewData(data: DevStoryData): StoryPreviewData {
 }
 
 export async function buildDevStoryData(
-  accessToken: string,
-  options: { forceRefresh?: boolean } = {},
+  usernameInput: string,
+  options: {
+    forceRefresh?: boolean;
+    commitProbeLimit?: number;
+    questionForProbe?: string;
+  } = {},
 ): Promise<DevStoryData> {
-  const key = cacheKey(accessToken);
-  const cached = dataCache.get(key);
+  const username = normalizeGitHubUsername(usernameInput).toLowerCase();
+  const probeLimit = options.commitProbeLimit ?? DEFAULT_COMMIT_PROBE;
+  const cached = dataCache.get(username);
+
   if (!options.forceRefresh && cached && cached.expiresAt > Date.now()) {
-    return cached.data;
-  }
-
-  const octokit = createGitHubClient(accessToken);
-  const { data: user } = await octokit.rest.users.getAuthenticated();
-
-  const repos = await fetchRepos(accessToken);
-  const oldestRepos = [...repos]
-    .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
-    .slice(0, OLDEST_REPOS_TO_PROBE);
-
-  const repoCommits: Record<string, RepoCommitData> = {};
-  for (const repo of oldestRepos) {
-    repoCommits[repo.name] = await fetchRepoCommits(
-      octokit,
-      user.login,
-      repo.name,
-      repo.defaultBranch,
+    const merged = await enrichCommitProbes(
+      cached.data,
+      probeLimit,
+      options.questionForProbe,
     );
+    if (merged !== cached.data) {
+      dataCache.set(username, {
+        data: merged,
+        expiresAt: Date.now() + CACHE_TTL_MS,
+      });
+    }
+    return merged;
   }
 
+  const octokit = createGitHubClient();
+  const { data: user } = await octokit.rest.users.getByUsername({ username });
+
+  const repos = await fetchReposForUser(user.login, octokit);
+  const repoCommits = await probeCommitsForRepos(
+    octokit,
+    user.login,
+    repos,
+    probeLimit,
+    options.questionForProbe,
+  );
+
+  const data = assembleDevStoryData(user, repos, repoCommits);
+
+  dataCache.set(username, { data, expiresAt: Date.now() + CACHE_TTL_MS });
+  return data;
+}
+
+async function enrichCommitProbes(
+  data: DevStoryData,
+  probeLimit: number,
+  question?: string,
+): Promise<DevStoryData> {
+  const toProbe = selectReposForCommitProbe(
+    data.repos,
+    probeLimit,
+    question,
+  ).filter((repo) => !data.repoCommits[repo.name]);
+
+  if (toProbe.length === 0) return data;
+
+  const octokit = createGitHubClient();
+  const added = await probeCommitsForRepos(
+    octokit,
+    data.username,
+    toProbe,
+    toProbe.length,
+  );
+
+  const repoCommits = { ...data.repoCommits, ...added };
+  return assembleDevStoryDataFromParts(data, repoCommits);
+}
+
+async function probeCommitsForRepos(
+  octokit: ReturnType<typeof createGitHubClient>,
+  owner: string,
+  repos: RepoSnapshot[],
+  limit: number,
+  question?: string,
+): Promise<Record<string, RepoCommitData>> {
+  const targets = selectReposForCommitProbe(repos, limit, question);
+  const probed = await probeCommitsInBatches(targets, (repo) =>
+    fetchRepoCommits(octokit, owner, repo.name, repo.defaultBranch),
+  );
+  return Object.fromEntries(probed.entries());
+}
+
+function assembleDevStoryDataFromParts(
+  base: DevStoryData,
+  repoCommits: Record<string, RepoCommitData>,
+): DevStoryData {
   const milestones = Object.values(repoCommits)
     .map((c) => c.firstCommit)
     .filter((c): c is CommitMilestone => c !== null)
     .sort((a, b) => a.date.localeCompare(b.date));
 
-  const totals = {
-    repoCount: repos.length,
-    totalStars: repos.reduce((sum, r) => sum + r.stars, 0),
-    totalForks: repos.reduce((sum, r) => sum + r.forks, 0),
-    commitsAnalyzed: Object.values(repoCommits).reduce(
-      (sum, c) => sum + c.totalCommits,
-      0,
-    ),
-    oldestRepo: repos[0]?.name ?? null,
-    oldestRepoDate: repos[0]?.createdAt ?? null,
-    newestRepo: repos[repos.length - 1]?.name ?? null,
-    newestRepoDate: repos[repos.length - 1]?.createdAt ?? null,
+  return {
+    ...base,
+    milestones,
+    totals: {
+      ...base.totals,
+      commitsAnalyzed: Object.values(repoCommits).reduce(
+        (sum, c) => sum + c.totalCommits,
+        0,
+      ),
+    },
+    repoCommits,
   };
+}
 
-  const data: DevStoryData = {
+function assembleDevStoryData(
+  user: Awaited<
+    ReturnType<ReturnType<typeof createGitHubClient>["rest"]["users"]["getByUsername"]>
+  >["data"],
+  repos: RepoSnapshot[],
+  repoCommits: Record<string, RepoCommitData>,
+): DevStoryData {
+  const milestones = Object.values(repoCommits)
+    .map((c) => c.firstCommit)
+    .filter((c): c is CommitMilestone => c !== null)
+    .sort((a, b) => a.date.localeCompare(b.date));
+
+  const sortedRepos = [...repos].sort((a, b) =>
+    a.createdAt.localeCompare(b.createdAt),
+  );
+
+  return {
     username: user.login,
     name: user.name ?? user.login,
     avatarUrl: user.avatar_url,
@@ -171,14 +248,23 @@ export async function buildDevStoryData(
       followers: user.followers,
       following: user.following,
     },
-    totals,
+    totals: {
+      repoCount: repos.length,
+      totalStars: repos.reduce((sum, r) => sum + r.stars, 0),
+      totalForks: repos.reduce((sum, r) => sum + r.forks, 0),
+      commitsAnalyzed: Object.values(repoCommits).reduce(
+        (sum, c) => sum + c.totalCommits,
+        0,
+      ),
+      oldestRepo: sortedRepos[0]?.name ?? null,
+      oldestRepoDate: sortedRepos[0]?.createdAt ?? null,
+      newestRepo: sortedRepos[sortedRepos.length - 1]?.name ?? null,
+      newestRepoDate: sortedRepos[sortedRepos.length - 1]?.createdAt ?? null,
+    },
     languages: countLanguages(repos),
     languagesByYear: groupLanguagesByYear(repos),
     repos,
     milestones,
     repoCommits,
   };
-
-  dataCache.set(key, { data, expiresAt: Date.now() + CACHE_TTL_MS });
-  return data;
 }

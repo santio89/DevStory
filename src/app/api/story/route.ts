@@ -1,28 +1,49 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
-import {
-  buildDevStoryData,
-  toPreviewData,
-} from "@/lib/devstory/aggregate";
+import { z } from "zod";
+import { buildDevStoryData, toPreviewData } from "@/lib/devstory/aggregate";
+import { isValidGitHubUsername, normalizeGitHubUsername } from "@/lib/github/username";
+import { STORY_COMMIT_PROBE } from "@/lib/github/probe-repos";
+
+const querySchema = z.object({
+  username: z.string().min(1).max(39),
+});
 
 export async function GET(request: Request) {
-  const session = await auth();
+  const url = new URL(request.url);
+  const parsed = querySchema.safeParse({
+    username: url.searchParams.get("username") ?? "",
+  });
 
-  if (!session?.accessToken) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!parsed.success || !isValidGitHubUsername(parsed.data.username)) {
+    return NextResponse.json({ error: "Invalid GitHub username." }, { status: 400 });
   }
 
-  const url = new URL(request.url);
+  const username = normalizeGitHubUsername(parsed.data.username);
   const forceRefresh = url.searchParams.get("refresh") === "1";
 
   try {
-    const data = await buildDevStoryData(session.accessToken, { forceRefresh });
+    const data = await buildDevStoryData(username, {
+      forceRefresh,
+      commitProbeLimit: STORY_COMMIT_PROBE,
+    });
     return NextResponse.json({ preview: toPreviewData(data) });
   } catch (error) {
     console.error("Failed to build DevStory data:", error);
+    const status =
+      typeof error === "object" &&
+      error !== null &&
+      "status" in error &&
+      (error as { status: number }).status === 404
+        ? 404
+        : 502;
     return NextResponse.json(
-      { error: "Failed to fetch GitHub data. Check your token permissions." },
-      { status: 502 },
+      {
+        error:
+          status === 404
+            ? "GitHub user not found."
+            : "Failed to fetch GitHub data.",
+      },
+      { status },
     );
   }
 }

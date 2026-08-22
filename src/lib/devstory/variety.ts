@@ -15,6 +15,24 @@ export const BANNED_STORY_PHRASES = [
   "chapter in their journey",
   "along the way",
   "never looked back",
+  "passion for coding",
+  "love of learning",
+  "developer journey",
+] as const;
+
+const GENERIC_TITLE_PATTERNS = [
+  /developer journey/i,
+  /^from .+ to .+$/i,
+  /^the journey of/i,
+];
+
+const GENERIC_ARCHETYPES = [
+  "the developer",
+  "the coder",
+  "the programmer",
+  "the builder",
+  "the focused builder",
+  "the steady crafter",
 ] as const;
 
 const MIN_REPEATED_WORDS = 4;
@@ -119,6 +137,37 @@ export function storyVarietyIssues(story: DevStory): string[] {
     }
   }
 
+  const tokens = story.eras.map((era) => era.token);
+  const duplicateTokens = tokens.filter(
+    (token, index) => tokens.indexOf(token) !== index,
+  );
+  if (duplicateTokens.length > 0) {
+    issues.push(
+      `Duplicate sigil tokens across eras: ${[...new Set(duplicateTokens)].join(", ")}`,
+    );
+  }
+
+  const eraNames = story.eras.map((era) => normalize(era.name));
+  const duplicateEraNames = eraNames.filter(
+    (name, index) => eraNames.indexOf(name) !== index,
+  );
+  if (duplicateEraNames.length > 0) {
+    issues.push("Two or more eras share the same name.");
+  }
+
+  if (GENERIC_TITLE_PATTERNS.some((pattern) => pattern.test(story.title))) {
+    issues.push(`Title reads generic: "${story.title}"`);
+  }
+
+  if (
+    story.archetype &&
+    GENERIC_ARCHETYPES.includes(
+      story.archetype.toLowerCase() as (typeof GENERIC_ARCHETYPES)[number],
+    )
+  ) {
+    issues.push(`Archetype is too generic: "${story.archetype}"`);
+  }
+
   return issues;
 }
 
@@ -135,5 +184,7 @@ Rewrite the entire story from scratch with these rules:
 - Never reuse the same phrase, hook, or closing cadence across eras.
 - The summary must synthesize the arc in fresh language — do not echo era sentences.
 - The closing must name something specific from THIS developer's data (a language shift, repo pattern, era name, or milestone) and end on a note that could only belong to them.
-- Avoid all banned clichés listed above.`;
+- Avoid all banned clichés listed above.
+- Assign a different sigil token to every era — no duplicates.
+- Name specific repositories and quote at least one real commit message from the data.`;
 }

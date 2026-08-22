@@ -40,6 +40,21 @@ export const SIGIL_NUDGE: Record<TokenId, string> = {
   quill: "translate(0 0)",
   anchor: "translate(0 0)",
   pulse: "translate(0 0)",
+  beacon: "translate(0 -2)",
+  hourglass: "translate(0 0)",
+  canyon: "translate(0 1)",
+  harbor: "translate(0 2)",
+  knot: "translate(0 0)",
+  wing: "translate(0 -1)",
+  crater: "translate(0 1)",
+  mosaic: "translate(0 0)",
+  sundial: "translate(0 0)",
+  ledger: "translate(0 0)",
+  vault: "translate(0 0)",
+  circuit: "translate(0 0)",
+  lantern: "translate(0 0)",
+  helm: "translate(0 0)",
+  cascade: "translate(0 2)",
 };
 
 function renderToken(token: TokenId, stroke: string) {
@@ -308,6 +323,149 @@ function renderToken(token: TokenId, stroke: string) {
           <path d="M8 32 H20 L24 22 L30 42 L36 26 L40 32 H56" />
           <circle cx="8" cy="32" r="2" fill={ACCENT} stroke="none" />
           <circle cx="56" cy="32" r="2" fill={ACCENT} stroke="none" />
+        </g>
+      );
+    case "beacon":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M32 48 V28" />
+          <path d="M24 48 H40" />
+          <path d="M32 12 L44 28 H20 Z" />
+          <path d="M32 20 V24" strokeWidth={1.5} />
+          <circle cx="32" cy="16" r="2" fill={ACCENT} stroke="none" />
+        </g>
+      );
+    case "hourglass":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M18 14 H46 L32 32 Z" />
+          <path d="M18 50 H46 L32 32 Z" />
+          <path d="M28 20 H36 M28 44 H36" strokeWidth={1.5} />
+          <circle cx="32" cy="32" r="1.5" fill={ACCENT} stroke="none" />
+        </g>
+      );
+    case "canyon":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M8 50 L20 18 L28 34 L36 14 L44 30 L56 50 Z" />
+          <path d="M26 50 V38 M38 50 V42" strokeWidth={1.5} />
+          <circle cx="36" cy="14" r="2" fill={ACCENT} stroke="none" />
+        </g>
+      );
+    case "harbor":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M8 40 H56" />
+          <path d="M14 40 V28 H24 V40" />
+          <path d="M40 40 V24 H50 V40" />
+          <path d="M30 40 C30 34 34 30 40 30" strokeWidth={1.5} />
+          <path d="M10 44 C18 48 46 48 54 44" strokeWidth={1.5} />
+        </g>
+      );
+    case "knot":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M20 24 C20 16 28 14 32 20 C36 26 44 24 44 32 C44 40 36 42 32 36 C28 30 20 32 20 40" />
+          <path d="M32 20 V36" strokeWidth={1.5} strokeDasharray="3 3" />
+          <circle cx="32" cy="28" r="2" fill={ACCENT} stroke="none" />
+        </g>
+      );
+    case "wing":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M32 36 C22 30 14 32 12 40 C20 38 28 38 32 44 Z" />
+          <path d="M32 36 C42 30 50 32 52 40 C44 38 36 38 32 44 Z" />
+          <path d="M32 44 V20" />
+          <circle cx="32" cy="18" r="2" fill={ACCENT} stroke="none" />
+        </g>
+      );
+    case "crater":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <ellipse cx="32" cy="36" rx="20" ry="8" />
+          <path d="M18 36 C22 28 42 28 46 36" />
+          <path d="M24 22 L28 30 M40 22 L36 30" strokeWidth={1.5} />
+          <circle cx="32" cy="34" r="2" fill={ACCENT} stroke="none" />
+        </g>
+      );
+    case "mosaic":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <rect x="16" y="16" width="12" height="12" />
+          <rect x="30" y="16" width="12" height="12" />
+          <rect x="44" y="16" width="8" height="12" />
+          <rect x="16" y="30" width="12" height="12" />
+          <rect x="30" y="30" width="12" height="12" />
+          <rect x="44" y="30" width="8" height="12" />
+          <circle cx="22" cy="22" r="1.5" fill={ACCENT} stroke="none" />
+        </g>
+      );
+    case "sundial":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M16 46 C32 38 48 46 48 46" />
+          <path d="M32 46 V24" />
+          <path d="M32 24 L40 32" strokeWidth={1.5} />
+          <circle cx="32" cy="24" r="3" />
+          <path d="M24 18 H40" strokeWidth={1.5} />
+        </g>
+      );
+    case "ledger":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M18 14 H46 V50 H18 Z" />
+          <path d="M24 22 H40 M24 30 H36 M24 38 H32" strokeWidth={1.5} />
+          <path d="M42 38 H46" strokeWidth={1.5} />
+          <circle cx="44" cy="38" r="1.5" fill={ACCENT} stroke="none" />
+        </g>
+      );
+    case "vault":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <rect x="16" y="22" width="32" height="28" rx="3" />
+          <circle cx="32" cy="36" r="6" />
+          <path d="M32 36 V40" strokeWidth={1.5} />
+          <path d="M24 22 V18 H40 V22" />
+        </g>
+      );
+    case "circuit":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <rect x="14" y="20" width="14" height="10" rx="2" />
+          <rect x="36" y="34" width="14" height="10" rx="2" />
+          <path d="M28 25 H36 V39 H36" />
+          <path d="M14 39 H10 V45 H54 V39 H50" strokeWidth={1.5} />
+          <circle cx="10" cy="45" r="2" fill={ACCENT} stroke="none" />
+        </g>
+      );
+    case "lantern":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M32 12 V18" />
+          <path d="M24 18 H40 V34 C40 40 36 44 32 44 C28 44 24 40 24 34 Z" />
+          <path d="M28 26 H36" strokeWidth={1.5} />
+          <circle cx="32" cy="30" r="3" fill={ACCENT} stroke="none" opacity={0.35} />
+          <path d="M26 48 H38" />
+        </g>
+      );
+    case "helm":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="32" cy="32" r="18" />
+          <path d="M32 14 V50" />
+          <path d="M14 32 H50" strokeWidth={1.5} />
+          <path d="M32 32 L44 24" strokeWidth={1.5} />
+          <circle cx="32" cy="32" r="2" fill={ACCENT} stroke="none" />
+        </g>
+      );
+    case "cascade":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M32 12 V22" />
+          <path d="M20 22 H44 L32 34 Z" />
+          <path d="M24 34 H40 L32 46 Z" />
+          <path d="M28 46 H36 L32 54 Z" />
+          <circle cx="32" cy="12" r="2" fill={ACCENT} stroke="none" />
         </g>
       );
     default:

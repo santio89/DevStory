@@ -43,13 +43,12 @@ function TimelineItem({
       });
       const json = (await res.json()) as { error?: string } & Dive;
       if (!res.ok) {
-        throw new Error(json.error ?? t.play.deepDiveFailed);
+        setDiveError(res.status === 503 ? t.play.noAI : t.play.deepDiveFailed);
+        return;
       }
       setDive({ narrative: json.narrative, highlights: json.highlights });
-    } catch (e) {
-      setDiveError(
-        e instanceof Error && e.message.includes("503") ? t.play.noAI : t.play.deepDiveFailed,
-      );
+    } catch {
+      setDiveError(t.play.deepDiveFailed);
     } finally {
       setDiving(false);
     }
@@ -124,12 +123,11 @@ function TimelineItem({
           <button
             type="button"
             onClick={() => void handleDeepDive()}
+            aria-expanded={Boolean(dive)}
             className="mt-5 inline-flex items-center gap-2.5 text-left font-mono text-xs font-bold tracking-[0.2em] text-bauhaus-deep uppercase transition-colors hover:text-foreground"
           >
             {diving ? (
               <Loader2 className="size-3.5 shrink-0 animate-spin" />
-            ) : dive ? (
-              <BookOpen className="size-3.5 shrink-0 text-muted-foreground" />
             ) : (
               <BookOpen className="size-3.5 shrink-0" />
             )}
@@ -137,7 +135,7 @@ function TimelineItem({
               {diving
                 ? t.play.deepDiveLoading
                 : dive
-                  ? t.play.deepDive
+                  ? t.play.collapseDeepDive
                   : t.play.deepDive}
             </span>
           </button>

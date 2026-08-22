@@ -1,6 +1,6 @@
-export const siteName = "Your Dev Story";
+export const siteName = "Dev Story";
 export const siteDescription =
-  "Your code. Your story. Connect GitHub to see your invisible hours.";
+  "Any public GitHub username. Their code. Their story. A narrative timeline from commit history.";
 export const siteUrl = (
   process.env.NEXT_PUBLIC_APP_URL ?? "https://yourdevstory.vercel.app"
 ).replace(/\/+$/, "");

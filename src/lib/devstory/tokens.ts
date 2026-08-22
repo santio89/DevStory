@@ -27,6 +27,21 @@ export const TOKEN_IDS = [
   "quill",
   "anchor",
   "pulse",
+  "beacon",
+  "hourglass",
+  "canyon",
+  "harbor",
+  "knot",
+  "wing",
+  "crater",
+  "mosaic",
+  "sundial",
+  "ledger",
+  "vault",
+  "circuit",
+  "lantern",
+  "helm",
+  "cascade",
 ] as const;
 
 export type TokenId = (typeof TOKEN_IDS)[number];
@@ -60,7 +75,27 @@ export const TOKEN_MEANINGS: Record<TokenId, string> = {
   quill: "authorship, craft in the editor, leaving a signature",
   anchor: "stability, maintenance, holding the ship steady",
   pulse: "rhythm, iteration, the heartbeat of shipping",
+  beacon: "visibility, calling others in, open source lighthouse",
+  hourglass: "slow builds, patience, long projects measured in seasons",
+  canyon: "going deep, narrow specialization, vertical expertise",
+  harbor: "a home base repo, safe return, long-term maintenance",
+  knot: "tangled complexity finally understood, legacy untied",
+  wing: "ambition lifting off, leveling up, reaching higher",
+  crater: "crash and rebuild, post-mortem honesty, starting over",
+  mosaic: "many small repos forming a larger portrait",
+  sundial: "measured pace, time as ally, the long game",
+  ledger: "data, state, backends, accounting for what happened",
+  vault: "security, privacy, locking down what matters",
+  circuit: "low-level craft, embedded thinking, wires and logic",
+  lantern: "illumination, teaching, docs that light the path",
+  helm: "steering architecture, taking the wheel, leadership",
+  cascade: "pipelines, waterfalls of features, flow through stages",
 };
+
+/** Compact gallery for AI prompts (system + uniqueness blocks). */
+export const TOKEN_GALLERY_TEXT = TOKEN_IDS.map(
+  (t) => `${t} (${TOKEN_MEANINGS[t]})`,
+).join("; ");
 
 export function pickTokenForName(name: string): TokenId {
   let hash = 0;

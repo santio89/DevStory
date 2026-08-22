@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useLocale } from "@/components/locale/locale-provider";
-import { Check, Code2, Link2, Share2, Send } from "lucide-react";
+import { Check, Code2, Link2, MessageCircle, Share2, Send } from "lucide-react";
 import type { ReactNode } from "react";
 
 const SOCIALS = ["x", "facebook", "linkedin", "whatsapp", "telegram"] as const;
@@ -41,6 +41,7 @@ function SocialGlyph({ social }: { social: Social }) {
         <span className="font-heading text-sm font-black">in</span>
       );
     case "whatsapp":
+      return <MessageCircle className="size-3.5" />;
     case "telegram":
       return <Send className="size-3.5" />;
   }
@@ -90,8 +91,9 @@ export function ShareMenu({
 
   const embedCode = `<iframe src="${url}" width="100%" height="600" style="border:2px solid #121212" loading="lazy"></iframe>`;
 
-  const rows: { label: ReactNode; onClick: () => void }[] = [
+  const rows: { id: string; label: ReactNode; onClick: () => void }[] = [
     {
+      id: "link",
       label: (
         <>
           {copied === "link" ? <Check className="size-3.5" /> : <Link2 className="size-3.5" />}
@@ -100,16 +102,8 @@ export function ShareMenu({
       ),
       onClick: () => void copy(url, "link"),
     },
-    ...SOCIALS.map((social) => ({
-      label: (
-        <>
-          <SocialGlyph social={social} />
-          {t.share[social]}
-        </>
-      ),
-      onClick: () => window.open(socialUrl(social, url, text), "_blank", "noopener"),
-    })),
     {
+      id: "embed",
       label: (
         <>
           {copied === "embed" ? <Check className="size-3.5" /> : <Code2 className="size-3.5" />}
@@ -118,6 +112,16 @@ export function ShareMenu({
       ),
       onClick: () => void copy(embedCode, "embed"),
     },
+    ...SOCIALS.map((social) => ({
+      id: social,
+      label: (
+        <>
+          <SocialGlyph social={social} />
+          {t.share[social]}
+        </>
+      ),
+      onClick: () => window.open(socialUrl(social, url, text), "_blank", "noopener"),
+    })),
   ];
 
   return (
@@ -141,9 +145,9 @@ export function ShareMenu({
             {t.share.shareMenuTitle}
           </p>
           <div className="flex flex-col">
-            {rows.map((row, i) => (
+            {rows.map((row) => (
               <button
-                key={i}
+                key={row.id}
                 type="button"
                 role="menuitem"
                 onClick={row.onClick}
@@ -153,9 +157,6 @@ export function ShareMenu({
               </button>
             ))}
           </div>
-          <p className="mt-1 px-2 pt-2 font-mono text-[10px] leading-relaxed text-pretty text-muted-foreground uppercase">
-            {t.share.embedTitle}: {t.share.embedHint}
-          </p>
         </div>
       )}
     </div>

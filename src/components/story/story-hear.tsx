@@ -67,7 +67,10 @@ export function StoryHear({ story }: { story: DevStory }) {
       });
       if (!res.ok) {
         const json = (await res.json().catch(() => ({}))) as { error?: string };
-        throw new Error(json.error ?? "audio");
+        setAudioError(
+          res.status === 503 ? t.play.noAI : (json.error ?? t.play.audioFailed),
+        );
+        return;
       }
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
@@ -77,14 +80,8 @@ export function StoryHear({ story }: { story: DevStory }) {
         audioEl.current.src = url;
         void audioEl.current.play();
       }
-    } catch (e) {
-      setAudioError(
-        e instanceof Error && e.message.includes("503")
-          ? t.play.noAI
-          : e instanceof Error
-            ? e.message
-            : t.play.audioFailed,
-      );
+    } catch {
+      setAudioError(t.play.audioFailed);
     } finally {
       setGeneratingAudio(false);
     }

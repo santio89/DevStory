@@ -16,48 +16,56 @@ import { Sparkles, Loader2, AlertTriangle } from "lucide-react";
 const STORAGE_KEY = "devstory-story";
 
 type PersistedStory = {
+  username: string;
   story: DevStory;
   mode: "ai" | "mock";
-  storyId: string | null;
   authoredLocale: Locale;
   translations: Partial<Record<Locale, DevStory>>;
   data: StoryDataSnapshot | null;
 };
 
-export function StoryGenerator() {
+export function StoryGenerator({ username }: { username: string }) {
   const { t, locale } = useLocale();
   const [story, setStory] = useState<DevStory | null>(null);
+  const [displayName, setDisplayName] = useState(username);
   const [authoredLocale, setAuthoredLocale] = useState<Locale>("en");
   const [translations, setTranslations] = useState<
     Partial<Record<Locale, DevStory>>
   >({});
   const [mode, setMode] = useState<"ai" | "mock" | null>(null);
-  const [storyId, setStoryId] = useState<string | null>(null);
   const [data, setData] = useState<StoryDataSnapshot | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [failedLocales, setFailedLocales] = useState<Locale[]>([]);
 
   useEffect(() => {
     let active = true;
     queueMicrotask(() => {
       if (!active) return;
+      setStory(null);
+      setMode(null);
+      setData(null);
+      setTranslations({});
+      setError(null);
+      setFailedLocales([]);
+      setDisplayName(username);
       try {
         const raw = window.localStorage.getItem(STORAGE_KEY);
         if (!raw) return;
         const parsed = JSON.parse(raw) as PersistedStory;
-        if (!parsed?.story) return;
+        if (!parsed?.story || parsed.username !== username) return;
         setStory(parsed.story);
         setMode(parsed.mode ?? "mock");
-        setStoryId(parsed.storyId ?? null);
         setAuthoredLocale(parsed.authoredLocale ?? "en");
         setTranslations(parsed.translations ?? {});
         setData(parsed.data ?? null);
+        setDisplayName(parsed.data?.name ?? username);
       } catch {}
     });
     return () => {
       active = false;
     };
-  }, []);
+  }, [username]);
 
   useEffect(() => {
     if (!story) return;
@@ -65,16 +73,16 @@ export function StoryGenerator() {
       window.localStorage.setItem(
         STORAGE_KEY,
         JSON.stringify({
+          username,
           story,
           mode: mode ?? "mock",
-          storyId,
           authoredLocale,
           translations,
           data,
         } satisfies PersistedStory),
       );
     } catch {}
-  }, [story, mode, storyId, authoredLocale, translations, data]);
+  }, [story, mode, authoredLocale, translations, data, username]);
 
   async function handleGenerate() {
     setLoading(true);
@@ -83,28 +91,26 @@ export function StoryGenerator() {
       const res = await fetch("/api/story/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ locale }),
+        body: JSON.stringify({ username, locale }),
         cache: "no-store",
       });
-      if (!res.ok) {
-        throw new Error(
-          res.status === 401
-            ? t.generator.signInError
-            : t.generator.failed,
-        );
-      }
       const json = (await res.json()) as {
-        story: DevStory;
-        mode: "ai" | "mock";
-        storyId: string | null;
-        data: StoryDataSnapshot | null;
+        story?: DevStory;
+        mode?: "ai" | "mock";
+        data?: StoryDataSnapshot | null;
+        error?: string;
       };
+      if (!res.ok) {
+        throw new Error(json.error ?? t.generator.failed);
+      }
+      if (!json.story) throw new Error(t.generator.failed);
       setStory(json.story);
-      setMode(json.mode);
-      setStoryId(json.storyId);
+      setMode(json.mode ?? "mock");
       setAuthoredLocale(json.mode === "ai" ? locale : "en");
       setTranslations({});
+      setFailedLocales([]);
       setData(json.data ?? null);
+      setDisplayName(json.data?.name ?? username);
     } catch (e) {
       setError(e instanceof Error ? e.message : t.generator.failed);
     } finally {
@@ -112,8 +118,12 @@ export function StoryGenerator() {
     }
   }
 
+  const translationFailed = failedLocales.includes(locale);
   const translating = Boolean(
-    story && locale !== authoredLocale && !translations[locale],
+    story &&
+      locale !== authoredLocale &&
+      !translations[locale] &&
+      !translationFailed,
   );
   const activeStory = translations[locale] ?? story;
 
@@ -131,12 +141,25 @@ export function StoryGenerator() {
             targetLocale: locale,
           }),
         });
-        if (!res.ok) return;
+        if (!res.ok) {
+          if (active) {
+            setFailedLocales((prev) =>
+              prev.includes(locale) ? prev : [...prev, locale],
+            );
+          }
+          return;
+        }
         const json = (await res.json()) as { story: DevStory };
         if (active) {
           setTranslations((prev) => ({ ...prev, [locale]: json.story }));
         }
-      } catch {}
+      } catch {
+        if (active) {
+          setFailedLocales((prev) =>
+            prev.includes(locale) ? prev : [...prev, locale],
+          );
+        }
+      }
     })();
     return () => {
       active = false;
@@ -145,13 +168,13 @@ export function StoryGenerator() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <div>
           <p className="font-mono text-xs font-bold tracking-[0.2em] text-muted-foreground uppercase">
             {t.generator.phase}
           </p>
           <h2 className="mt-1 font-heading text-2xl font-black tracking-normal text-balance uppercase">
-            {t.generator.title}
+            {t.generator.titleFor(username)}
           </h2>
         </div>
         <Button
@@ -172,7 +195,7 @@ export function StoryGenerator() {
         <Card className="bg-card shadow-hard">
           <CardContent className="flex items-center gap-3 py-8 font-mono text-sm font-bold tracking-wider text-muted-foreground uppercase">
             <Loader2 className="size-4 animate-spin text-bauhaus-deep" />
-            {t.generator.reading}
+            {t.generator.readingFor(username)}
           </CardContent>
         </Card>
       )}
@@ -186,23 +209,53 @@ export function StoryGenerator() {
         </Card>
       )}
 
+      {!story && !loading && (
+        <Card className="border-2 border-dashed border-foreground/40 bg-muted/30 shadow-none">
+          <CardContent className="flex flex-col items-center gap-4 py-10 text-center sm:py-12">
+            <span className="flex size-12 items-center justify-center rounded-none border-2 border-foreground bg-bauhaus-yellow/20 shadow-hard-sm">
+              <Sparkles className="size-5 text-bauhaus-deep" />
+            </span>
+            <div className="max-w-md space-y-2">
+              <h3 className="font-heading text-lg font-black tracking-normal uppercase">
+                {t.generator.emptyTitle}
+              </h3>
+              <p className="text-sm text-muted-foreground text-pretty">
+                {t.generator.emptyBody(username)}
+              </p>
+            </div>
+            <Button onClick={() => void handleGenerate()} size="lg">
+              <Sparkles className="text-bauhaus-yellow" />
+              {t.generator.emptyCta}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       {story && !loading && (
         <FadeIn>
           {translating ? (
             <StoryTranslating />
           ) : (
-            <StoryView
-              story={activeStory ?? story}
-              mode={mode ?? "mock"}
-              storyId={storyId}
-              data={data}
-            />
+            <>
+              {translationFailed && locale !== authoredLocale && (
+                <p className="mb-4 font-mono text-xs font-bold tracking-wider text-muted-foreground uppercase">
+                  {t.generator.translationFailed}
+                </p>
+              )}
+              <StoryView
+                story={activeStory ?? story}
+                mode={mode ?? "mock"}
+                username={username}
+                displayName={displayName}
+                data={data}
+              />
+            </>
           )}
         </FadeIn>
       )}
 
       {story && (
-        <StoryChat story={activeStory ?? story} data={data} />
+        <StoryChat story={activeStory ?? story} data={data} username={username} />
       )}
     </div>
   );

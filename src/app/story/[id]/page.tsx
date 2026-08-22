@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import type { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/site-header";
+import { LocaleToggle } from "@/components/locale-toggle";
 import { StoryContent } from "@/components/story/story-content";
 import { ShareMenu } from "@/components/story/share-menu";
 import { FloatingSymbol } from "@/components/motion/floating-symbol";
@@ -74,9 +75,7 @@ export default async function StoryPage({
   return (
     <div className="flex min-h-full flex-col">
       <SiteHeader>
-        <span className="hidden font-mono text-xs text-muted-foreground sm:inline">
-          {t.common.shareTagline}
-        </span>
+        <LocaleToggle />
       </SiteHeader>
 
       <main className="flex-1">
@@ -128,7 +127,7 @@ export default async function StoryPage({
             </Button>
             <div className="mt-6 flex justify-center">
               <ShareMenu
-                url={`${process.env.NEXT_PUBLIC_APP_URL ?? ""}/story/${id}`}
+                url={`${siteUrl}/?u=${encodeURIComponent(story.githubLogin)}`}
                 text={`${story.title} — ${t.common.shareTagline}`}
                 buttonClassName="border-white bg-transparent text-white shadow-none hover:bg-white/10"
               />

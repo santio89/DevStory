@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FadeIn } from "@/components/motion/fade-in";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { langColor } from "@/components/story/languages";
 import { useLocale } from "@/components/locale/locale-provider";
 import type { StoryPreviewData } from "@/lib/devstory/aggregate";
 import type { Locale } from "@/lib/i18n/dictionary";
-import { GitCommit, RefreshCw, Star, FolderGit2 } from "lucide-react";
+import { GitCommit, RefreshCw, Star, FolderGit2, AlertTriangle } from "lucide-react";
 
 function formatDate(iso: string | null, locale: Locale) {
   if (!iso) return "—";
@@ -19,72 +20,84 @@ function formatDate(iso: string | null, locale: Locale) {
 }
 
 export function StoryPreview({
-  initialData,
-  initialError = null,
+  username,
+  onLoadingChange,
 }: {
-  initialData: StoryPreviewData | null;
-  initialError?: string | null;
+  username: string;
+  onLoadingChange?: (loading: boolean) => void;
 }) {
   const { t, locale } = useLocale();
-  const [data, setData] = useState<StoryPreviewData | null>(initialData);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(initialError);
+  const [data, setData] = useState<StoryPreviewData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  async function handleRefresh() {
+  async function fetchPreview(refresh = false) {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/story?refresh=1", { cache: "no-store" });
+      const params = new URLSearchParams({ username });
+      if (refresh) params.set("refresh", "1");
+      const res = await fetch(`/api/story?${params}`, { cache: "no-store" });
+      const json = (await res.json()) as {
+        preview?: StoryPreviewData;
+        error?: string;
+      };
       if (!res.ok) {
-        throw new Error(
-          res.status === 401
-            ? t.preview.signInError
-            : t.preview.fetchError(res.status),
-        );
+        throw new Error(json.error ?? t.preview.fetchError(res.status));
       }
-      const json = (await res.json()) as { preview: StoryPreviewData };
-      setData(json.preview);
+      setData(json.preview ?? null);
     } catch (e) {
       setError(e instanceof Error ? e.message : t.preview.genericError);
+      setData(null);
     } finally {
       setLoading(false);
     }
   }
 
+  useEffect(() => {
+    void fetchPreview();
+  }, [username]);
+
+  useEffect(() => {
+    onLoadingChange?.(loading);
+  }, [loading, onLoadingChange]);
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <div>
           <p className="font-mono text-xs font-bold tracking-[0.2em] text-muted-foreground uppercase">
             {t.preview.phase}
           </p>
           <h2 className="mt-1 font-heading text-2xl font-black tracking-normal text-balance uppercase">
-            {t.preview.title}
+            {t.preview.titleFor(username)}
           </h2>
         </div>
-        <button
+        <Button
           type="button"
-          onClick={() => void handleRefresh()}
+          variant="outline"
+          size="sm"
+          onClick={() => void fetchPreview(true)}
           disabled={loading}
-          className="inline-flex items-center gap-1.5 rounded-none border-2 border-foreground bg-background px-2.5 py-1 text-xs font-bold tracking-wider text-foreground uppercase shadow-hard-sm transition-all duration-200 hover:bg-muted active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:opacity-50"
         >
-          <RefreshCw className={`size-3.5 ${loading ? "animate-spin" : ""}`} />
+          <RefreshCw className={loading ? "animate-spin" : ""} />
           {loading ? t.preview.digging : t.preview.refresh}
-        </button>
+        </Button>
       </div>
 
       {loading && (
         <Card className="bg-card shadow-hard">
           <CardContent className="flex items-center gap-3 py-8 font-mono text-sm font-bold tracking-wider text-muted-foreground uppercase">
             <GitCommit className="size-4 animate-pulse text-bauhaus-deep" />
-            {t.preview.harvesting}
+            {t.preview.harvestingFor(username)}
           </CardContent>
         </Card>
       )}
 
-      {error && (
+      {error && !loading && (
         <Card className="border-destructive bg-destructive/10 shadow-none">
-          <CardContent className="py-4 font-mono text-sm font-bold text-destructive uppercase">
+          <CardContent className="flex items-center gap-2 py-4 font-mono text-sm font-bold text-destructive uppercase">
+            <AlertTriangle className="size-4 shrink-0" />
             {error}
           </CardContent>
         </Card>

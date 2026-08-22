@@ -4,7 +4,7 @@ import { createGateway } from "ai";
 export type ModelProvider = "openrouter" | "gateway";
 
 const OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";
-const APP_NAME = "Your Dev Story";
+const APP_NAME = "Dev Story";
 const DEFAULT_MODEL = "openai/gpt-4.1-mini";
 
 export function hasOpenRouterConfigured(): boolean {

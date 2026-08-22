@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { TOKEN_IDS, TOKEN_MEANINGS } from "./tokens";
+import { TOKEN_GALLERY_TEXT, TOKEN_IDS } from "./tokens";
 
 export const eraSchema = z.object({
   year: z
@@ -21,7 +21,7 @@ export const eraSchema = z.object({
   token: z
     .enum(TOKEN_IDS)
     .describe(
-      `The single sigil from the gallery that best embodies this era. Gallery: ${TOKEN_IDS.map((t) => `${t} (${TOKEN_MEANINGS[t]})`).join("; ")}. Prefer distinct tokens across eras.`,
+      `The single sigil from the gallery that best embodies this era. Full gallery: ${TOKEN_GALLERY_TEXT}. Prefer distinct tokens across eras — never repeat a sigil within one story.`,
     ),
 });
 
@@ -29,7 +29,7 @@ export const storySchema = z.object({
   title: z
     .string()
     .describe(
-      "A short, evocative title for the developer's entire journey, e.g. 'From Hello World to Systems'",
+      "A short, evocative title for the developer's entire journey, e.g. 'The Kernel Keeper', 'Commits in the Half-Light'",
     ),
   summary: z
     .string()
@@ -39,9 +39,9 @@ export const storySchema = z.object({
   eras: z
     .array(eraSchema)
     .min(3)
-    .max(5)
+    .max(10)
     .describe(
-      "The 3-5 distinct eras of this developer's journey, in strict chronological order",
+      "Distinct eras of this developer's journey in strict chronological order. Use more eras when the data spans many years and repos; fewer only when the history is genuinely sparse.",
     ),
   closing: z
     .string()

@@ -78,17 +78,14 @@ export function StoryMoment({
       });
       const json = (await res.json()) as { error?: string } & Moment;
       if (!res.ok) {
-        throw new Error(json.error ?? t.moment.failed);
+        setError(res.status === 503 ? t.moment.noAI : t.moment.failed);
+        return;
       }
       const next = { title: json.title, text: json.text, year: json.year, dateLabel: json.dateLabel };
       setMoment(next);
       writeStored(fingerprint, { [locale]: next });
-    } catch (e) {
-      setError(
-        e instanceof Error && e.message.includes("503")
-          ? t.moment.noAI
-          : t.moment.failed,
-      );
+    } catch {
+      setError(t.moment.failed);
     } finally {
       setLoading(false);
     }
@@ -108,17 +105,14 @@ export function StoryMoment({
       });
       const json = (await res.json()) as { error?: string } & Moment;
       if (!res.ok) {
-        throw new Error(json.error ?? t.moment.failed);
+        setError(res.status === 503 ? t.moment.noAI : t.moment.failed);
+        return;
       }
       const next = { ...current, title: json.title, text: json.text };
       setMoment(next);
       writeStored(fingerprint, { ...byLocale, [locale]: next });
-    } catch (e) {
-      setError(
-        e instanceof Error && e.message.includes("503")
-          ? t.moment.noAI
-          : t.moment.failed,
-      );
+    } catch {
+      setError(t.moment.failed);
     } finally {
       setTranslating(false);
     }
@@ -142,7 +136,6 @@ export function StoryMoment({
         }
         return;
       }
-      void handleMoment();
     });
     return () => {
       active = false;

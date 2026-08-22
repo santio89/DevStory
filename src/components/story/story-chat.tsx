@@ -7,26 +7,34 @@ import { useLocale } from "@/components/locale/locale-provider";
 import type { DevStory } from "@/lib/devstory/story";
 import type { StoryDataSnapshot } from "@/lib/devstory/minify";
 import type { Locale } from "@/lib/i18n/dictionary";
-import { Bot, Loader2, MessageSquare, Send, X } from "lucide-react";
+import type { ChatExtras } from "@/lib/devstory/chat-context";
+import { BookOpen, Loader2, MessageSquare, Send, X } from "lucide-react";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
 const STORAGE_KEY = "devstory-chat";
 
 type StoredChat = {
-  byLocale: Record<string, ChatMessage[]>;
+  byUser: Record<string, ChatMessage[]>;
 };
+
+function chatKey(username: string, locale: Locale): string {
+  return `${username}|${locale}`;
+}
 
 function hasUserMessages(messages: ChatMessage[]): boolean {
   return messages.some((m) => m.role === "user");
 }
 
-function readStored(locale: Locale): ChatMessage[] {
+function readStored(username: string, locale: Locale): ChatMessage[] {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
-    const parsed = JSON.parse(raw) as StoredChat;
-    const messages = parsed?.byLocale?.[locale];
+    const parsed = JSON.parse(raw) as StoredChat & {
+      byLocale?: Record<string, ChatMessage[]>;
+    };
+    const messages =
+      parsed?.byUser?.[chatKey(username, locale)] ?? parsed?.byLocale?.[locale];
     if (!Array.isArray(messages)) return [];
     const filtered = messages.filter(
       (m): m is ChatMessage =>
@@ -42,33 +50,73 @@ function readStored(locale: Locale): ChatMessage[] {
   }
 }
 
-function writeStored(locale: Locale, messages: ChatMessage[]) {
+function writeStored(
+  username: string,
+  locale: Locale,
+  messages: ChatMessage[],
+) {
   if (!hasUserMessages(messages)) return;
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     const parsed = raw
       ? (JSON.parse(raw) as StoredChat)
-      : { byLocale: {} };
-    const byLocale =
-      parsed?.byLocale && typeof parsed.byLocale === "object"
-        ? parsed.byLocale
+      : { byUser: {} };
+    const byUser =
+      parsed?.byUser && typeof parsed.byUser === "object"
+        ? parsed.byUser
         : {};
+    const key = chatKey(username, locale);
     window.localStorage.setItem(
       STORAGE_KEY,
       JSON.stringify({
-        byLocale: { ...byLocale, [locale]: messages },
+        byUser: { ...byUser, [key]: messages },
       } satisfies StoredChat),
     );
   } catch {}
 }
 
+function apiMessages(
+  messages: ChatMessage[],
+  greeting: string,
+): ChatMessage[] {
+  return messages.filter(
+    (m) => !(m.role === "assistant" && m.content === greeting),
+  );
+}
+
+function readStoredMoment(
+  fingerprint: string,
+  locale: Locale,
+): ChatExtras["moment"] | undefined {
+  try {
+    const raw = window.localStorage.getItem("devstory-moment");
+    if (!raw) return undefined;
+    const parsed = JSON.parse(raw) as {
+      fingerprint?: string;
+      byLocale?: Record<
+        string,
+        { title: string; text: string; year: string; dateLabel?: string }
+      >;
+    };
+    if (parsed.fingerprint !== fingerprint) return undefined;
+    return parsed.byLocale?.[locale];
+  } catch {
+    return undefined;
+  }
+}
+
 export function StoryChat({
   story,
   data,
+  username,
 }: {
   story: DevStory;
   data: StoryDataSnapshot | null;
+  username: string;
 }) {
+  const fingerprint = story.eras
+    .map((era) => `${era.year}|${era.name}`)
+    .join("§");
   const { t, locale } = useLocale();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -81,20 +129,21 @@ export function StoryChat({
 
   useEffect(() => {
     let active = true;
+    setOpen(false);
     queueMicrotask(() => {
       if (!active) return;
-      setMessages(readStored(locale));
+      setMessages(readStored(username, locale));
       setHydrated(true);
     });
     return () => {
       active = false;
     };
-  }, [locale]);
+  }, [username, locale]);
 
   useEffect(() => {
     if (!hydrated || messages.length === 0) return;
-    writeStored(locale, messages);
-  }, [messages, locale, hydrated]);
+    writeStored(username, locale, messages);
+  }, [messages, username, locale, hydrated]);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -116,23 +165,40 @@ export function StoryChat({
     };
   }, [open, t.chat.greeting, hydrated]);
 
-  async function send() {
-    const content = input.trim();
+  async function send(messageText?: string) {
+    const content = (messageText ?? input).trim();
     if (!content || streaming) return;
     setInput("");
     setError(null);
-    const next: ChatMessage[] = [...messages, { role: "user", content }];
-    setMessages(next);
+
+    const greeting = t.chat.greeting;
+    const next: ChatMessage[] = [
+      ...apiMessages(messages, greeting),
+      { role: "user", content },
+    ];
+    setMessages([...messages, { role: "user", content }]);
     setStreaming(true);
+
+    const moment = readStoredMoment(fingerprint, locale);
 
     try {
       const res = await fetch("/api/story/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: next, story, data, locale }),
+        body: JSON.stringify({
+          messages: next,
+          story,
+          data,
+          username,
+          locale,
+          extras: moment ? { moment } : undefined,
+        }),
       });
       if (!res.ok) {
         const json = (await res.json().catch(() => ({}))) as { error?: string };
+        if (res.status === 503) {
+          throw new Error(t.chat.noAI);
+        }
         throw new Error(json.error ?? t.chat.failed);
       }
       if (res.headers.get("content-type")?.includes("application/json")) {
@@ -167,6 +233,10 @@ export function StoryChat({
     }
   }
 
+  const showSuggestions = !messages.some((m) => m.role === "user");
+  const awaitingReply =
+    streaming && messages[messages.length - 1]?.role === "user";
+
   return (
     <>
       <AnimatePresence>
@@ -180,12 +250,12 @@ export function StoryChat({
           >
             <div className="flex items-center justify-between border-b-2 border-foreground bg-bauhaus-deep px-4 py-3 text-white">
               <div className="flex items-center gap-2">
-                <Bot className="size-5 text-bauhaus-yellow" />
+                <BookOpen className="size-5 text-bauhaus-yellow" />
                 <div>
                   <p className="font-heading text-sm font-black tracking-normal text-balance uppercase">
                     {t.chat.title}
                   </p>
-                  <p className="font-mono text-[10px] text-white/70 uppercase">
+                  <p className="font-mono text-[10px] text-white/70 tracking-wide">
                     {t.chat.subtitle}
                   </p>
                 </div>
@@ -193,7 +263,7 @@ export function StoryChat({
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                aria-label="Close chat"
+                aria-label={t.chat.close}
                 className="p-1 transition-colors hover:bg-white/10"
               >
                 <X className="size-4" />
@@ -210,12 +280,32 @@ export function StoryChat({
                   className={
                     m.role === "user"
                       ? "self-end max-w-[85%] rounded-none border-2 border-foreground bg-bauhaus-yellow px-3 py-2 font-mono text-sm font-bold text-balance text-bauhaus-ink"
-                      : "self-start max-w-[90%] rounded-none border-2 border-foreground bg-muted px-3 py-2 font-mono text-sm text-pretty text-foreground"
+                      : "self-start max-w-[90%] rounded-none border-2 border-foreground bg-muted px-3 py-2.5 text-sm leading-relaxed text-pretty text-foreground"
                   }
                 >
                   {m.content || (streaming && i === messages.length - 1 ? "…" : "")}
                 </div>
               ))}
+              {awaitingReply && (
+                <p className="self-start font-mono text-xs tracking-wide text-muted-foreground italic">
+                  {t.chat.thinking}
+                </p>
+              )}
+              {showSuggestions && (
+                <div className="flex flex-col gap-1.5 pt-1">
+                  {t.chat.suggestions.map((suggestion) => (
+                    <button
+                      key={suggestion}
+                      type="button"
+                      disabled={streaming}
+                      onClick={() => void send(suggestion)}
+                      className="rounded-none border border-dashed border-foreground/40 px-2.5 py-2 text-left text-xs leading-snug text-muted-foreground transition-colors hover:border-foreground hover:bg-background hover:text-foreground"
+                    >
+                      {suggestion}
+                    </button>
+                  ))}
+                </div>
+              )}
               {error && (
                 <p className="font-mono text-xs font-bold text-destructive uppercase">
                   {error}

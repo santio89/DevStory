@@ -1,5 +1,6 @@
 import { Octokit } from "octokit";
 
-export function createGitHubClient(accessToken: string) {
-  return new Octokit({ auth: accessToken });
+export function createGitHubClient(): Octokit {
+  const token = process.env.GITHUB_TOKEN?.trim();
+  return new Octokit(token ? { auth: token } : {});
 }

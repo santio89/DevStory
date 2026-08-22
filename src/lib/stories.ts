@@ -5,6 +5,7 @@ import type { DevStory } from "@/lib/devstory/story";
 
 export type StoryRow = {
   id: string;
+  githubLogin: string;
   username: string;
   title: string;
   summary: string;

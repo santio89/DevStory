@@ -6,6 +6,8 @@ import { BIOGRAPHER_SYSTEM_PROMPT, buildPrompt } from "./prompt";
 import { storySchema, type DevStory } from "./story";
 import type { DevStoryData } from "./aggregate";
 import type { Locale } from "@/lib/i18n/dictionary";
+import { eraCountGuidance } from "./story-richness";
+import { buildNarrativeFingerprint, buildUniquenessGuidance } from "./narrative-context";
 import {
   buildVarietyCorrection,
   needsVarietyRetry,
@@ -26,6 +28,8 @@ export { hasAIProviderConfigured } from "./providers";
 async function generateStoryFromAI(
   minified: string,
   locale: Locale,
+  eraGuidance: string,
+  uniquenessGuidance: string,
   extraPrompt = "",
 ): Promise<DevStory> {
   const { output } = await runWithModelFallback((model) =>
@@ -37,9 +41,9 @@ async function generateStoryFromAI(
         schema: storySchema,
       }),
       system: BIOGRAPHER_SYSTEM_PROMPT,
-      prompt: `${buildPrompt(minified, locale)}${extraPrompt}`,
-      temperature: extraPrompt ? 0.9 : 0.85,
-      maxOutputTokens: 2048,
+      prompt: `${buildPrompt(minified, locale, eraGuidance, uniquenessGuidance)}${extraPrompt}`,
+      temperature: extraPrompt ? 0.92 : 0.88,
+      maxOutputTokens: 4096,
     }),
   );
   return output;
@@ -53,10 +57,18 @@ export async function generateStory(
     return { story: generateMockStory(data), mode: "mock" };
   }
 
-  const minified = minifyDevStory(data);
+  const fingerprint = buildNarrativeFingerprint(data);
+  const minified = minifyDevStory(data, fingerprint);
+  const eraGuidance = eraCountGuidance(data);
+  const uniquenessGuidance = buildUniquenessGuidance(data, fingerprint);
 
   try {
-    let story = await generateStoryFromAI(minified, locale);
+    let story = await generateStoryFromAI(
+      minified,
+      locale,
+      eraGuidance,
+      uniquenessGuidance,
+    );
 
     if (needsVarietyRetry(story)) {
       const issues = storyVarietyIssues(story);
@@ -64,6 +76,8 @@ export async function generateStory(
       const revised = await generateStoryFromAI(
         minified,
         locale,
+        eraGuidance,
+        uniquenessGuidance,
         `\n\n${buildVarietyCorrection(issues)}`,
       );
       if (!needsVarietyRetry(revised)) {
@@ -85,7 +99,7 @@ export const emailCopySchema = z.object({
 
 export type EmailCopy = z.infer<typeof emailCopySchema>;
 
-const EMAIL_SYSTEM_PROMPT = `You are Your Dev Story's letter writer. Given a developer's story (title, summary, and eras), write two short pieces of email copy:
+const EMAIL_SYSTEM_PROMPT = `You are Dev Story's letter writer. Given a developer's story (title, summary, and eras), write two short pieces of email copy:
 1. A subject line (max 90 chars) that feels personal and evokes the arc of the story.
 2. A single "P.S." line (max 240 chars) that closes the email like a handwritten letter — warm, human, a little poetic. Never generic.
 
@@ -106,7 +120,7 @@ export async function generateEmailCopy(story: DevStory): Promise<EmailCopy> {
         model,
         output: Output.object({
           name: "EmailCopy",
-          description: "An email subject line and closing P.S. for a Your Dev Story email",
+          description: "An email subject line and closing P.S. for a Dev Story email",
           schema: emailCopySchema,
         }),
         system: EMAIL_SYSTEM_PROMPT,

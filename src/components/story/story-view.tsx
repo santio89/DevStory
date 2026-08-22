@@ -18,7 +18,7 @@ import {
   Share2,
 } from "lucide-react";
 
-function storyToText(story: DevStory): string {
+function storyToText(story: DevStory, subject: string): string {
   return [
     story.title,
     "",
@@ -30,7 +30,7 @@ function storyToText(story: DevStory): string {
       "",
     ]),
     ...(story.closing ? [story.closing, ""] : []),
-    "— written by Your Dev Story",
+    `— ${subject}`,
   ].join("\n");
 }
 
@@ -39,12 +39,14 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export function StoryView({
   story,
   mode,
-  storyId,
+  username,
+  displayName,
   data = null,
 }: {
   story: DevStory;
   mode: "ai" | "mock";
-  storyId: string | null;
+  username: string;
+  displayName: string;
   data?: StoryDataSnapshot | null;
 }) {
   const { t } = useLocale();
@@ -59,13 +61,17 @@ export function StoryView({
     .map((era) => `${era.year}|${era.name}`)
     .join("§");
 
-  const shareUrl = storyId
-    ? new URL(`/story/${storyId}`, window.location.origin).href
-    : null;
+  const shareUrl =
+    typeof window !== "undefined"
+      ? new URL(`/?u=${encodeURIComponent(username)}`, window.location.origin)
+          .href
+      : `/?u=${encodeURIComponent(username)}`;
+
+  const shareSubject = t.share.subjectFor(displayName);
 
   async function copyStory() {
     try {
-      await navigator.clipboard.writeText(storyToText(story));
+      await navigator.clipboard.writeText(storyToText(story, shareSubject));
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -75,14 +81,18 @@ export function StoryView({
 
   async function handleEmail(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!storyId) return;
     setEmailStatus("loading");
     setEmailError(null);
     try {
       const res = await fetch("/api/story/email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ storyId, email }),
+        body: JSON.stringify({
+          username,
+          email,
+          story,
+          displayName,
+        }),
       });
       const json = (await res.json()) as { error?: string };
       if (!res.ok) {
@@ -125,11 +135,10 @@ export function StoryView({
                 </h4>
               </div>
               <p className="mt-1.5 max-w-md text-sm text-pretty text-white/80">
-                {t.share.erasLabel(story.eras.length)},{" "}
+                {t.share.blurbFor(displayName)} · {t.share.erasLabel(story.eras.length)}
                 {allLanguages.length > 0
-                  ? `${allLanguages.join(" → ")}`
-                  : t.share.noLanguages}
-                . {t.common.shareTagline}.
+                  ? ` · ${allLanguages.join(" → ")}`
+                  : ` · ${t.share.noLanguages}`}
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -140,13 +149,11 @@ export function StoryView({
                 {copied ? <Check /> : <Copy />}
                 {copied ? t.share.copied : t.share.copyText}
               </Button>
-              {shareUrl && (
-                <ShareMenu
-                  url={shareUrl}
-                  text={`${story.title} — ${t.common.shareTagline}`}
-                  buttonClassName="border-white bg-transparent text-white shadow-none hover:bg-white/10"
-                />
-              )}
+              <ShareMenu
+                url={shareUrl}
+                text={`${story.title} — ${t.common.shareTagline}`}
+                buttonClassName="border-white bg-transparent text-white shadow-none hover:bg-white/10"
+              />
             </div>
           </div>
 
@@ -159,9 +166,23 @@ export function StoryView({
             </div>
 
             {emailStatus === "success" ? (
-              <p className="mt-3 font-mono text-sm font-bold text-bauhaus-yellow">
-                {t.share.emailSuccess}
-              </p>
+              <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <p className="font-mono text-sm font-bold text-bauhaus-yellow">
+                  {t.share.emailSuccess}
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setEmailStatus("idle");
+                    setEmail("");
+                  }}
+                  className="border-white/40 bg-transparent text-white hover:bg-white/10"
+                >
+                  {t.share.sendAnother}
+                </Button>
+              </div>
             ) : (
               <form
                 onSubmit={(e) => void handleEmail(e)}
@@ -173,17 +194,15 @@ export function StoryView({
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={t.share.emailPlaceholder}
-                  disabled={emailStatus === "loading" || !storyId}
-                  aria-label="Email address"
+                  disabled={emailStatus === "loading"}
+                  aria-label={t.share.emailAriaLabel}
                   className="h-10 flex-1 rounded-none border-2 border-foreground bg-background px-3 font-mono text-sm text-foreground placeholder:text-muted-foreground focus:border-bauhaus-deep focus:outline-none disabled:opacity-50"
                 />
                 <Button
                   type="submit"
                   size="sm"
                   disabled={
-                    emailStatus === "loading" ||
-                    !storyId ||
-                    !EMAIL_PATTERN.test(email)
+                    emailStatus === "loading" || !EMAIL_PATTERN.test(email)
                   }
                   className="bg-bauhaus-yellow text-bauhaus-ink hover:bg-bauhaus-yellow/90"
                 >
@@ -202,12 +221,6 @@ export function StoryView({
             {emailStatus === "error" && emailError && (
               <p className="mt-2 font-mono text-xs font-bold text-bauhaus-yellow">
                 {emailError}
-              </p>
-            )}
-
-            {!storyId && (
-              <p className="mt-2 font-mono text-xs text-white/70">
-                {t.share.unlock}
               </p>
             )}
           </div>

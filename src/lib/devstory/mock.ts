@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import type { DevStoryData } from "./aggregate";
 import type { DevStory, Era } from "./story";
 import { TOKEN_IDS } from "./tokens";
+import { computeTargetEraCount } from "./story-richness";
 import { needsVarietyRetry } from "./variety";
 
 type EraBucket = { years: string[]; languages: string[] };
@@ -121,7 +122,10 @@ function buildBuckets(data: DevStoryData): EraBucket[] {
   const byYear = data.languagesByYear;
   if (byYear.length === 0) return [{ years: [], languages: [] }];
 
-  const target = Math.min(5, Math.max(1, byYear.length));
+  const target = Math.min(
+    computeTargetEraCount(data),
+    Math.max(byYear.length, 1),
+  );
   const perBucket = Math.ceil(byYear.length / target);
   const buckets: EraBucket[] = [];
 

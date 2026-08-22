@@ -19,4 +19,5 @@ export function toggleTheme() {
     window.localStorage.setItem("devstory-theme", next);
   } catch {}
   document.documentElement.classList.toggle("dark", next === "dark");
+  document.documentElement.style.colorScheme = next === "dark" ? "dark" : "light";
 }

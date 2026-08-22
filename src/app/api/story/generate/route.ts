@@ -1,63 +1,66 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { z } from "zod";
 import { buildDevStoryData } from "@/lib/devstory/aggregate";
 import { generateStory } from "@/lib/devstory/generate";
 import { summarizeStoryData } from "@/lib/devstory/minify";
-import { getDb, hasDatabase } from "@/lib/db";
-import { stories } from "@/lib/db/schema";
+import { STORY_COMMIT_PROBE } from "@/lib/github/probe-repos";
 import { isLocale, type Locale } from "@/lib/i18n/dictionary";
+import {
+  isValidGitHubUsername,
+  normalizeGitHubUsername,
+} from "@/lib/github/username";
 
-export const maxDuration = 60;
+export const maxDuration = 120;
+
+const bodySchema = z.object({
+  username: z.string().min(1).max(39),
+  locale: z.string().optional(),
+});
 
 export async function POST(request: Request) {
-  const session = await auth();
-
-  if (!session?.accessToken) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  let body: z.infer<typeof bodySchema>;
+  try {
+    body = bodySchema.parse(await request.json());
+  } catch {
+    return NextResponse.json({ error: "Invalid request." }, { status: 400 });
   }
 
-  const body = (await request.json().catch(() => ({}))) as { locale?: unknown };
-  const localeValue = typeof body.locale === "string" ? body.locale : undefined;
-  const locale: Locale = isLocale(localeValue) ? localeValue : "en";
+  if (!isValidGitHubUsername(body.username)) {
+    return NextResponse.json({ error: "Invalid GitHub username." }, { status: 400 });
+  }
+
+  const username = normalizeGitHubUsername(body.username);
+  const locale: Locale = isLocale(body.locale) ? body.locale : "en";
 
   try {
-    const data = await buildDevStoryData(session.accessToken);
+    const data = await buildDevStoryData(username, {
+      commitProbeLimit: STORY_COMMIT_PROBE,
+    });
     const { story, mode } = await generateStory(data, locale);
 
-    let storyId: string | null = null;
-    if (hasDatabase()) {
-      const db = getDb();
-      const [row] = await db
-        .insert(stories)
-        .values({
-          githubLogin: data.username,
-          username: data.name,
-          title: story.title,
-          summary: story.summary,
-          story,
-          mode,
-        })
-        .onConflictDoUpdate({
-          target: stories.githubLogin,
-          set: {
-            username: data.name,
-            title: story.title,
-            summary: story.summary,
-            story,
-            mode,
-            updatedAt: new Date(),
-          },
-        })
-        .returning({ id: stories.id });
-      storyId = row.id;
-    }
-
-    return NextResponse.json({ story, mode, storyId, data: summarizeStoryData(data) });
+    return NextResponse.json({
+      story,
+      mode,
+      username: data.username,
+      data: summarizeStoryData(data),
+    });
   } catch (error) {
     console.error("Story generation failed:", error);
+    const status =
+      typeof error === "object" &&
+      error !== null &&
+      "status" in error &&
+      (error as { status: number }).status === 404
+        ? 404
+        : 502;
     return NextResponse.json(
-      { error: "Failed to generate your story." },
-      { status: 502 },
+      {
+        error:
+          status === 404
+            ? "GitHub user not found."
+            : "Failed to generate this story.",
+      },
+      { status },
     );
   }
 }

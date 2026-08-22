@@ -14,10 +14,10 @@ const translatedStorySchema = z.object({
   summary: z.string(),
   closing: z.string().nullable(),
   archetype: z.string().nullable(),
-  eras: z.array(translatedEraSchema).min(3).max(5),
+  eras: z.array(translatedEraSchema).min(3).max(10),
 });
 
-const TRANSLATOR_SYSTEM_PROMPT = `You are a literary translator for Your Dev Story, a product that turns developers' GitHub histories into narrative timelines written by an AI biographer.
+const TRANSLATOR_SYSTEM_PROMPT = `You are a literary translator for Dev Story, a product that turns developers' GitHub histories into narrative timelines written by an AI biographer.
 
 You will receive a developer's story (a title, a short summary, and a few "Eras" — each with a name and a 2-3 sentence description). Your job is to translate it faithfully into another language.
 
@@ -60,7 +60,7 @@ export async function translateStory(
         system: translatorSystemPrompt(sourceLocale, targetLocale),
         prompt,
         temperature: 0.4,
-        maxOutputTokens: 2048,
+        maxOutputTokens: 4096,
       }),
     );
 

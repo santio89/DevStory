@@ -146,7 +146,7 @@ export function DevStoryEmail({
       <Preview>{summary}</Preview>
       <Body style={body}>
         <Container style={container}>
-          <Text style={brand}>Your Dev Story</Text>
+          <Text style={brand}>Dev Story</Text>
           <Heading style={heading}>{title}</Heading>
           <Text style={subtitle}>
             The story of {username}&apos;s invisible hours.
@@ -172,7 +172,7 @@ export function DevStoryEmail({
           </Section>
           {ps ? <Text style={psText}>P.S. {ps}</Text> : null}
           <Hr style={hr} />
-          <Text style={footer}>— crafted by Your Dev Story</Text>
+          <Text style={footer}>— crafted by Dev Story</Text>
         </Container>
       </Body>
     </Html>

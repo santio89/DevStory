@@ -42,11 +42,20 @@ export async function generateMetadata(): Promise<Metadata> {
       url: siteUrl,
       title: siteName,
       description: siteDescription,
+      images: [
+        {
+          url: "/opengraph-image",
+          width: 1200,
+          height: 630,
+          alt: siteName,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: siteName,
       description: siteDescription,
+      images: ["/opengraph-image"],
     },
     robots: {
       index: true,

@@ -1,23 +1,19 @@
 "use client";
 
-import { useRef, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { motion } from "framer-motion";
 import { StoryContent } from "@/components/story/story-content";
-import { StoryRetell } from "@/components/story/story-retell";
 import { StoryMoment } from "@/components/story/story-moment";
-import { StoryChat } from "@/components/story/story-chat";
 import { ShareMenu } from "@/components/story/share-menu";
 import { Button } from "@/components/ui/button";
 import { useLocale } from "@/components/locale/locale-provider";
 import type { DevStory } from "@/lib/devstory/story";
 import type { StoryDataSnapshot } from "@/lib/devstory/minify";
-import type { RemixVoice } from "@/lib/devstory/ai";
 import {
   Check,
   Copy,
   Loader2,
   Mail,
-  RotateCcw,
   Send,
   Share2,
 } from "lucide-react";
@@ -45,55 +41,36 @@ export function StoryView({
   mode,
   storyId,
   data = null,
-  fingerprint,
 }: {
   story: DevStory;
   mode: "ai" | "mock";
   storyId: string | null;
   data?: StoryDataSnapshot | null;
-  fingerprint: string;
 }) {
-  const { t, locale } = useLocale();
-  const storyTopRef = useRef<HTMLDivElement>(null);
+  const { t } = useLocale();
   const [copied, setCopied] = useState(false);
   const [email, setEmail] = useState("");
   const [emailStatus, setEmailStatus] = useState<
     "idle" | "loading" | "success" | "error"
   >("idle");
   const [emailError, setEmailError] = useState<string | null>(null);
-  const [remix, setRemix] = useState<{ voice: RemixVoice; story: DevStory } | null>(
-    null,
-  );
 
-  const displayStory = remix?.story ?? story;
+  const fingerprint = story.eras
+    .map((era) => `${era.year}|${era.name}`)
+    .join("§");
+
   const shareUrl = storyId
     ? new URL(`/story/${storyId}`, window.location.origin).href
     : null;
 
   async function copyStory() {
     try {
-      await navigator.clipboard.writeText(storyToText(displayStory));
+      await navigator.clipboard.writeText(storyToText(story));
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
       setCopied(false);
     }
-  }
-
-  async function handleRemix(voice: RemixVoice) {
-    const res = await fetch("/api/story/remix", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ story, voice, locale }),
-    });
-    if (!res.ok) {
-      throw new Error(String(res.status));
-    }
-    const json = (await res.json()) as { story: DevStory };
-    setRemix({ voice, story: json.story });
-    requestAnimationFrame(() => {
-      storyTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
   }
 
   async function handleEmail(event: FormEvent<HTMLFormElement>) {
@@ -121,39 +98,14 @@ export function StoryView({
   }
 
   const allLanguages = [
-    ...new Set(displayStory.eras.flatMap((era) => era.keyLanguages)),
+    ...new Set(story.eras.flatMap((era) => era.keyLanguages)),
   ];
 
   return (
     <div className="space-y-10">
-      <div ref={storyTopRef} className="scroll-mt-6 space-y-10">
-        {remix && (
-          <div className="flex items-center justify-between gap-3 rounded-none border-2 border-foreground bg-bauhaus-cyan/15 px-4 py-3 shadow-hard-sm">
-            <p className="font-mono text-xs font-bold tracking-[0.2em] text-foreground uppercase">
-              {t.play.remixedAs(t.play.voice[remix.voice])}
-            </p>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setRemix(null)}
-            >
-              <RotateCcw className="size-3.5" />
-              {t.play.restore}
-            </Button>
-          </div>
-        )}
+      <StoryContent story={story} mode={mode} data={data} />
 
-        <StoryContent story={displayStory} mode={mode} data={data} />
-      </div>
-
-      <StoryMoment story={displayStory} data={data} fingerprint={fingerprint} />
-
-      <StoryRetell
-        remix={remix}
-        onRemix={(voice) => handleRemix(voice)}
-        story={displayStory}
-        fingerprint={fingerprint}
-      />
+      <StoryMoment story={story} data={data} fingerprint={fingerprint} />
 
       <motion.div
         initial={{ opacity: 0, y: 24 }}
@@ -173,7 +125,7 @@ export function StoryView({
                 </h4>
               </div>
               <p className="mt-1.5 max-w-md text-sm text-pretty text-white/80">
-                {t.share.erasLabel(displayStory.eras.length)},{" "}
+                {t.share.erasLabel(story.eras.length)},{" "}
                 {allLanguages.length > 0
                   ? `${allLanguages.join(" → ")}`
                   : t.share.noLanguages}
@@ -191,7 +143,7 @@ export function StoryView({
               {shareUrl && (
                 <ShareMenu
                   url={shareUrl}
-                  text={`${displayStory.title} — ${t.common.shareTagline}`}
+                  text={`${story.title} — ${t.common.shareTagline}`}
                   buttonClassName="border-white bg-transparent text-white shadow-none hover:bg-white/10"
                 />
               )}
@@ -261,8 +213,6 @@ export function StoryView({
           </div>
         </div>
       </motion.div>
-
-      <StoryChat story={displayStory} data={data} />
     </div>
   );
 }

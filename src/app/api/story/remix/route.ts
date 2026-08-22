@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { remixStory, REMIX_VOICES, NoAIError, type RemixVoice } from "@/lib/devstory/ai";
+import { remixStory, REMIX_VOICES, NoAIError, remixStoryErrorMessage, type RemixVoice } from "@/lib/devstory/ai";
 import { validateStory } from "@/lib/devstory/translate";
 import { isLocale, type Locale } from "@/lib/i18n/dictionary";
 
@@ -34,6 +34,9 @@ export async function POST(request: Request) {
       );
     }
     console.error("Remix route failed:", error);
-    return NextResponse.json({ error: "Remix failed." }, { status: 502 });
+    return NextResponse.json(
+      { error: remixStoryErrorMessage(error) },
+      { status: 502 },
+    );
   }
 }

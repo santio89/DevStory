@@ -13,23 +13,29 @@ export function FloatingSymbol({
   className,
   drift = 0,
   idleRotate = 0,
+  idle = true,
 }: {
   children: ReactNode;
   className: string;
   drift?: number;
   idleRotate?: number;
+  idle?: boolean;
 }) {
   const reduce = useReducedMotion();
   const controls = useAnimationControls();
 
-  useEffect(() => {
-    if (reduce) return;
+  const startIdle = () => {
+    if (reduce || !idle) return;
     controls.start({
       y: [0, -7, 0],
       rotate: [0, idleRotate, 0],
       transition: { duration: 5 + drift, repeat: Infinity, ease: "easeInOut" },
     });
-  }, [controls, reduce, drift, idleRotate]);
+  };
+
+  useEffect(() => {
+    startIdle();
+  }, [controls, reduce, drift, idleRotate, idle]);
 
   if (reduce) {
     return <span className={className}>{children}</span>;
@@ -46,17 +52,7 @@ export function FloatingSymbol({
           transition: {
             duration: 0.6,
             ease: "easeOut",
-            onComplete: () => {
-              controls.start({
-                y: [0, -7, 0],
-                rotate: [0, idleRotate, 0],
-                transition: {
-                  duration: 5 + drift,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                },
-              });
-            },
+            onComplete: startIdle,
           },
         });
       }}

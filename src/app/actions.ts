@@ -1,7 +1,12 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { signIn } from "@/auth";
 import { isLocale, type Locale } from "@/lib/i18n/dictionary";
+
+export async function signInWithGithub() {
+  await signIn("github", { redirectTo: "/" });
+}
 
 export async function setLocaleCookie(locale: string) {
   const value: Locale = isLocale(locale) ? locale : "en";

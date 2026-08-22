@@ -4,7 +4,6 @@ import { GithubSignIn } from "@/components/auth/github-sign-in";
 import { UserMenu } from "@/components/auth/user-menu";
 import { HeroTitle } from "@/components/hero-title";
 import { FadeIn } from "@/components/motion/fade-in";
-import { FloatingSymbol } from "@/components/motion/floating-symbol";
 import { SiteHeader } from "@/components/site-header";
 import { Marquee } from "@/components/story/marquee";
 import { StoryGenerator } from "@/components/story/story-generator";
@@ -27,13 +26,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { ArrowRight, GitCommit, Sparkles, TerminalSquare } from "lucide-react";
 
-const LANGUAGES = [
-  { name: "JavaScript", color: "#f7df1e" },
-  { name: "TypeScript", color: "#3178c6" },
-  { name: "Python", color: "#3776ab" },
-  { name: "Rust", color: "#dea584" },
-  { name: "Go", color: "#00add8" },
-];
+import { HeroScrollCue } from "@/components/hero-scroll-cue";
 
 const FEATURE_ICONS = [GitCommit, Sparkles, TerminalSquare];
 const FEATURE_ICON_COLORS = [
@@ -90,7 +83,7 @@ async function StorySection() {
   return (
     <section
       id="story"
-      className="mx-auto w-full max-w-5xl scroll-mt-20 px-4 pb-24 sm:px-6"
+      className="mx-auto w-full max-w-5xl scroll-mt-20 px-4 pt-10 pb-24 sm:px-6 sm:pt-12"
     >
       <StoryPreview initialData={preview} initialError={error} />
       <div className="mt-20 mb-16">
@@ -106,6 +99,8 @@ export default async function Home() {
   const storedLocale = cookieStore.get("devstory-locale")?.value;
   const locale: Locale = isLocale(storedLocale) ? storedLocale : "en";
   const t = dictionary[locale];
+  const session = await auth();
+  const scrollTarget = session?.user ? "#story" : "#features";
 
   return (
     <>
@@ -114,91 +109,45 @@ export default async function Home() {
       </SiteHeader>
 
       <main className="flex-1">
-        <section className="relative overflow-hidden">
+        <section className="relative flex h-svh flex-col overflow-x-clip">
           <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
             <div className="bauhaus-grid absolute inset-0 opacity-40 [mask-image:linear-gradient(to_bottom,black,transparent_90%)]" />
-            <FloatingSymbol
-              className="pointer-events-auto absolute top-[240px] left-[30%] rounded-none border-2 border-foreground bg-bauhaus-yellow px-2.5 py-1 font-mono text-sm font-black text-bauhaus-ink shadow-hard-sm"
-              drift={2}
-              idleRotate={3}
-            >
-              {"< />"}
-            </FloatingSymbol>
-            <FloatingSymbol
-              className="pointer-events-auto absolute top-[240px] right-[32%] rounded-none border-2 border-foreground bg-bauhaus-deep px-2.5 py-1 font-mono text-lg font-black text-white shadow-hard-sm"
-              idleRotate={-3}
-            >
-              {"{ }"}
-            </FloatingSymbol>
-            <FloatingSymbol
-              className="pointer-events-auto absolute top-[330px] left-[29%] rounded-none border-2 border-foreground bg-bauhaus-sky px-2.5 py-1 font-mono text-lg font-black text-bauhaus-deep shadow-hard-sm"
-              drift={1}
-              idleRotate={6}
-            >
-              {"&&"}
-            </FloatingSymbol>
-            <FloatingSymbol
-              className="pointer-events-auto absolute top-[330px] right-[31%] rounded-none border-2 border-foreground bg-bauhaus-pink px-2 py-0.5 font-mono text-base font-black text-bauhaus-deep shadow-hard-sm"
-              drift={3}
-              idleRotate={-6}
-            >
-              {"||"}
-            </FloatingSymbol>
-            <FloatingSymbol
-              className="pointer-events-auto absolute top-[430px] left-[29%] rounded-none border-2 border-foreground bg-bauhaus-cyan px-2 py-0.5 font-mono text-base font-black text-bauhaus-ink shadow-hard-sm"
-              drift={2.5}
-              idleRotate={4}
-            >
-              ;
-            </FloatingSymbol>
-            <FloatingSymbol
-              className="pointer-events-auto absolute top-[430px] right-[31%] rounded-none border-2 border-foreground bg-background px-2 py-0.5 font-mono text-sm font-black text-foreground shadow-hard-sm"
-              drift={4}
-              idleRotate={-4}
-            >
-              {"=>"}
-            </FloatingSymbol>
           </div>
 
-          <div className="pointer-events-none relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center px-4 py-24 text-center sm:px-6 sm:py-36">
-            <FadeIn>
-              <span className="inline-flex items-center gap-2 rounded-none border-2 border-foreground bg-white px-3 py-1 font-mono text-xs font-bold tracking-[0.2em] text-black uppercase shadow-hard-sm dark:bg-black dark:text-white">
-                <span className="inline-block size-2 animate-[blink-dot_1.6s_ease-in-out_infinite] rounded-none bg-bauhaus-cyan" />
-                {t.hero.badge}
-              </span>
-            </FadeIn>
+          <div className="relative z-10 mx-auto flex min-h-0 w-full max-w-5xl flex-1 flex-col px-4 sm:px-6">
+            <div className="pointer-events-none flex min-h-0 flex-1 flex-col items-center justify-center pt-14 text-center sm:pt-16">
+              <FadeIn>
+                <span className="inline-flex items-center gap-2 rounded-none border-2 border-foreground bg-white px-3 py-1 font-mono text-xs font-bold tracking-[0.2em] text-black uppercase shadow-hard-sm dark:bg-black dark:text-white">
+                  <span className="inline-block size-2 animate-[blink-dot_1.6s_ease-in-out_infinite] rounded-none bg-bauhaus-cyan" />
+                  {t.hero.badge}
+                </span>
+              </FadeIn>
 
-            <HeroTitle first={t.hero.titleFirst} second={t.hero.titleSecond} />
+              <HeroTitle first={t.hero.titleFirst} second={t.hero.titleSecond} />
 
-            <FadeIn delay={0.2}>
-              <p className="mt-6 max-w-xl text-lg text-muted-foreground text-balance">
-                {t.hero.subtitle}
-              </p>
-            </FadeIn>
+              <FadeIn delay={0.2}>
+                <p className="mt-6 max-w-xl text-lg text-muted-foreground text-balance">
+                  {t.hero.subtitle}
+                </p>
+              </FadeIn>
 
-            <FadeIn delay={0.3} className="mt-10 flex flex-col items-center gap-6">
-              <HeroCta t={t} />
-              <div className="flex flex-wrap items-center justify-center gap-2 font-mono text-xs text-muted-foreground">
-                {LANGUAGES.map((lang) => (
-                  <span
-                    key={lang.name}
-                    className="flex items-center gap-1.5 rounded-none border-2 border-foreground bg-background px-2 py-0.5 uppercase tracking-wider"
-                  >
-                    <span
-                      className="inline-block size-2 rounded-none"
-                      style={{ backgroundColor: lang.color }}
-                    />
-                    {lang.name}
-                  </span>
-                ))}
-              </div>
-            </FadeIn>
+              <FadeIn delay={0.3} className="mt-8 sm:mt-10">
+                <HeroCta t={t} />
+              </FadeIn>
+            </div>
+
+            <div className="flex shrink-0 justify-center pb-8 sm:pb-10">
+              <HeroScrollCue href={scrollTarget} label={t.hero.scrollDown} />
+            </div>
           </div>
         </section>
 
         <StorySection />
 
-        <section className="mx-auto w-full max-w-5xl px-4 pb-24 sm:px-6">
+        <section
+          id="features"
+          className="mx-auto w-full max-w-5xl px-4 pb-24 sm:px-6"
+        >
           <FadeIn>
             <h2 className="text-center font-heading text-2xl font-black tracking-normal text-balance uppercase sm:text-3xl">
               {t.features.title}

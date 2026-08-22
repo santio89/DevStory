@@ -6,9 +6,54 @@ import { Button } from "@/components/ui/button";
 import { useLocale } from "@/components/locale/locale-provider";
 import type { DevStory } from "@/lib/devstory/story";
 import type { StoryDataSnapshot } from "@/lib/devstory/minify";
+import type { Locale } from "@/lib/i18n/dictionary";
 import { Bot, Loader2, MessageSquare, Send, X } from "lucide-react";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
+
+const STORAGE_KEY = "devstory-chat";
+
+type StoredChat = {
+  byLocale: Record<string, ChatMessage[]>;
+};
+
+function readStored(locale: Locale): ChatMessage[] {
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as StoredChat;
+    const messages = parsed?.byLocale?.[locale];
+    if (!Array.isArray(messages)) return [];
+    return messages.filter(
+      (m): m is ChatMessage =>
+        typeof m === "object" &&
+        m !== null &&
+        (m.role === "user" || m.role === "assistant") &&
+        typeof m.content === "string",
+    );
+  } catch {
+    return [];
+  }
+}
+
+function writeStored(locale: Locale, messages: ChatMessage[]) {
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const parsed = raw
+      ? (JSON.parse(raw) as StoredChat)
+      : { byLocale: {} };
+    const byLocale =
+      parsed?.byLocale && typeof parsed.byLocale === "object"
+        ? parsed.byLocale
+        : {};
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        byLocale: { ...byLocale, [locale]: messages },
+      } satisfies StoredChat),
+    );
+  } catch {}
+}
 
 export function StoryChat({
   story,
@@ -20,6 +65,7 @@ export function StoryChat({
   const { t, locale } = useLocale();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [hydrated, setHydrated] = useState(false);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,26 +73,41 @@ export function StoryChat({
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    let active = true;
+    queueMicrotask(() => {
+      if (!active) return;
+      setMessages(readStored(locale));
+      setHydrated(true);
+    });
+    return () => {
+      active = false;
+    };
+  }, [locale]);
+
+  useEffect(() => {
+    if (!hydrated || messages.length === 0) return;
+    writeStored(locale, messages);
+  }, [messages, locale, hydrated]);
+
+  useEffect(() => {
     const el = scrollRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages, streaming, open]);
 
   useEffect(() => {
-    if (!open) return;
-    let active = true;
-    queueMicrotask(() => {
-      if (!active) return;
-      setMessages([{ role: "assistant", content: t.chat.greeting }]);
+    if (!open || !hydrated) return;
+    setMessages((prev) => {
+      if (prev.length > 0) return prev;
+      return [{ role: "assistant", content: t.chat.greeting }];
     });
     const focusTimer = window.setTimeout(
       () => inputRef.current?.focus(),
       80,
     );
     return () => {
-      active = false;
       window.clearTimeout(focusTimer);
     };
-  }, [open, t.chat.greeting]);
+  }, [open, t.chat.greeting, hydrated]);
 
   async function send() {
     const content = input.trim();

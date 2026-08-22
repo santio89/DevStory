@@ -13,7 +13,7 @@ export const eraSchema = z.object({
   description: z
     .string()
     .describe(
-      "2-3 sentences narrating what this developer was building and learning during this era",
+      "2-3 sentences narrating what this developer was building and learning during this era. Must use a unique voice, metaphor, and opening rhythm — never repeat phrasing from other eras.",
     ),
   keyLanguages: z
     .array(z.string())
@@ -34,7 +34,7 @@ export const storySchema = z.object({
   summary: z
     .string()
     .describe(
-      "2-4 sentences capturing the arc of this developer's growth",
+      "2-4 sentences capturing the arc of this developer's growth. Synthesize the journey in fresh language — do not repeat sentences from era descriptions.",
     ),
   eras: z
     .array(eraSchema)
@@ -47,7 +47,7 @@ export const storySchema = z.object({
     .string()
     .nullable()
     .describe(
-      "1-2 warm, optimistic closing sentences that look back on the whole journey and leave the developer feeling proud — the road traveled, and the road still ahead. Personal, never generic.",
+      "1-2 warm, optimistic closing sentences that reference something specific from this developer's data (repo, language, era, or milestone). Personal, never generic. Must not repeat the summary wording.",
     ),
   archetype: z
     .string()

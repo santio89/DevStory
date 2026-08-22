@@ -64,8 +64,8 @@ function TimelineItem({
       className="relative grid grid-cols-1 gap-6 sm:grid-cols-2"
     >
       <span className="absolute top-2.5 left-4 z-10 -translate-x-1/2 sm:left-1/2">
-        <span className="flex size-12 items-center justify-center rounded-full border-2 border-foreground bg-background shadow-hard-sm">
-          <Sigil token={token} className="size-6" />
+        <span className="grid size-12 place-items-center rounded-full border-2 border-foreground bg-background shadow-hard-sm">
+          <Sigil token={token} className="size-7" />
         </span>
       </span>
 
@@ -75,8 +75,21 @@ function TimelineItem({
           isLeft ? "sm:col-start-1 sm:pr-14" : "sm:col-start-2 sm:pl-14",
         )}
       >
-        <article className="group relative rounded-none border-2 border-foreground bg-card p-6 shadow-hard transition-transform duration-200 hover:-translate-y-1 sm:p-7">
-          <span className="pointer-events-none absolute top-4 right-4 size-3 rotate-45 bg-bauhaus-pink" />
+        <article className="group relative overflow-hidden rounded-none border-2 border-foreground bg-card p-6 shadow-hard transition-transform duration-200 hover:-translate-y-1 sm:p-7">
+          <div
+            className="pointer-events-none absolute inset-0 overflow-hidden"
+            aria-hidden
+          >
+            <Sigil
+              token={token}
+              className={cn(
+                "absolute size-44 text-bauhaus-sky opacity-[0.08] blur-[0.3px]",
+                isLeft ? "-right-10 -bottom-8" : "-left-10 -bottom-8",
+              )}
+            />
+          </div>
+          <span className="pointer-events-none absolute top-4 right-4 z-[1] size-3 rotate-45 bg-bauhaus-pink" />
+          <div className="relative z-[1]">
           <div className="flex items-center gap-3">
             <span className="font-mono text-xs font-bold tracking-[0.25em] text-muted-foreground uppercase">
               {t.story.era(index + 1)}
@@ -111,7 +124,7 @@ function TimelineItem({
           <button
             type="button"
             onClick={() => void handleDeepDive()}
-            className="mt-5 inline-flex items-center justify-start gap-2 text-left font-mono text-xs font-bold tracking-[0.2em] text-bauhaus-deep uppercase transition-colors hover:text-foreground"
+            className="mt-5 inline-flex items-center gap-2.5 text-left font-mono text-xs font-bold tracking-[0.2em] text-bauhaus-deep uppercase transition-colors hover:text-foreground"
           >
             {diving ? (
               <Loader2 className="size-3.5 shrink-0 animate-spin" />
@@ -161,6 +174,7 @@ function TimelineItem({
               </ul>
             </motion.div>
           )}
+          </div>
         </article>
       </div>
     </motion.div>

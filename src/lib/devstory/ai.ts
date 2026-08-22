@@ -1,6 +1,7 @@
 import { generateText, Output, streamText } from "ai";
 import { z } from "zod";
-import { createModel, hasAIProviderConfigured } from "./generate";
+import { hasAIProviderConfigured, runWithModelFallback, runWithModelFallbackSync } from "./providers";
+import { aiProviderErrorMessage } from "./errors";
 import type { MomentAnchor } from "./moment";
 import type { DevStory, Era } from "./story";
 import type { StoryDataSnapshot } from "./minify";
@@ -39,7 +40,10 @@ const remixStorySchema = z.object({
   summary: z.string(),
   closing: z.string().nullable(),
   archetype: z.string().nullable(),
-  eras: z.array(z.object({ name: z.string(), description: z.string() })).min(3).max(5),
+  eras: z
+    .array(z.object({ name: z.string(), description: z.string() }))
+    .min(1)
+    .max(5),
 });
 
 const REMIX_PROMPTS: Record<RemixVoice, string> = {
@@ -82,18 +86,20 @@ Summary: ${story.summary}
 ${story.closing ? `Closing: ${story.closing}\n` : ""}${story.archetype ? `Archetype: ${story.archetype}\n` : ""}Eras:
 ${eras}`;
 
-  const { output } = await generateText({
-    model: createModel(),
-    output: Output.object({
-      name: "RemixedStory",
-      description: "The same DevStory re-told in a new narrative voice",
-      schema: remixStorySchema,
+  const { output } = await runWithModelFallback((model) =>
+    generateText({
+      model,
+      output: Output.object({
+        name: "RemixedStory",
+        description: "The same DevStory re-told in a new narrative voice",
+        schema: remixStorySchema,
+      }),
+      system,
+      prompt,
+      temperature: 0.9,
+      maxOutputTokens: 1200,
     }),
-    system,
-    prompt,
-    temperature: 0.9,
-    maxOutputTokens: 2048,
-  });
+  );
 
   return {
     title: output.title,
@@ -106,6 +112,10 @@ ${eras}`;
       description: output.eras[i]?.description ?? era.description,
     })),
   };
+}
+
+export function remixStoryErrorMessage(error: unknown): string {
+  return aiProviderErrorMessage(error) ?? "Remix failed.";
 }
 
 const deepDiveSchema = z.object({
@@ -132,21 +142,24 @@ Rules:
 - Ground every claim in the given facts. Never invent repositories, languages, or dates that are not present.
 - The narrative should feel like a memoir chapter: vivid, warm, human, 2-3 paragraphs.
 - The highlights are short sentences a reader could quote.
+- Do not reuse catchphrases from the era description verbatim; expand the story instead of repeating it.
 - If no raw data is available, say what can be said beautifully from the era itself, and stay honest about the rest.
 ${langInstruction(locale)}`;
 
-  const { output } = await generateText({
-    model: createModel(),
-    output: Output.object({
-      name: "EraDeepDive",
-      description: "A deeper narrative chapter for one era, plus quotable highlights",
-      schema: deepDiveSchema,
+  const { output } = await runWithModelFallback((model) =>
+    generateText({
+      model,
+      output: Output.object({
+        name: "EraDeepDive",
+        description: "A deeper narrative chapter for one era, plus quotable highlights",
+        schema: deepDiveSchema,
+      }),
+      system,
+      prompt: `Era: ${era.year} — ${era.name}\n${era.description}\n\nRaw data context:\n${eraData || "(no detailed data available)"}`,
+      temperature: 0.8,
+      maxOutputTokens: 1024,
     }),
-    system,
-    prompt: `Era: ${era.year} — ${era.name}\n${era.description}\n\nRaw data context:\n${eraData || "(no detailed data available)"}`,
-    temperature: 0.8,
-    maxOutputTokens: 1024,
-  });
+  );
 
   return output;
 }
@@ -224,18 +237,20 @@ Rules:
 - The title is short and evocative. The text is 2-4 sentences.
 ${langInstruction(locale)}`;
 
-  const { output } = await generateText({
-    model: createModel(),
-    output: Output.object({
-      name: "TodayMoment",
-      description: "A single remembered moment from a developer's journey",
-      schema: momentSchema,
+  const { output } = await runWithModelFallback((model) =>
+    generateText({
+      model,
+      output: Output.object({
+        name: "TodayMoment",
+        description: "A single remembered moment from a developer's journey",
+        schema: momentSchema,
+      }),
+      system,
+      prompt: `Today's focus:\n${focus}\n\nRaw data context:\n${eraData || "(no detailed data available)"}`,
+      temperature: 0.95,
+      maxOutputTokens: 400,
     }),
-    system,
-    prompt: `Today's focus:\n${focus}\n\nRaw data context:\n${eraData || "(no detailed data available)"}`,
-    temperature: 0.95,
-    maxOutputTokens: 400,
-  });
+  );
 
   return { title: output.title, text: output.text, year, dateLabel };
 }
@@ -253,18 +268,20 @@ Rules:
 - Output only the translated title and text.
 ${langInstruction(locale)}`;
 
-  const { output } = await generateText({
-    model: createModel(),
-    output: Output.object({
-      name: "TranslatedMoment",
-      description: "A remembered moment translated into the target language",
-      schema: momentSchema,
+  const { output } = await runWithModelFallback((model) =>
+    generateText({
+      model,
+      output: Output.object({
+        name: "TranslatedMoment",
+        description: "A remembered moment translated into the target language",
+        schema: momentSchema,
+      }),
+      system,
+      prompt: `Translate this moment:\nTitle: ${moment.title}\n\n${moment.text}`,
+      temperature: 0.6,
+      maxOutputTokens: 400,
     }),
-    system,
-    prompt: `Translate this moment:\nTitle: ${moment.title}\n\n${moment.text}`,
-    temperature: 0.6,
-    maxOutputTokens: 400,
-  });
+  );
 
   return { title: output.title, text: output.text };
 }
@@ -320,11 +337,13 @@ export function chatStream(
   messages: { role: ChatRole; content: string }[],
 ) {
   if (!hasAIProviderConfigured()) throw new NoAIError();
-  return streamText({
-    model: createModel(),
-    system,
-    messages: messages.map((m) => ({ role: m.role, content: m.content })),
-    temperature: 0.8,
-    maxOutputTokens: 512,
-  });
+  return runWithModelFallbackSync((model) =>
+    streamText({
+      model,
+      system,
+      messages: messages.map((m) => ({ role: m.role, content: m.content })),
+      temperature: 0.8,
+      maxOutputTokens: 512,
+    }),
+  );
 }

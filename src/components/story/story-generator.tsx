@@ -5,6 +5,7 @@ import { FadeIn } from "@/components/motion/fade-in";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { StoryView } from "@/components/story/story-view";
+import { StoryChat } from "@/components/story/story-chat";
 import { StoryTranslating } from "@/components/story/story-translating";
 import { useLocale } from "@/components/locale/locale-provider";
 import type { DevStory } from "@/lib/devstory/story";
@@ -195,12 +196,13 @@ export function StoryGenerator() {
               mode={mode ?? "mock"}
               storyId={storyId}
               data={data}
-              fingerprint={story.eras
-                .map((era) => `${era.year}|${era.name}`)
-                .join("§")}
             />
           )}
         </FadeIn>
+      )}
+
+      {story && (
+        <StoryChat story={activeStory ?? story} data={data} />
       )}
     </div>
   );

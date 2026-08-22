@@ -1,7 +1,8 @@
 "use client";
 
-import { useMotionValueEvent, useScroll } from "framer-motion";
-import { useRef, useState } from "react";
+import { useMotionValueEvent, useReducedMotion, useScroll } from "framer-motion";
+import { usePathname } from "next/navigation";
+import { useRef, useState, type MouseEvent } from "react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
@@ -9,6 +10,8 @@ import { Brand } from "@/components/brand";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 
 export function SiteHeader({ children }: { children?: ReactNode }) {
+  const pathname = usePathname();
+  const reduceMotion = useReducedMotion();
   const { scrollY } = useScroll();
   const [scrolled, setScrolled] = useState(false);
   const rafRef = useRef<number | null>(null);
@@ -22,6 +25,15 @@ export function SiteHeader({ children }: { children?: ReactNode }) {
       setScrolled(next);
     });
   });
+
+  function handleLogoClick(event: MouseEvent<HTMLAnchorElement>) {
+    if (pathname !== "/") return;
+    event.preventDefault();
+    window.scrollTo({
+      top: 0,
+      behavior: reduceMotion ? "auto" : "smooth",
+    });
+  }
 
   return (
     <div
@@ -38,7 +50,7 @@ export function SiteHeader({ children }: { children?: ReactNode }) {
             : "max-w-5xl border-2 border-transparent bg-transparent px-6 py-4",
         )}
       >
-        <Link href="/" className="shrink-0">
+        <Link href="/" onClick={handleLogoClick} className="shrink-0">
           <Brand />
         </Link>
         <div className="flex items-center gap-2 sm:gap-2.5">

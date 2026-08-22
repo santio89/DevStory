@@ -1,6 +1,6 @@
-import { z } from "zod";
 import { generateText, Output } from "ai";
-import { createModel } from "./generate";
+import { z } from "zod";
+import { runWithModelFallback } from "./providers";
 import { storySchema, type DevStory } from "./story";
 import type { Locale } from "@/lib/i18n/dictionary";
 
@@ -49,18 +49,20 @@ export async function translateStory(
   const prompt = `Title: ${story.title}\n\nSummary: ${story.summary}\n${story.closing ? `Closing: ${story.closing}\n` : ""}${story.archetype ? `Archetype: ${story.archetype}\n` : ""}Eras:\n${eras}\n\nTranslate the whole story into ${targetLocale === "es" ? "Spanish" : "English"}.`;
 
   try {
-    const { output } = await generateText({
-      model: createModel(),
-      output: Output.object({
-        name: "TranslatedStory",
-        description: "A DevStory narrative translated into the target language",
-        schema: translatedStorySchema,
+    const { output } = await runWithModelFallback((model) =>
+      generateText({
+        model,
+        output: Output.object({
+          name: "TranslatedStory",
+          description: "A DevStory narrative translated into the target language",
+          schema: translatedStorySchema,
+        }),
+        system: translatorSystemPrompt(sourceLocale, targetLocale),
+        prompt,
+        temperature: 0.4,
+        maxOutputTokens: 2048,
       }),
-      system: translatorSystemPrompt(sourceLocale, targetLocale),
-      prompt,
-      temperature: 0.4,
-      maxOutputTokens: 2048,
-    });
+    );
 
     return {
       title: output.title,

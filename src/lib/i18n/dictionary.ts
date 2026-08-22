@@ -10,14 +10,15 @@ const en = {
     shareTagline: "a story from the invisible hours",
   },
   hero: {
-    badge: "Your invisible hours, validated",
+    badge: "Git, narrated.",
     titleFirst: "Your Code.",
     titleSecond: "Your Story.",
     subtitle:
-      "Every late-night debug. Every green build. Every repo you abandoned at 3am. Your Dev Story reads your GitHub history and turns it into a narrative timeline of your growth as a developer.",
+      "Your commit history is already a story. We just give it a timeline.",
     signedInAs: "Signed in as",
     seeData: "See your harvested GitHub data",
     cta: "Connect GitHub to see your journey",
+    scrollDown: "Scroll to the next section",
   },
   features: {
     title: "How it works",
@@ -102,14 +103,15 @@ const en = {
   },
   play: {
     title: "Re-tell your story",
-    subtitle: "Twelve narrators, one story. Pick a voice and hear it again.",
+    subtitle: "Pick a literary style to rewrite the text. Then hear it read aloud.",
+    narrator: "Narrated by the biographer",
     remixFailed: "The remix failed. Try again.",
     noAI: "The AI isn't configured yet.",
     listen: "Hear it again",
     hearStory: "Hear story",
     stop: "Stop",
     generating: "preparing audio…",
-    audioFailed: "Couldn't generate audio. Try another narrator.",
+    audioFailed: "Couldn't generate audio. Try again.",
     remixedAs: (voice: string) => `retold as ${voice}`,
     restore: "restore original",
     voice: {
@@ -151,8 +153,7 @@ const en = {
     you: "you",
     narrator: "narrator",
     failed: "The narrator went quiet. Try again.",
-    greeting:
-      "Ask me anything about your journey — your eras, your languages, your 2am commits.",
+    greeting: "Ask me anything about your journey!",
     offTopic:
       "That's outside my story. I'm the narrator of your Dev Story — ask me about your eras, your languages, the commits that shaped you, and I'll tell you the tale.",
   },
@@ -184,14 +185,15 @@ const es: Messages = {
     shareTagline: "una historia de las horas invisibles",
   },
   hero: {
-    badge: "Tus horas invisibles, validadas",
+    badge: "Git, narrado.",
     titleFirst: "Tu Código.",
     titleSecond: "Tu Historia.",
     subtitle:
-      "Cada debug de madrugada. Cada build en verde. Cada repo que abandonaste a las 3am. Your Dev Story lee tu historial de GitHub y lo convierte en una línea de tiempo narrativa de tu crecimiento como desarrollador.",
+      "Tu historial de commits ya es una historia. Nosotros solo le damos una línea de tiempo.",
     signedInAs: "Conectado como",
     seeData: "Ver tus datos de GitHub",
     cta: "Conecta GitHub para ver tu viaje",
+    scrollDown: "Desplázate a la siguiente sección",
   },
   features: {
     title: "Cómo funciona",
@@ -276,14 +278,15 @@ const es: Messages = {
   },
 play: {
     title: "Re-cuenta tu historia",
-    subtitle: "Doce narradores, una historia. Elige una voz y vuelve a escucharla.",
+    subtitle: "Elige un estilo literario para reescribir el texto. Luego escúchalo en voz alta.",
+    narrator: "Narrado por el biógrafo",
     remixFailed: "Falló el remix. Inténtalo de nuevo.",
     noAI: "La IA aún no está configurada.",
     listen: "Escúchalo otra vez",
     hearStory: "Escucha la historia",
     stop: "Detener",
     generating: "preparando audio…",
-    audioFailed: "No pude generar el audio. Prueba con otro narrador.",
+    audioFailed: "No pude generar el audio. Inténtalo de nuevo.",
     remixedAs: (voice: string) => `recontada como ${voice}`,
     restore: "restaurar original",
     voice: {
@@ -325,8 +328,7 @@ play: {
     you: "tú",
     narrator: "narrador",
     failed: "El narrador se quedó mudo. Inténtalo de nuevo.",
-    greeting:
-      "Pregúntame lo que quieras sobre tu viaje — tus épocas, tus lenguajes, tus commits de las 2am.",
+    greeting: "¡Pregúntame lo que quieras sobre tu viaje!",
     offTopic:
       "Eso queda fuera de tu historia. Soy el narrador de tu Dev Story — pregúntame por tus épocas, tus lenguajes, los commits que te formaron, y te lo contaré.",
   },

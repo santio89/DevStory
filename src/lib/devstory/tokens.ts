@@ -19,6 +19,14 @@ export const TOKEN_IDS = [
   "gate",
   "mirror",
   "constellation",
+  "scroll",
+  "lens",
+  "shield",
+  "thread",
+  "prism",
+  "quill",
+  "anchor",
+  "pulse",
 ] as const;
 
 export type TokenId = (typeof TOKEN_IDS)[number];
@@ -44,6 +52,14 @@ export const TOKEN_MEANINGS: Record<TokenId, string> = {
   gate: "checkpoints passed, releases, milestones cleared",
   mirror: "reflection, learning from mistakes, honest self-review",
   constellation: "many small pieces forming a bigger picture",
+  scroll: "documentation, reading the docs, writing it down",
+  lens: "inspection, debugging, seeing what others missed",
+  shield: "hardening, reliability, guarding the system",
+  thread: "async work, concurrency, many strands at once",
+  prism: "polyglot work, many languages refracting one problem",
+  quill: "authorship, craft in the editor, leaving a signature",
+  anchor: "stability, maintenance, holding the ship steady",
+  pulse: "rhythm, iteration, the heartbeat of shipping",
 };
 
 export function pickTokenForName(name: string): TokenId {

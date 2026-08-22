@@ -10,6 +10,38 @@ import {
 const ACCENT = "#22d3ee";
 const STROKE = "var(--bauhaus-sky)";
 
+/** Optical centering nudges — icons are authored in 64×64 but not all sit on the visual midpoint. */
+export const SIGIL_NUDGE: Record<TokenId, string> = {
+  sprout: "translate(0 -6)",
+  spark: "translate(0 0)",
+  frame: "translate(0 1)",
+  bridge: "translate(0 -2)",
+  flame: "translate(0 0)",
+  peak: "translate(0 -1)",
+  compass: "translate(0 0)",
+  rocket: "translate(0 2)",
+  tide: "translate(0 5)",
+  labyrinth: "translate(0 0)",
+  key: "translate(1 11)",
+  roots: "translate(0 2)",
+  dawn: "translate(0 3)",
+  orbit: "translate(0 0)",
+  signal: "translate(0 -7)",
+  current: "translate(0 2)",
+  forge: "translate(0 2)",
+  gate: "translate(0 -2)",
+  mirror: "translate(0 2)",
+  constellation: "translate(0 2)",
+  scroll: "translate(0 0)",
+  lens: "translate(0 0)",
+  shield: "translate(0 0)",
+  thread: "translate(0 0)",
+  prism: "translate(0 0)",
+  quill: "translate(0 0)",
+  anchor: "translate(0 0)",
+  pulse: "translate(0 0)",
+};
+
 function renderToken(token: TokenId, stroke: string) {
   switch (token) {
     case "sprout":
@@ -209,6 +241,75 @@ function renderToken(token: TokenId, stroke: string) {
           <circle cx="28" cy="48" r="2" fill={ACCENT} stroke="none" />
         </g>
       );
+    case "scroll":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M22 18 H42 C44 18 46 20 46 22 V46 C46 48 44 50 42 50 H22 C20 50 18 48 18 46 V22 C18 20 20 18 22 18 Z" />
+          <path d="M24 26 H40 M24 32 H36 M24 38 H32" strokeWidth={1.5} />
+          <path d="M22 22 C20 22 18 24 18 26" strokeWidth={1.5} />
+        </g>
+      );
+    case "lens":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="28" cy="28" r="11" />
+          <path d="M36 36 L46 46" />
+          <circle cx="28" cy="28" r="2" fill={ACCENT} stroke="none" />
+        </g>
+      );
+    case "shield":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M32 14 L48 22 V34 C48 42 41 49 32 52 C23 49 16 42 16 34 V22 Z" />
+          <path d="M32 22 V40" strokeWidth={1.5} />
+          <path d="M26 32 H38" strokeWidth={1.5} />
+        </g>
+      );
+    case "thread":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <ellipse cx="32" cy="20" rx="12" ry="5" />
+          <path d="M20 20 V44" />
+          <path d="M44 20 V44" />
+          <ellipse cx="32" cy="44" rx="12" ry="5" />
+          <path d="M26 28 C32 30 38 28 38 32 C38 36 32 38 26 36" strokeWidth={1.5} />
+        </g>
+      );
+    case "prism":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M32 16 L48 48 H16 Z" />
+          <path d="M32 16 V48" strokeWidth={1.5} strokeDasharray="3 3" />
+          <path d="M22 36 H42" strokeWidth={1.5} />
+          <circle cx="44" cy="18" r="2" fill={ACCENT} stroke="none" />
+        </g>
+      );
+    case "quill":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M42 16 C36 22 30 30 26 38 L20 48 L30 42 C38 36 44 28 48 20 Z" />
+          <path d="M20 48 L14 52" strokeWidth={1.5} />
+          <circle cx="42" cy="18" r="1.5" fill={ACCENT} stroke="none" />
+        </g>
+      );
+    case "anchor":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="32" cy="20" r="4" />
+          <path d="M32 24 V44" />
+          <path d="M20 40 C20 48 44 48 44 40" />
+          <path d="M18 36 H46" />
+          <path d="M26 44 L32 50 L38 44" strokeWidth={1.5} />
+        </g>
+      );
+    case "pulse":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M8 32 H20 L24 22 L30 42 L36 26 L40 32 H56" />
+          <circle cx="8" cy="32" r="2" fill={ACCENT} stroke="none" />
+          <circle cx="56" cy="32" r="2" fill={ACCENT} stroke="none" />
+        </g>
+      );
     default:
       return null;
   }
@@ -222,7 +323,9 @@ export function Sigil({ token, className }: { token: TokenId; className?: string
       className={className}
       aria-hidden="true"
     >
-      {renderToken(token, STROKE)}
+      <g transform={SIGIL_NUDGE[token]}>
+        {renderToken(token, STROKE)}
+      </g>
     </svg>
   );
 }

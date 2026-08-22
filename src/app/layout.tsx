@@ -79,7 +79,7 @@ export default async function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
-      <body className="min-h-full flex flex-col">
+      <body className="flex min-h-full flex-col overflow-x-hidden">
         <LocaleProvider initialLocale={locale}>
           <MotionProvider>{children}</MotionProvider>
         </LocaleProvider>

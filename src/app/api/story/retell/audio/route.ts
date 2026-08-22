@@ -1,9 +1,6 @@
 import { NextResponse } from "next/server";
-import {
-  REMIX_VOICES,
-  NoAIError,
-  type RemixVoice,
-} from "@/lib/devstory/ai";
+import { NoAIError } from "@/lib/devstory/ai";
+import { ttsErrorMessage } from "@/lib/devstory/errors";
 import { synthesizeStorySpeech } from "@/lib/devstory/tts";
 import { validateStory } from "@/lib/devstory/translate";
 import { isLocale, type Locale } from "@/lib/i18n/dictionary";
@@ -13,7 +10,6 @@ export const maxDuration = 60;
 export async function POST(request: Request) {
   const body = (await request.json().catch(() => ({}))) as {
     story?: unknown;
-    voice?: unknown;
     locale?: unknown;
   };
 
@@ -22,22 +18,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid story payload." }, { status: 400 });
   }
 
-  const voiceValue = typeof body.voice === "string" ? body.voice : null;
-  if (!voiceValue || !(REMIX_VOICES as readonly string[]).includes(voiceValue)) {
-    return NextResponse.json({ error: "Invalid voice." }, { status: 400 });
-  }
-  const voice = voiceValue as RemixVoice;
-
   const localeValue = typeof body.locale === "string" ? body.locale : undefined;
   const locale: Locale = isLocale(localeValue) ? localeValue : "en";
 
   try {
-    const audio = await synthesizeStorySpeech(story, voice, locale);
-    const body = new Uint8Array(audio);
-    return new NextResponse(body, {
+    const audio = await synthesizeStorySpeech(story, locale);
+    const bytes = new Uint8Array(audio);
+    return new NextResponse(bytes, {
       headers: {
         "Content-Type": "audio/mpeg",
-        "Content-Length": String(body.length),
+        "Content-Length": String(bytes.length),
         "Cache-Control": "no-store",
       },
     });
@@ -49,9 +39,13 @@ export async function POST(request: Request) {
       );
     }
     console.error("Retell audio route failed:", error);
-    return NextResponse.json(
-      { error: "Couldn't synthesize audio." },
-      { status: 502 },
-    );
+    const message = ttsErrorMessage(error);
+    const status =
+      error instanceof Error &&
+      (error.message.includes("402") ||
+        error.message.includes("Insufficient credits"))
+        ? 402
+        : 502;
+    return NextResponse.json({ error: message }, { status });
   }
 }

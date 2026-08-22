@@ -1,6 +1,5 @@
-import { signIn } from "@/auth";
-import { Button } from "@/components/ui/button";
-import { GithubIcon } from "@/components/icons/github";
+import { signInWithGithub } from "@/app/actions";
+import { GithubSignInButton } from "@/components/auth/github-sign-in-button";
 
 export function GithubSignIn({
   size = "default",
@@ -12,17 +11,8 @@ export function GithubSignIn({
   label?: string;
 }) {
   return (
-    <form
-      className="pointer-events-auto"
-      action={async () => {
-        "use server";
-        await signIn("github", { redirectTo: "/" });
-      }}
-    >
-      <Button type="submit" size={size} variant={variant}>
-        <GithubIcon className="size-4" />
-        {label}
-      </Button>
+    <form className="pointer-events-auto" action={signInWithGithub}>
+      <GithubSignInButton label={label} size={size} variant={variant} />
     </form>
   );
 }

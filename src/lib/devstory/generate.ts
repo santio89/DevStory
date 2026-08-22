@@ -1,4 +1,3 @@
-import { createOpenAI } from "@ai-sdk/openai";
 import { generateText, Output } from "ai";
 import { z } from "zod";
 import { generateMockStory } from "./mock";
@@ -7,29 +6,43 @@ import { BIOGRAPHER_SYSTEM_PROMPT, buildPrompt } from "./prompt";
 import { storySchema, type DevStory } from "./story";
 import type { DevStoryData } from "./aggregate";
 import type { Locale } from "@/lib/i18n/dictionary";
+import {
+  buildVarietyCorrection,
+  needsVarietyRetry,
+  storyVarietyIssues,
+} from "./variety";
+import {
+  hasAIProviderConfigured,
+  runWithModelFallback,
+} from "./providers";
 
 export type StoryResult = {
   story: DevStory;
   mode: "ai" | "mock";
 };
 
-const OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";
-const APP_NAME = "Your Dev Story";
+export { hasAIProviderConfigured } from "./providers";
 
-export function hasAIProviderConfigured(): boolean {
-  return Boolean(process.env.OPENROUTER_API_KEY);
-}
-
-export function createModel() {
-  const openai = createOpenAI({
-    apiKey: process.env.OPENROUTER_API_KEY,
-    baseURL: OPENROUTER_BASE_URL,
-    headers: {
-      "HTTP-Referer": "https://yourdevstory.vercel.app",
-      "X-Title": APP_NAME,
-    },
-  });
-  return openai(process.env.OPENROUTER_MODEL ?? "openai/gpt-4.1-mini");
+async function generateStoryFromAI(
+  minified: string,
+  locale: Locale,
+  extraPrompt = "",
+): Promise<DevStory> {
+  const { output } = await runWithModelFallback((model) =>
+    generateText({
+      model,
+      output: Output.object({
+        name: "DevStory",
+        description: "A developer's narrative timeline as a set of eras",
+        schema: storySchema,
+      }),
+      system: BIOGRAPHER_SYSTEM_PROMPT,
+      prompt: `${buildPrompt(minified, locale)}${extraPrompt}`,
+      temperature: extraPrompt ? 0.9 : 0.85,
+      maxOutputTokens: 2048,
+    }),
+  );
+  return output;
 }
 
 export async function generateStory(
@@ -43,19 +56,22 @@ export async function generateStory(
   const minified = minifyDevStory(data);
 
   try {
-    const { output } = await generateText({
-      model: createModel(),
-      output: Output.object({
-        name: "DevStory",
-        description: "A developer's narrative timeline as a set of eras",
-        schema: storySchema,
-      }),
-      system: BIOGRAPHER_SYSTEM_PROMPT,
-      prompt: buildPrompt(minified, locale),
-      temperature: 0.8,
-      maxOutputTokens: 2048,
-    });
-    return { story: output, mode: "ai" };
+    let story = await generateStoryFromAI(minified, locale);
+
+    if (needsVarietyRetry(story)) {
+      const issues = storyVarietyIssues(story);
+      console.warn("Story variety check failed, retrying:", issues);
+      const revised = await generateStoryFromAI(
+        minified,
+        locale,
+        `\n\n${buildVarietyCorrection(issues)}`,
+      );
+      if (!needsVarietyRetry(revised)) {
+        story = revised;
+      }
+    }
+
+    return { story, mode: "ai" };
   } catch (error) {
     console.error("AI story generation failed, falling back to mock:", error);
     return { story: generateMockStory(data), mode: "mock" };
@@ -85,18 +101,20 @@ export async function generateEmailCopy(story: DevStory): Promise<EmailCopy> {
     .join("\n");
 
   try {
-    const { output } = await generateText({
-      model: createModel(),
-      output: Output.object({
-        name: "EmailCopy",
-        description: "An email subject line and closing P.S. for a Your Dev Story email",
-        schema: emailCopySchema,
+    const { output } = await runWithModelFallback((model) =>
+      generateText({
+        model,
+        output: Output.object({
+          name: "EmailCopy",
+          description: "An email subject line and closing P.S. for a Your Dev Story email",
+          schema: emailCopySchema,
+        }),
+        system: EMAIL_SYSTEM_PROMPT,
+        prompt: `Title: ${story.title}\n\nSummary: ${story.summary}\n\nEras:\n${eras}`,
+        temperature: 0.9,
+        maxOutputTokens: 150,
       }),
-      system: EMAIL_SYSTEM_PROMPT,
-      prompt: `Title: ${story.title}\n\nSummary: ${story.summary}\n\nEras:\n${eras}`,
-      temperature: 0.9,
-      maxOutputTokens: 150,
-    });
+    );
     return output;
   } catch (error) {
     console.error("Email copy generation failed, using fallback:", error);

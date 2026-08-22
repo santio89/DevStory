@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Timeline } from "@/components/timeline/timeline";
+import { StoryHear } from "@/components/story/story-hear";
 import { resolveToken, Sigil } from "@/components/story/sigil";
 import { useLocale } from "@/components/locale/locale-provider";
 import { cn } from "@/lib/utils";
@@ -69,6 +70,8 @@ export function StoryContent({
           </p>
         </div>
       </motion.div>
+
+      <StoryHear story={story} />
 
       <Timeline eras={story.eras} data={data} />
 

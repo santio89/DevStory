@@ -13,13 +13,14 @@ import {
 } from "@/components/ui/card";
 import { dictionary, isLocale } from "@/lib/i18n/dictionary";
 import type { Locale } from "@/lib/i18n/dictionary";
-import { siteName } from "@/lib/site";
+import { SiteFooter } from "@/components/site-footer";
 import {
   isValidGitHubUsername,
   normalizeGitHubUsername,
 } from "@/lib/github/username";
+import { siteName } from "@/lib/site";
 import { cn } from "@/lib/utils";
-import { ArrowRight, GitCommit, Sparkles, TerminalSquare } from "lucide-react";
+import { GitCommit, Sparkles, TerminalSquare } from "lucide-react";
 
 const FEATURE_ICONS = [GitCommit, Sparkles, TerminalSquare];
 const FEATURE_ICON_COLORS = [
@@ -146,17 +147,7 @@ export default async function Home({
         </section>
       </main>
 
-      <footer className="border-t-4 border-foreground bg-foreground text-background">
-        <div className="mx-auto flex w-full max-w-5xl flex-col items-center justify-between gap-2 px-4 py-8 sm:flex-row sm:px-6">
-          <span className="flex items-center gap-2 font-mono text-xs font-bold tracking-widest uppercase">
-            <ArrowRight className="size-3 text-bauhaus-yellow" />
-            {t.footer.tagline}
-          </span>
-          <span className="font-mono text-xs font-bold tracking-widest uppercase">
-            {siteName} © {new Date().getFullYear()}
-          </span>
-        </div>
-      </footer>
+      <SiteFooter tagline={t.footer.tagline} />
     </>
   );
 }

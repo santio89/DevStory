@@ -34,6 +34,8 @@
   --color-bauhaus-deep: var(--bauhaus-deep);
   --color-bauhaus-yellow: var(--bauhaus-yellow);
   --color-bauhaus-pink: var(--bauhaus-pink);
+  --color-bauhaus-moment: var(--bauhaus-moment);
+  --color-bauhaus-moment-muted: var(--bauhaus-moment-muted);
   --color-bauhaus-ink: #121212;
   --color-bauhaus-paper: #f0f0f0;
   --color-sidebar-ring: var(--sidebar-ring);
@@ -104,6 +106,8 @@
   --bauhaus-deep: #1040c0;
   --bauhaus-yellow: #f0c020;
   --bauhaus-pink: #f9a8d4;
+  --bauhaus-moment: #d4e2f4;
+  --bauhaus-moment-muted: #3d5270;
   --sidebar: #f0f0f0;
   --sidebar-foreground: #121212;
   --sidebar-primary: #121212;
@@ -144,6 +148,8 @@
   --bauhaus-deep: #3b82f6;
   --bauhaus-yellow: #f0c020;
   --bauhaus-pink: #f9a8d4;
+  --bauhaus-moment: #101d3f;
+  --bauhaus-moment-muted: #9eb0cc;
   --sidebar: #1c1c1c;
   --sidebar-foreground: #f0f0f0;
   --sidebar-primary: #f0f0f0;

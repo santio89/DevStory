@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { heroSpring, strikeSpring } from "@/lib/motion/reveal";
 
 export function HeroTitle({
   first,
@@ -17,12 +18,11 @@ export function HeroTitle({
         {FIRST_LINE.map((letter, i) => (
           <motion.span
             key={`code-${i}`}
-            initial={{ opacity: 0, y: 26 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{
-              duration: 0.5,
-              delay: 0.1 + i * 0.045,
-              ease: [0.22, 1, 0.36, 1],
+              ...heroSpring,
+              delay: 0.04 + i * 0.028,
             }}
             className="inline-block"
           >
@@ -35,7 +35,7 @@ export function HeroTitle({
           className="inline-block"
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55, delay: 0.45, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ ...strikeSpring, delay: 0.32 }}
         >
           {second}
         </motion.span>

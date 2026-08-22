@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { motion } from "framer-motion";
+import { Reveal } from "@/components/motion/fade-in";
 import { ShareMenu } from "@/components/story/share-menu";
+import { ShareOrbitIcon } from "@/components/story/story-decorations";
 import { Button } from "@/components/ui/button";
 import { useLocale } from "@/components/locale/locale-provider";
 import type { DevStory } from "@/lib/devstory/story";
@@ -99,19 +100,13 @@ export function StorySharePanel({
     }
   }
 
-  const allLanguages = [
-    ...new Set(story.eras.flatMap((era) => era.keyLanguages)),
-  ];
-
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-      className="relative rounded-none border-2 border-foreground bg-bauhaus-deep p-6 text-white shadow-hard-lg sm:p-8"
+    <Reveal
+      variant="subtle"
+      className="relative overflow-hidden rounded-none border-2 border-foreground bg-bauhaus-deep p-6 text-white shadow-hard-lg sm:p-8"
     >
       <span className="pointer-events-none absolute top-5 left-5 size-3 rotate-45 rounded-none bg-bauhaus-yellow" />
+      <ShareOrbitIcon className="pointer-events-none absolute -top-4 -right-4 size-28 text-white/30" />
       <div className="relative">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -122,10 +117,7 @@ export function StorySharePanel({
               </h4>
             </div>
             <p className="mt-1.5 max-w-md text-sm text-pretty text-white/80">
-              {t.share.blurbFor(displayName)} · {t.share.erasLabel(story.eras.length)}
-              {allLanguages.length > 0
-                ? ` · ${allLanguages.join(" → ")}`
-                : ` · ${t.share.noLanguages}`}
+              {t.share.blurbFor(username)}
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
@@ -212,6 +204,6 @@ export function StorySharePanel({
           )}
         </div>
       </div>
-    </motion.div>
+    </Reveal>
   );
 }

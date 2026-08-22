@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { fluidSpring } from "@/lib/motion/reveal";
 import { Button } from "@/components/ui/button";
 import { useLocale } from "@/components/locale/locale-provider";
 import type { DevStory } from "@/lib/devstory/story";
@@ -132,9 +133,9 @@ export function StoryChat({
 
   useEffect(() => {
     let active = true;
-    setOpen(false);
     queueMicrotask(() => {
       if (!active) return;
+      setOpen(false);
       setMessages(readStored(chatScope, locale));
       setHydrated(true);
     });
@@ -153,20 +154,27 @@ export function StoryChat({
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages, streaming, open]);
 
-  useEffect(() => {
-    if (!open || !hydrated) return;
-    setMessages((prev) => {
-      if (prev.length > 0) return prev;
-      return [{ role: "assistant", content: t.chat.greeting }];
-    });
-    const focusTimer = window.setTimeout(
-      () => inputRef.current?.focus(),
-      80,
-    );
-    return () => {
-      window.clearTimeout(focusTimer);
-    };
-  }, [open, t.chat.greeting, hydrated]);
+  function openChat() {
+    setOpen(true);
+    if (hydrated) {
+      queueMicrotask(() => {
+        setMessages((prev) =>
+          prev.length > 0
+            ? prev
+            : [{ role: "assistant", content: t.chat.greeting }],
+        );
+        window.setTimeout(() => inputRef.current?.focus(), 80);
+      });
+    }
+  }
+
+  function toggleChat() {
+    if (open) {
+      setOpen(false);
+      return;
+    }
+    openChat();
+  }
 
   async function send(messageText?: string) {
     const content = (messageText ?? input).trim();
@@ -245,10 +253,10 @@ export function StoryChat({
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, y: 24, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 24, scale: 0.98 }}
-            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 12 }}
+            transition={fluidSpring}
             className="fixed right-4 bottom-20 z-50 flex w-[calc(100vw-2rem)] max-w-sm flex-col rounded-none border-2 border-foreground bg-background text-foreground shadow-hard-lg sm:right-6 sm:bottom-24"
           >
             <div className="flex items-center justify-between border-b-2 border-foreground bg-bauhaus-deep px-4 py-3 text-white">
@@ -341,14 +349,20 @@ export function StoryChat({
         )}
       </AnimatePresence>
 
-      <Button
-        onClick={() => setOpen((v) => !v)}
-        aria-expanded={open}
+      <motion.div
         className="fixed right-4 bottom-4 z-50 sm:right-6 sm:bottom-6"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ ...fluidSpring, delay: 0.35 }}
       >
-        {open ? <X /> : <MessageSquare />}
-        {t.chat.open}
-      </Button>
+        <Button
+          onClick={toggleChat}
+          aria-expanded={open}
+        >
+          {open ? <X /> : <MessageSquare />}
+          {t.chat.open}
+        </Button>
+      </motion.div>
     </>
   );
 }

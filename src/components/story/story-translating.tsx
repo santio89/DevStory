@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useLocale } from "@/components/locale/locale-provider";
+import { fluidSpring } from "@/lib/motion/reveal";
 import { Loader2 } from "lucide-react";
 
 function Bar({ className = "" }: { className?: string }) {
@@ -17,9 +18,9 @@ export function StoryTranslating() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 24 }}
+      initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      transition={fluidSpring}
       className="space-y-8"
     >
       <div className="relative rounded-none border-2 border-foreground bg-card px-6 py-10 shadow-hard sm:px-12 sm:py-14">

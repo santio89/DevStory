@@ -1,18 +1,19 @@
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 import type { Metadata } from "next";
-import { Button } from "@/components/ui/button";
 import { HeroField, HeroTilt } from "@/components/hero-field";
 import { SiteHeader } from "@/components/site-header";
 import { LocaleToggle } from "@/components/locale-toggle";
 import { StorySavedView } from "@/components/story/story-saved-view";
-import { ShareMenu } from "@/components/story/share-menu";
+import {
+  StoryPageCta,
+  StoryPageFooter,
+  StoryPageHero,
+} from "@/components/story/story-page-sections";
 import { getStory } from "@/lib/stories";
 import { dictionary, isLocale } from "@/lib/i18n/dictionary";
 import { siteName, siteDescription, publicUrl } from "@/lib/site";
 import type { Messages } from "@/lib/i18n/dictionary";
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 
 async function getLocale(): Promise<Messages> {
   const cookieStore = await cookies();
@@ -88,7 +89,7 @@ export default async function StoryPage({
       </SiteHeader>
 
       <main className="flex-1">
-        <section className="relative overflow-hidden pt-28 pb-10 text-center">
+        <div className="relative overflow-hidden">
           <div
             data-hero-stage
             className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
@@ -98,18 +99,16 @@ export default async function StoryPage({
               <HeroField />
             </HeroTilt>
           </div>
-          <div className="relative z-10 px-4">
-            <h1 className="font-heading text-3xl font-black tracking-normal text-balance uppercase sm:text-4xl md:text-5xl">
-              {t.sharePage.of(story.username)}
-            </h1>
-            <p className="mt-3 font-mono text-sm font-bold tracking-[0.2em] text-muted-foreground uppercase">
-              @{story.githubLogin}
-            </p>
-          </div>
-        </section>
+
+          <StoryPageHero
+            title={t.sharePage.of(story.username)}
+            handle={`@${story.githubLogin}`}
+          />
+        </div>
 
         <section className="mx-auto w-full max-w-5xl px-4 pb-20 sm:px-6">
           <StorySavedView
+            key={story.id}
             storyId={story.id}
             githubLogin={story.githubLogin}
             username={story.username}
@@ -120,36 +119,14 @@ export default async function StoryPage({
           />
         </section>
 
-        <section className="mx-auto w-full max-w-5xl px-4 pb-24 sm:px-6">
-          <div className="relative rounded-none border-2 border-foreground bg-bauhaus-deep p-8 text-center text-white shadow-hard-lg sm:p-12">
-            <span className="pointer-events-none absolute top-6 left-6 size-4 rotate-45 rounded-none bg-bauhaus-yellow" />
-            <span className="pointer-events-none absolute right-8 bottom-8 size-10 rounded-full border-2 border-white/40" />
-            <h2 className="font-heading text-2xl font-black tracking-normal text-balance uppercase sm:text-3xl">
-              {t.sharePage.writeYours}
-            </h2>
-            <p className="mx-auto mt-3 max-w-xl text-sm text-white/80 text-pretty sm:text-base">
-              {t.sharePage.ctaDesc}
-            </p>
-            <Button
-              asChild
-              size="lg"
-              className="mt-6 bg-white text-bauhaus-deep hover:bg-bauhaus-paper"
-            >
-              <Link href="/">
-                {t.sharePage.tellYours}
-                <ArrowRight />
-              </Link>
-            </Button>
-            <div className="mt-6 flex justify-center">
-              <ShareMenu
-                url={publicUrl(`/story/${story.id}`)}
-                text={`${story.title} - ${t.common.shareTagline}`}
-                buttonClassName="border-white bg-transparent text-white shadow-none hover:bg-white/10"
-              />
-            </div>
-          </div>
-        </section>
+        <StoryPageCta
+          title={t.sharePage.writeYours}
+          description={t.sharePage.ctaDesc}
+          buttonLabel={t.sharePage.tellYours}
+        />
       </main>
+
+      <StoryPageFooter tagline={t.footer.tagline} />
     </div>
   );
 }

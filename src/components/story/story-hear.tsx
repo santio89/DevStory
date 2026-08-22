@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { Reveal } from "@/components/motion/fade-in";
 import { useLocale } from "@/components/locale/locale-provider";
 import type { DevStory } from "@/lib/devstory/story";
 import { Loader2, Square, Volume2 } from "lucide-react";
@@ -88,13 +88,7 @@ export function StoryHear({ story }: { story: DevStory }) {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className="flex flex-wrap items-center gap-3"
-    >
+    <Reveal variant="subtle" className="flex flex-wrap items-center gap-3">
       <Button
         variant="outline"
         size="sm"
@@ -122,6 +116,6 @@ export function StoryHear({ story }: { story: DevStory }) {
           {audioError}
         </p>
       )}
-    </motion.div>
+    </Reveal>
   );
 }

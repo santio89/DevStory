@@ -25,7 +25,7 @@ const en = {
     title: "How it works",
     one: {
       t: "Every commit is a chapter",
-      d: "We read public repository history — from the first hello world to the latest refactor — and find the moments that mattered.",
+      d: "We read public repository history, from the first hello world to the latest refactor, and find the moments that mattered.",
     },
     two: {
       t: "AI-written narrative",
@@ -80,12 +80,12 @@ const en = {
     waitingTitle: "Waiting on the brain",
     waitingBody: (username: string) =>
       `Still harvesting @${username}'s GitHub history before the biographer can begin.`,
-    translationFailed: "Translation unavailable — showing the original.",
+    translationFailed: "Translation unavailable. Showing the original.",
   },
   share: {
     title: "Share this story",
     subjectFor: (name: string) => `${name}'s Dev Story`,
-    blurbFor: (name: string) => `The invisible hours of ${name}`,
+    blurbFor: (username: string) => `The journey of @${username}`,
     erasLabel: (n: number) => `${n} eras`,
     noLanguages: "no languages",
     copyText: "Copy as text",
@@ -94,7 +94,7 @@ const en = {
     copyLink: "Copy link",
     linkCopied: "Link copied!",
     emailTitle: "Email this story",
-    emailSuccess: "Check your inbox — the story is on its way.",
+    emailSuccess: "Check your inbox. The story is on its way.",
     emailPlaceholder: "you@example.com",
     send: "Send it",
     sending: "Sending…",
@@ -165,12 +165,12 @@ const en = {
     you: "you",
     narrator: "biographer",
     failed: "The biographer went quiet. Try again.",
-    noAI: "The biographer isn't awake yet — AI isn't configured.",
+    noAI: "The biographer isn't awake yet. AI isn't configured.",
     greeting:
-      "I've been sitting with your story for a while now. Ask me about the quiet years, the loud ones, a repo you almost forgot — I'll tell you what I remember.",
+      "I've been sitting with your story for a while now. Ask me about the quiet years, the loud ones, a repo you almost forgot. I'll tell you what I remember.",
     close: "Close chat",
     offTopic:
-      "Mm. That's a tale for another film. I'm only here for *your* story — the eras, the repos, the commits that made you. Ask me about those.",
+      "Mm. That's a tale for another film. I'm only here for *your* story: the eras, the repos, the commits that made you. Ask me about those.",
     suggestions: [
       "What defined my earliest years?",
       "Which repo tells my story best?",
@@ -222,7 +222,7 @@ const es: Messages = {
     title: "Cómo funciona",
     one: {
       t: "Cada commit es un capítulo",
-      d: "Leemos el historial público de repositorios — desde el primer hola mundo hasta el último refactor — y encontramos los momentos que importaron.",
+      d: "Leemos el historial público de repositorios, desde el primer hola mundo hasta el último refactor, y encontramos los momentos que importaron.",
     },
     two: {
       t: "Narrativa escrita por IA",
@@ -279,12 +279,12 @@ const es: Messages = {
     waitingTitle: "Esperando al cerebro",
     waitingBody: (username: string) =>
       `Todavía estamos recopilando el historial de GitHub de @${username} antes de que el biógrafo pueda empezar.`,
-    translationFailed: "Traducción no disponible — mostrando el original.",
+    translationFailed: "Traducción no disponible. Mostrando el original.",
   },
   share: {
     title: "Comparte esta historia",
     subjectFor: (name: string) => `Dev Story de ${name}`,
-    blurbFor: (name: string) => `Las horas invisibles de ${name}`,
+    blurbFor: (username: string) => `El viaje de @${username}`,
     erasLabel: (n: number) => `${n} épocas`,
     noLanguages: "sin lenguajes",
     copyText: "Copiar como texto",
@@ -293,7 +293,7 @@ const es: Messages = {
     copyLink: "Copiar enlace",
     linkCopied: "¡Enlace copiado!",
     emailTitle: "Enviar esta historia por email",
-    emailSuccess: "Revisa tu bandeja de entrada — la historia va en camino.",
+    emailSuccess: "Revisa tu bandeja de entrada. La historia va en camino.",
     emailPlaceholder: "tu@ejemplo.com",
     send: "Enviar",
     sending: "Enviando…",
@@ -365,12 +365,12 @@ const es: Messages = {
     you: "tú",
     narrator: "biógrafo",
     failed: "El biógrafo se quedó en silencio. Inténtalo de nuevo.",
-    noAI: "El biógrafo aún no despierta — la IA no está configurada.",
+    noAI: "El biógrafo aún no despierta. La IA no está configurada.",
     greeting:
-      "Llevo un rato con tu historia. Pregúntame por los años callados, los ruidosos, un repo que casi olvidaste — te diré lo que recuerdo.",
+      "Llevo un rato con tu historia. Pregúntame por los años callados, los ruidosos, un repo que casi olvidaste. Te diré lo que recuerdo.",
     close: "Cerrar chat",
     offTopic:
-      "Mm. Esa es otra película. Solo estoy aquí por *tu* historia — las épocas, los repos, los commits que te hicieron. Pregúntame por eso.",
+      "Mm. Esa es otra película. Solo estoy aquí por *tu* historia: las épocas, los repos, los commits que te hicieron. Pregúntame por eso.",
     suggestions: [
       "¿Qué definió mis primeros años?",
       "¿Qué repo cuenta mejor mi historia?",

@@ -28,7 +28,13 @@ export function StoryView({
   return (
     <div className="space-y-10">
       <StoryContent story={story} mode={mode} data={data} />
-      <StoryMoment story={story} data={data} fingerprint={fingerprint} />
+      <StoryMoment
+        key={fingerprint}
+        story={story}
+        data={data}
+        fingerprint={fingerprint}
+        autoSummon
+      />
       <StorySharePanel
         story={story}
         storyId={storyId}

@@ -5,7 +5,7 @@ import {
   useAnimationControls,
   useReducedMotion,
 } from "framer-motion";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import type { ReactNode } from "react";
 
 export function FloatingSymbol({
@@ -24,18 +24,18 @@ export function FloatingSymbol({
   const reduce = useReducedMotion();
   const controls = useAnimationControls();
 
-  const startIdle = () => {
+  const startIdle = useCallback(() => {
     if (reduce || !idle) return;
     controls.start({
       y: [0, -7, 0],
       rotate: [0, idleRotate, 0],
       transition: { duration: 5 + drift, repeat: Infinity, ease: "easeInOut" },
     });
-  };
+  }, [controls, reduce, drift, idleRotate, idle]);
 
   useEffect(() => {
     startIdle();
-  }, [controls, reduce, drift, idleRotate, idle]);
+  }, [startIdle]);
 
   if (reduce) {
     return <span className={className}>{children}</span>;

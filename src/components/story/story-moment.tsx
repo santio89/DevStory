@@ -1,8 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { MomentSparkIcon } from "@/components/story/story-decorations";
+import { Reveal } from "@/components/motion/fade-in";
+import { fluidSpring } from "@/lib/motion/reveal";
 import { useLocale } from "@/components/locale/locale-provider";
 import type { DevStory } from "@/lib/devstory/story";
 import type { StoryDataSnapshot } from "@/lib/devstory/minify";
@@ -56,38 +59,43 @@ export function StoryMoment({
   story,
   data,
   fingerprint,
+  autoSummon = false,
 }: {
   story: DevStory;
   data: StoryDataSnapshot | null;
   fingerprint: string;
+  autoSummon?: boolean;
 }) {
   const { t, locale } = useLocale();
   const [moment, setMoment] = useState<Moment | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [translating, setTranslating] = useState(false);
+  const autoSummonedRef = useRef(false);
 
   async function handleMoment() {
+    const requestLocale = locale;
     setLoading(true);
     setError(null);
     try {
       const res = await fetch("/api/story/moment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ story, data, locale }),
+        body: JSON.stringify({ story, data, locale: requestLocale }),
       });
       const json = (await res.json()) as { error?: string } & Moment;
       if (!res.ok) {
         setError(res.status === 503 ? t.moment.noAI : t.moment.failed);
         return;
       }
+      if (requestLocale !== locale) return;
       const next = { title: json.title, text: json.text, year: json.year, dateLabel: json.dateLabel };
       setMoment(next);
-      writeStored(fingerprint, { [locale]: next });
+      writeStored(fingerprint, { [requestLocale]: next });
     } catch {
-      setError(t.moment.failed);
+      if (requestLocale === locale) setError(t.moment.failed);
     } finally {
-      setLoading(false);
+      if (requestLocale === locale) setLoading(false);
     }
   }
 
@@ -119,6 +127,10 @@ export function StoryMoment({
   }
 
   useEffect(() => {
+    autoSummonedRef.current = false;
+  }, [locale]);
+
+  useEffect(() => {
     let active = true;
     queueMicrotask(() => {
       if (!active) return;
@@ -133,37 +145,37 @@ export function StoryMoment({
         if (anyMoment) {
           setMoment(anyMoment);
           void handleTranslate(anyMoment, byLocale);
+          return;
         }
-        return;
+      }
+
+      if (autoSummon && !autoSummonedRef.current) {
+        autoSummonedRef.current = true;
+        void handleMoment();
       }
     });
     return () => {
       active = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fingerprint, locale]);
+  }, [fingerprint, locale, autoSummon]);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-      className="relative rounded-none border-2 border-foreground bg-bauhaus-yellow/10 p-6 shadow-hard sm:p-8"
-    >
-      <span className="pointer-events-none absolute top-5 right-5 size-4 rounded-full border-2 border-foreground" />
+    <Reveal variant="subtle" className="relative overflow-hidden rounded-none border-2 border-foreground bg-bauhaus-moment p-6 text-foreground shadow-hard sm:p-8">
+      <span className="pointer-events-none absolute top-5 right-5 size-4 rounded-full border-2 border-bauhaus-deep bg-bauhaus-sky/40 dark:border-bauhaus-sky dark:bg-bauhaus-deep/50" />
+      <MomentSparkIcon className="pointer-events-none absolute -bottom-6 -left-6 size-32 text-bauhaus-deep/15 dark:text-bauhaus-sky/20" />
       <span className="pointer-events-none absolute bottom-6 left-6 size-3 rotate-45 rounded-none bg-bauhaus-pink" />
 
       <div className="relative">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <Clock3 className="size-4 text-bauhaus-deep" />
+              <Clock3 className="size-4 text-bauhaus-deep dark:text-bauhaus-sky" />
               <h4 className="font-heading text-lg font-black tracking-normal text-balance uppercase">
                 {t.moment.title}
               </h4>
             </div>
-            <p className="mt-1 max-w-md text-sm text-pretty text-muted-foreground">
+            <p className="mt-1 max-w-md text-sm text-pretty text-bauhaus-moment-muted">
               {t.moment.subtitle}
             </p>
           </div>
@@ -172,7 +184,7 @@ export function StoryMoment({
             size="sm"
             disabled={loading || translating}
             onClick={() => void handleMoment()}
-            className="border-dashed border-foreground/60 hover:border-foreground"
+            className="border-dashed border-foreground/50 bg-background/70 hover:border-foreground hover:bg-background"
           >
             {loading || translating ? (
               <Loader2 className="size-3.5 animate-spin" />
@@ -189,15 +201,28 @@ export function StoryMoment({
           </Button>
         </div>
 
+        {!moment && (loading || translating) && (
+          <div
+            className="mt-6 border-t-2 border-foreground/20 pt-6"
+            aria-live="polite"
+            aria-busy="true"
+          >
+            <div className="flex items-center gap-3 font-mono text-sm font-bold tracking-wider text-bauhaus-moment-muted uppercase">
+              <Loader2 className="size-4 shrink-0 animate-spin text-bauhaus-deep dark:text-bauhaus-sky" />
+              {loading ? t.moment.loading : t.moment.translating}
+            </div>
+          </div>
+        )}
+
         {moment && (
           <motion.div
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            transition={fluidSpring}
             className="mt-6 border-t-2 border-foreground/20 pt-6"
           >
             <div className="flex items-center gap-2">
-              <BookOpen className="size-3.5 text-bauhaus-deep" />
+              <BookOpen className="size-3.5 text-bauhaus-deep dark:text-bauhaus-sky" />
               <span className="bg-bauhaus-yellow px-2 py-0.5 font-mono text-xs font-bold text-bauhaus-ink uppercase">
                 {t.moment.of(moment.dateLabel ?? moment.year)}
               </span>
@@ -205,7 +230,7 @@ export function StoryMoment({
             <p className="mt-3 font-heading text-lg leading-snug font-black tracking-normal text-balance uppercase">
               {moment.title}
             </p>
-            <p className="mt-2 text-sm leading-relaxed text-pretty text-muted-foreground">
+            <p className="mt-2 text-sm leading-relaxed text-pretty text-bauhaus-moment-muted">
               {moment.text}
             </p>
           </motion.div>
@@ -216,6 +241,6 @@ export function StoryMoment({
           </p>
         )}
       </div>
-    </motion.div>
+    </Reveal>
   );
 }

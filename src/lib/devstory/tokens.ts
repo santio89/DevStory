@@ -42,6 +42,14 @@ export const TOKEN_IDS = [
   "lantern",
   "helm",
   "cascade",
+  "keystone",
+  "chisel",
+  "spire",
+  "vector",
+  "ember",
+  "loom",
+  "echo",
+  "sonar",
 ] as const;
 
 export type TokenId = (typeof TOKEN_IDS)[number];
@@ -90,6 +98,14 @@ export const TOKEN_MEANINGS: Record<TokenId, string> = {
   lantern: "illumination, teaching, docs that light the path",
   helm: "steering architecture, taking the wheel, leadership",
   cascade: "pipelines, waterfalls of features, flow through stages",
+  keystone: "the piece that holds everything together, capstone work",
+  chisel: "refinement, carving detail, polishing until it fits",
+  spire: "vertical ambition, reaching higher, building upward",
+  vector: "direction chosen, velocity in one heading, purposeful motion",
+  ember: "slow persistent burn, quiet heat that never quite goes out",
+  loom: "weaving systems together, threads crossing into fabric",
+  echo: "feedback loops, iteration answering iteration, resonance",
+  sonar: "probing depth, sending pings into the unknown",
 };
 
 /** Compact gallery for AI prompts (system + uniqueness blocks). */

@@ -163,7 +163,7 @@ export function DevStoryEmail({
           <Hr style={hr} />
           <Text style={muted}>
             {username}&apos;s Dev Story is a narrative timeline generated from
-            their GitHub history — commits are letters, repos are chapters.
+            their GitHub history. Commits are letters, repos are chapters.
           </Text>
           <Section style={cta}>
             <Button href={storyUrl} style={button}>
@@ -172,7 +172,7 @@ export function DevStoryEmail({
           </Section>
           {ps ? <Text style={psText}>P.S. {ps}</Text> : null}
           <Hr style={hr} />
-          <Text style={footer}>— crafted by Dev Story</Text>
+          <Text style={footer}>Crafted by Dev Story</Text>
         </Container>
       </Body>
     </Html>

@@ -5,6 +5,11 @@ import { motion } from "framer-motion";
 import { langColor } from "@/components/story/languages";
 import { resolveToken, Sigil } from "@/components/story/sigil";
 import { useLocale } from "@/components/locale/locale-provider";
+import {
+  fluidSpring,
+  revealViewport,
+  timelineReveal,
+} from "@/lib/motion/reveal";
 import { cn } from "@/lib/utils";
 import type { Era } from "@/lib/devstory/story";
 import type { StoryDataSnapshot } from "@/lib/devstory/minify";
@@ -56,10 +61,10 @@ function TimelineItem({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 32 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      initial={timelineReveal.initial}
+      whileInView={timelineReveal.visible}
+      viewport={revealViewport}
+      transition={{ ...fluidSpring, delay: index * 0.06 }}
       className="relative grid grid-cols-1 gap-6 sm:grid-cols-2"
     >
       <span className="absolute top-2.5 left-4 z-10 -translate-x-1/2 sm:left-1/2">
@@ -89,89 +94,89 @@ function TimelineItem({
           </div>
           <span className="pointer-events-none absolute top-4 right-4 z-[1] size-3 rotate-45 bg-bauhaus-pink" />
           <div className="relative z-[1]">
-          <div className="flex items-center gap-3">
-            <span className="font-mono text-xs font-bold tracking-[0.25em] text-muted-foreground uppercase">
-              {t.story.era(index + 1)}
-            </span>
-            <span className="h-[2px] flex-1 bg-foreground/70" />
-            <span className="bg-bauhaus-yellow px-2 py-0.5 font-mono text-sm font-bold text-bauhaus-ink shadow-hard-sm">
-              {era.year}
-            </span>
-          </div>
-          <h4 className="mt-3 font-heading text-xl font-bold tracking-normal text-balance uppercase">
-            {era.name}
-          </h4>
-          <p className="mt-2 text-sm leading-relaxed text-pretty text-muted-foreground">
-            {era.description}
-          </p>
-          {era.keyLanguages.length > 0 && (
-            <div className="mt-4 flex flex-wrap gap-2">
-              {era.keyLanguages.map((lang) => (
-                <span
-                  key={lang}
-                  className="inline-flex items-center gap-1.5 rounded-none border-2 border-foreground bg-background px-2 py-0.5 font-mono text-xs font-bold uppercase tracking-wider"
-                >
-                  <span
-                    className="inline-block size-2 rounded-none"
-                    style={{ backgroundColor: langColor(lang) }}
-                  />
-                  {lang}
-                </span>
-              ))}
+            <div className="flex items-center gap-3">
+              <span className="font-mono text-xs font-bold tracking-[0.25em] text-muted-foreground uppercase">
+                {t.story.era(index + 1)}
+              </span>
+              <span className="h-[2px] flex-1 bg-foreground/70" />
+              <span className="bg-bauhaus-yellow px-2 py-0.5 font-mono text-sm font-bold text-bauhaus-ink shadow-hard-sm">
+                {era.year}
+              </span>
             </div>
-          )}
-          <button
-            type="button"
-            onClick={() => void handleDeepDive()}
-            aria-expanded={Boolean(dive)}
-            className="mt-5 inline-flex items-center gap-2.5 text-left font-mono text-xs font-bold tracking-[0.2em] text-bauhaus-deep uppercase transition-colors hover:text-foreground"
-          >
-            {diving ? (
-              <Loader2 className="size-3.5 shrink-0 animate-spin" />
-            ) : (
-              <BookOpen className="size-3.5 shrink-0" />
-            )}
-            <span className="text-balance">
-              {diving
-                ? t.play.deepDiveLoading
-                : dive
-                  ? t.play.collapseDeepDive
-                  : t.play.deepDive}
-            </span>
-          </button>
-
-          {diveError && (
-            <p className="mt-2 font-mono text-xs font-bold text-destructive uppercase">
-              {diveError}
+            <h4 className="mt-3 font-heading text-xl font-bold tracking-normal text-balance uppercase">
+              {era.name}
+            </h4>
+            <p className="mt-2 text-sm leading-relaxed text-pretty text-muted-foreground">
+              {era.description}
             </p>
-          )}
-
-          {dive && (
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-              className="mt-5 rounded-none border-2 border-foreground bg-background p-4 shadow-hard-sm"
-            >
-              <p className="text-sm leading-relaxed whitespace-pre-line text-pretty">
-                {dive.narrative}
-              </p>
-              <p className="mt-4 font-mono text-[10px] font-bold tracking-[0.25em] text-muted-foreground uppercase">
-                {t.play.deepDiveHighlights}
-              </p>
-              <ul className="mt-2 space-y-1.5">
-                {dive.highlights.map((h, i) => (
-                  <li
-                    key={i}
-                    className="flex items-start gap-2 font-mono text-xs font-bold text-bauhaus-deep"
+            {era.keyLanguages.length > 0 && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {era.keyLanguages.map((lang) => (
+                  <span
+                    key={lang}
+                    className="inline-flex items-center gap-1.5 rounded-none border-2 border-foreground bg-background px-2 py-0.5 font-mono text-xs font-bold uppercase tracking-wider"
                   >
-                    <span className="mt-1 inline-block size-1.5 shrink-0 rotate-45 bg-bauhaus-yellow" />
-                    {h}
-                  </li>
+                    <span
+                      className="inline-block size-2 rounded-none"
+                      style={{ backgroundColor: langColor(lang) }}
+                    />
+                    {lang}
+                  </span>
                 ))}
-              </ul>
-            </motion.div>
-          )}
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={() => void handleDeepDive()}
+              aria-expanded={Boolean(dive)}
+              className="mt-5 inline-flex items-center gap-2.5 text-left font-mono text-xs font-bold tracking-[0.2em] text-bauhaus-deep uppercase transition-colors hover:text-foreground"
+            >
+              {diving ? (
+                <Loader2 className="size-3.5 shrink-0 animate-spin" />
+              ) : (
+                <BookOpen className="size-3.5 shrink-0" />
+              )}
+              <span className="text-balance">
+                {diving
+                  ? t.play.deepDiveLoading
+                  : dive
+                    ? t.play.collapseDeepDive
+                    : t.play.deepDive}
+              </span>
+            </button>
+
+            {diveError && (
+              <p className="mt-2 font-mono text-xs font-bold text-destructive uppercase">
+                {diveError}
+              </p>
+            )}
+
+            {dive && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={fluidSpring}
+                className="mt-5 rounded-none border-2 border-foreground bg-background p-4 shadow-hard-sm"
+              >
+                <p className="text-sm leading-relaxed whitespace-pre-line text-pretty">
+                  {dive.narrative}
+                </p>
+                <p className="mt-4 font-mono text-[10px] font-bold tracking-[0.25em] text-muted-foreground uppercase">
+                  {t.play.deepDiveHighlights}
+                </p>
+                <ul className="mt-2 space-y-1.5">
+                  {dive.highlights.map((h, i) => (
+                    <li
+                      key={i}
+                      className="flex items-start gap-2 font-mono text-xs font-bold text-bauhaus-deep"
+                    >
+                      <span className="mt-1 inline-block size-1.5 shrink-0 rotate-45 bg-bauhaus-yellow" />
+                      {h}
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
+            )}
           </div>
         </article>
       </div>
@@ -188,7 +193,13 @@ export function Timeline({
 }) {
   return (
     <div className="relative">
-      <div className="absolute top-0 bottom-0 left-4 h-full w-[3px] -translate-x-1/2 bg-foreground sm:left-1/2" />
+      <motion.div
+        initial={{ scaleY: 0, opacity: 0 }}
+        whileInView={{ scaleY: 1, opacity: 1 }}
+        viewport={revealViewport}
+        transition={fluidSpring}
+        className="absolute top-0 bottom-0 left-4 h-full w-[3px] origin-top -translate-x-1/2 bg-foreground sm:left-1/2"
+      />
       <div className="space-y-12 sm:space-y-16">
         {eras.map((era, index) => (
           <TimelineItem

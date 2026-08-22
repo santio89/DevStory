@@ -149,7 +149,7 @@ export function HeroField() {
     let height = 0;
     let dpr = 1;
     let raf = 0;
-    let start = performance.now();
+    const start = performance.now();
     let running = true;
 
     const resize = () => {

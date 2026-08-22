@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FadeIn } from "@/components/motion/fade-in";
+import { FadeIn, Reveal } from "@/components/motion/fade-in";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { langColor } from "@/components/story/languages";
@@ -12,7 +12,7 @@ import { RepoBookIcon } from "@/components/icons/repo-book";
 import { GitCommit, RefreshCw, Star, FolderGit2, AlertTriangle } from "lucide-react";
 
 function formatDate(iso: string | null, locale: Locale) {
-  if (!iso) return "—";
+  if (!iso) return "-";
   return new Date(iso).toLocaleDateString(locale === "es" ? "es-ES" : "en-US", {
     year: "numeric",
     month: "short",
@@ -72,16 +72,17 @@ export function StoryPreview({
   staticData?: StoryPreviewData | null;
 }) {
   const { t, locale } = useLocale();
-  const [data, setData] = useState<StoryPreviewData | null>(staticData);
+  const [fetchedData, setFetchedData] = useState<StoryPreviewData | null>(null);
   const [loading, setLoading] = useState(!staticData);
   const [error, setError] = useState<string | null>(null);
 
   const readOnly = Boolean(staticData);
+  const data = staticData ?? fetchedData;
 
   async function fetchPreview(refresh = false, signal?: AbortSignal) {
     setLoading(true);
     setError(null);
-    setData(null);
+    setFetchedData(null);
     try {
       const params = new URLSearchParams({ username });
       if (refresh) params.set("refresh", "1");
@@ -96,11 +97,11 @@ export function StoryPreview({
       if (!res.ok) {
         throw new Error(json.error ?? t.preview.fetchError(res.status));
       }
-      setData(json.preview ?? null);
+      setFetchedData(json.preview ?? null);
     } catch (e) {
       if (e instanceof DOMException && e.name === "AbortError") return;
       setError(e instanceof Error ? e.message : t.preview.genericError);
-      setData(null);
+      setFetchedData(null);
     } finally {
       if (!signal?.aborted) {
         setLoading(false);
@@ -109,12 +110,7 @@ export function StoryPreview({
   }
 
   useEffect(() => {
-    if (staticData) {
-      setData(staticData);
-      setLoading(false);
-      setError(null);
-      return;
-    }
+    if (staticData) return;
 
     const ac = new AbortController();
     let active = true;
@@ -122,7 +118,7 @@ export function StoryPreview({
     void (async () => {
       setLoading(true);
       setError(null);
-      setData(null);
+      setFetchedData(null);
       try {
         const params = new URLSearchParams({ username });
         const res = await fetch(`/api/story?${params}`, {
@@ -136,12 +132,12 @@ export function StoryPreview({
         if (!res.ok) {
           throw new Error(json.error ?? t.preview.fetchError(res.status));
         }
-        if (active) setData(json.preview ?? null);
+        if (active) setFetchedData(json.preview ?? null);
       } catch (e) {
         if (e instanceof DOMException && e.name === "AbortError") return;
         if (active) {
           setError(e instanceof Error ? e.message : t.preview.genericError);
-          setData(null);
+          setFetchedData(null);
         }
       } finally {
         if (active) setLoading(false);
@@ -152,7 +148,7 @@ export function StoryPreview({
       active = false;
       ac.abort();
     };
-  }, [username, staticData, locale, t.preview.fetchError, t.preview.genericError]);
+  }, [username, staticData, locale, t.preview]);
 
   useEffect(() => {
     if (readOnly) return;
@@ -161,6 +157,7 @@ export function StoryPreview({
 
   return (
     <div className="space-y-6">
+      <Reveal variant="subtle">
       <div className="flex items-center justify-between gap-4">
         <div>
           <p className="font-mono text-xs font-bold tracking-[0.2em] text-muted-foreground uppercase">
@@ -182,14 +179,17 @@ export function StoryPreview({
           {loading ? t.preview.digging : t.preview.refresh}
         </Button>
       </div>
+      </Reveal>
 
       {loading && (
+        <Reveal variant="enter" key="loading">
         <Card className="bg-card shadow-hard">
           <CardContent className="flex items-center gap-3 py-8 font-mono text-sm font-bold tracking-wider text-muted-foreground uppercase">
             <GitCommit className="size-4 animate-pulse text-bauhaus-deep" />
             {t.preview.harvestingFor(username)}
           </CardContent>
         </Card>
+        </Reveal>
       )}
 
       {error && !loading && (

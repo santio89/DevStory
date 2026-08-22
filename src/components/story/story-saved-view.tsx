@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { Reveal } from "@/components/motion/fade-in";
 import { Timeline } from "@/components/timeline/timeline";
 import { StoryMoment } from "@/components/story/story-moment";
 import { StoryPreview } from "@/components/story/story-preview";
@@ -24,7 +24,6 @@ export function StorySavedView({
   username,
   story: initialStory,
   data,
-  mode,
   authoredLocale,
 }: {
   storyId: string;
@@ -36,7 +35,6 @@ export function StorySavedView({
   authoredLocale: Locale;
 }) {
   const { t, locale } = useLocale();
-  const [story, setStory] = useState(initialStory);
   const [translations, setTranslations] = useState<
     Partial<Record<Locale, DevStory>>
   >({});
@@ -48,13 +46,7 @@ export function StorySavedView({
       !translations[locale] &&
       !translationFailed,
   );
-  const activeStory = translations[locale] ?? story;
-
-  useEffect(() => {
-    setStory(initialStory);
-    setTranslations({});
-    setFailedLocales([]);
-  }, [initialStory, storyId]);
+  const activeStory = translations[locale] ?? initialStory;
 
   useEffect(() => {
     if (locale === authoredLocale || translations[locale]) return;
@@ -65,7 +57,7 @@ export function StorySavedView({
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            story,
+            story: initialStory,
             sourceLocale: authoredLocale,
             targetLocale: locale,
           }),
@@ -93,7 +85,7 @@ export function StorySavedView({
     return () => {
       active = false;
     };
-  }, [story, locale, authoredLocale, translations]);
+  }, [initialStory, locale, authoredLocale, translations]);
 
   const displayStory = activeStory;
   const fingerprint = displayStory.eras
@@ -117,12 +109,8 @@ export function StorySavedView({
         </p>
       )}
 
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="relative rounded-none border-2 border-foreground bg-card px-6 py-8 shadow-hard sm:px-10 sm:py-10"
-      >
+      <Reveal variant="subtle">
+        <div className="relative rounded-none border-2 border-foreground bg-card px-6 py-8 shadow-hard sm:px-10 sm:py-10">
         <span className="pointer-events-none absolute top-5 right-5 size-6 rounded-full border-2 border-foreground bg-bauhaus-sky/30" />
         <div className="pointer-events-none absolute -top-8 -right-8 opacity-[0.08]">
           <Sigil token={heroToken} className="size-56" />
@@ -151,18 +139,14 @@ export function StorySavedView({
             @{githubLogin}
           </p>
         </div>
-      </motion.div>
+        </div>
+      </Reveal>
 
       <Timeline eras={displayStory.eras} data={data} />
 
       {displayStory.closing ? (
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-40px" }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="relative rounded-none border-2 border-foreground bg-bauhaus-yellow p-6 text-bauhaus-ink shadow-hard sm:p-8"
-        >
+        <Reveal variant="subtle">
+          <div className="relative rounded-none border-2 border-foreground bg-bauhaus-yellow p-6 text-bauhaus-ink shadow-hard sm:p-8">
           <span className="pointer-events-none absolute top-4 right-4 size-4 rotate-45 rounded-none bg-bauhaus-deep" />
           <p className="font-mono text-xs font-bold tracking-[0.25em] uppercase">
             {t.story.closingLabel}
@@ -170,10 +154,16 @@ export function StorySavedView({
           <p className="mt-3 font-heading text-lg leading-relaxed font-bold text-balance sm:text-xl">
             {displayStory.closing}
           </p>
-        </motion.div>
+        </div>
+        </Reveal>
       ) : null}
 
-      <StoryMoment story={displayStory} data={data} fingerprint={fingerprint} />
+      <StoryMoment
+        key={fingerprint}
+        story={displayStory}
+        data={data}
+        fingerprint={fingerprint}
+      />
 
       {previewData && (
         <StoryPreview

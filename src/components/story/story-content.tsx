@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { Reveal } from "@/components/motion/fade-in";
 import { Timeline } from "@/components/timeline/timeline";
 import { StoryHear } from "@/components/story/story-hear";
 import { resolveToken, Sigil } from "@/components/story/sigil";
@@ -28,12 +28,8 @@ export function StoryContent({
 
   return (
     <div className="space-y-10">
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="relative rounded-none border-2 border-foreground bg-card px-6 py-10 shadow-hard sm:px-12 sm:py-14"
-      >
+      <Reveal variant="enter">
+        <div className="relative rounded-none border-2 border-foreground bg-card px-6 py-10 shadow-hard sm:px-12 sm:py-14">
         <span className="pointer-events-none absolute top-6 right-6 size-8 rounded-full border-2 border-foreground bg-bauhaus-sky/30" />
         <span className="pointer-events-none absolute bottom-6 left-6 size-4 rotate-45 rounded-none bg-bauhaus-yellow" />
         <div className="pointer-events-none absolute -top-10 -right-10 opacity-[0.1]">
@@ -71,20 +67,16 @@ export function StoryContent({
             {story.summary}
           </p>
         </div>
-      </motion.div>
+        </div>
+      </Reveal>
 
       <StoryHear story={story} />
 
       <Timeline eras={story.eras} data={data} />
 
       {story.closing ? (
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-40px" }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className="relative rounded-none border-2 border-foreground bg-bauhaus-yellow p-6 text-bauhaus-ink shadow-hard sm:p-8"
-        >
+        <Reveal variant="subtle">
+          <div className="relative rounded-none border-2 border-foreground bg-bauhaus-yellow p-6 text-bauhaus-ink shadow-hard sm:p-8">
           <span className="pointer-events-none absolute top-4 right-4 size-4 rotate-45 rounded-none bg-bauhaus-deep" />
           <p className="font-mono text-xs font-bold tracking-[0.25em] uppercase">
             {t.story.closingLabel}
@@ -92,7 +84,8 @@ export function StoryContent({
           <p className="mt-3 font-heading text-lg leading-relaxed font-bold text-balance sm:text-xl">
             {story.closing}
           </p>
-        </motion.div>
+        </div>
+        </Reveal>
       ) : null}
     </div>
   );

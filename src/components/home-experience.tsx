@@ -36,6 +36,7 @@ export function HomeExperience({
         ? normalizeGitHubUsername(initialUsername).toLowerCase()
         : null;
       if (fromUrl && isValidGitHubUsername(fromUrl)) {
+        setPreviewLoading(true);
         setUsername(fromUrl);
         setReady(true);
         return;
@@ -67,6 +68,7 @@ export function HomeExperience({
 
   const handleLookup = useCallback((next: string) => {
     shouldScrollRef.current = true;
+    setPreviewLoading(true);
     setUsername(next);
     try {
       const url = new URL(window.location.href);
@@ -82,7 +84,7 @@ export function HomeExperience({
 
         <div className="relative z-10 mx-auto flex min-h-0 w-full max-w-5xl flex-1 flex-col px-4 sm:px-6">
           <div className="pointer-events-none flex min-h-0 flex-1 flex-col items-center justify-center pt-14 text-center sm:pt-16">
-            <FadeIn>
+            <FadeIn variant="hero">
               <span className="inline-flex items-center gap-2 rounded-none border-2 border-foreground bg-white px-3 py-1 font-mono text-xs font-bold tracking-[0.2em] text-black uppercase shadow-hard-sm dark:bg-black dark:text-white">
                 <span className="inline-block size-2 animate-[blink-dot_1.6s_ease-in-out_infinite] rounded-none bg-bauhaus-cyan" />
                 {hero.badge}
@@ -91,13 +93,13 @@ export function HomeExperience({
 
             <HeroTitle first={hero.titleFirst} second={hero.titleSecond} />
 
-            <FadeIn delay={0.2}>
+            <FadeIn variant="hero" delay={0.12}>
               <p className="mt-6 max-w-xl text-lg text-muted-foreground text-balance">
                 {hero.subtitle}
               </p>
             </FadeIn>
 
-            <FadeIn delay={0.3} className="mt-8 flex w-full justify-center sm:mt-10">
+            <FadeIn variant="strike" delay={0.22} className="mt-8 flex w-full justify-center sm:mt-10">
               {ready && (
                 <HeroLookup
                   key={username ?? "lookup"}
@@ -110,10 +112,12 @@ export function HomeExperience({
           </div>
 
           <div className="flex shrink-0 justify-center pb-8 sm:pb-10">
-            <HeroScrollCue
-              href={username ? "#story" : "#features"}
-              label={hero.scrollDown}
-            />
+            <FadeIn variant="hero" delay={0.34}>
+              <HeroScrollCue
+                href={username ? "#story" : "#features"}
+                label={hero.scrollDown}
+              />
+            </FadeIn>
           </div>
         </div>
       </section>
@@ -131,7 +135,11 @@ export function HomeExperience({
           <div className="mt-20 mb-16">
             <Marquee />
           </div>
-          <StoryGenerator username={username} brainLoading={previewLoading} />
+          <StoryGenerator
+            username={username}
+            brainLoading={previewLoading}
+            brainReady={!previewLoading}
+          />
         </section>
       )}
     </>

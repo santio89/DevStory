@@ -55,6 +55,14 @@ export const SIGIL_NUDGE: Record<TokenId, string> = {
   lantern: "translate(0 0)",
   helm: "translate(0 0)",
   cascade: "translate(0 2)",
+  keystone: "translate(0 -2)",
+  chisel: "translate(0 1)",
+  spire: "translate(0 -4)",
+  vector: "translate(2 0)",
+  ember: "translate(0 2)",
+  loom: "translate(0 0)",
+  echo: "translate(0 0)",
+  sonar: "translate(0 -2)",
 };
 
 function renderToken(token: TokenId, stroke: string) {
@@ -466,6 +474,78 @@ function renderToken(token: TokenId, stroke: string) {
           <path d="M24 34 H40 L32 46 Z" />
           <path d="M28 46 H36 L32 54 Z" />
           <circle cx="32" cy="12" r="2" fill={ACCENT} stroke="none" />
+        </g>
+      );
+    case "keystone":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M32 14 L48 42 H16 Z" />
+          <path d="M10 46 H54" />
+          <path d="M32 22 V34" strokeWidth={1.5} />
+          <circle cx="32" cy="30" r="2" fill={ACCENT} stroke="none" />
+        </g>
+      );
+    case "chisel":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M18 50 L46 18" />
+          <path d="M14 54 L22 46" />
+          <path d="M40 14 L50 10 L46 20 Z" />
+          <circle cx="46" cy="16" r="1.5" fill={ACCENT} stroke="none" />
+        </g>
+      );
+    case "spire":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M32 8 L44 50 H20 Z" />
+          <path d="M24 50 H40" />
+          <path d="M28 34 H36" strokeWidth={1.5} />
+          <path d="M30 22 H34" strokeWidth={1.5} />
+          <circle cx="32" cy="8" r="2" fill={ACCENT} stroke="none" />
+        </g>
+      );
+    case "vector":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 46 L48 22" />
+          <path d="M38 16 L48 22 L42 30" />
+          <circle cx="12" cy="46" r="2.5" fill={ACCENT} stroke="none" />
+        </g>
+      );
+    case "ember":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M32 20 C38 28 40 34 36 40 C32 46 28 46 24 40 C20 34 22 28 32 20 Z" />
+          <circle cx="32" cy="36" r="5" fill={ACCENT} stroke="none" opacity={0.35} />
+          <path d="M28 14 C30 18 32 18 36 14" strokeWidth={1.5} />
+        </g>
+      );
+    case "loom":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M20 14 V50 M28 14 V50 M36 14 V50 M44 14 V50" strokeWidth={1.5} />
+          <path d="M14 28 H50" />
+          <path d="M16 36 H48" strokeWidth={1.5} />
+          <rect x="22" y="26" width="20" height="6" rx="1" />
+        </g>
+      );
+    case "echo":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <path d="M20 32 C20 24 26 18 32 18 C38 18 44 24 44 32" />
+          <path d="M14 32 C14 20 22 12 32 12 C42 12 50 20 50 32" strokeWidth={1.5} />
+          <path d="M26 32 C26 28 29 25 32 25 C35 25 38 28 38 32" strokeWidth={1.5} />
+          <circle cx="32" cy="32" r="2" fill={ACCENT} stroke="none" />
+        </g>
+      );
+    case "sonar":
+      return (
+        <g stroke={stroke} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="32" cy="32" r="4" fill={ACCENT} stroke="none" />
+          <circle cx="32" cy="32" r="10" strokeWidth={1.5} />
+          <circle cx="32" cy="32" r="18" strokeWidth={1.5} />
+          <circle cx="32" cy="32" r="26" strokeWidth={1.5} opacity={0.6} />
+          <path d="M32 32 L46 20" strokeWidth={1.5} />
         </g>
       );
     default:

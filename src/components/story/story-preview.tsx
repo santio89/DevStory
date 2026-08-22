@@ -66,21 +66,25 @@ export function StoryPreview({
   username,
   onLoadingChange,
   staticData = null,
+  deferFetch = false,
 }: {
   username: string;
   onLoadingChange?: (loading: boolean) => void;
   staticData?: StoryPreviewData | null;
+  deferFetch?: boolean;
 }) {
   const { t, locale } = useLocale();
   const [fetchedData, setFetchedData] = useState<StoryPreviewData | null>(null);
-  const [loading, setLoading] = useState(!staticData);
+  const [fetching, setFetching] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const readOnly = Boolean(staticData);
+  const readOnly = Boolean(staticData) || deferFetch;
   const data = staticData ?? fetchedData;
+  const waitingForUpstream = deferFetch && !staticData && !error;
+  const loading = waitingForUpstream || fetching;
 
   async function fetchPreview(refresh = false, signal?: AbortSignal) {
-    setLoading(true);
+    setFetching(true);
     setError(null);
     setFetchedData(null);
     try {
@@ -104,19 +108,19 @@ export function StoryPreview({
       setFetchedData(null);
     } finally {
       if (!signal?.aborted) {
-        setLoading(false);
+        setFetching(false);
       }
     }
   }
 
   useEffect(() => {
-    if (staticData) return;
+    if (staticData || deferFetch) return;
 
     const ac = new AbortController();
     let active = true;
 
     void (async () => {
-      setLoading(true);
+      setFetching(true);
       setError(null);
       setFetchedData(null);
       try {
@@ -140,7 +144,7 @@ export function StoryPreview({
           setFetchedData(null);
         }
       } finally {
-        if (active) setLoading(false);
+        if (active) setFetching(false);
       }
     })();
 
@@ -148,12 +152,12 @@ export function StoryPreview({
       active = false;
       ac.abort();
     };
-  }, [username, staticData, locale, t.preview]);
+  }, [username, staticData, deferFetch, locale, t.preview]);
 
   useEffect(() => {
-    if (readOnly) return;
+    if (readOnly && !waitingForUpstream) return;
     onLoadingChange?.(loading);
-  }, [loading, onLoadingChange, readOnly]);
+  }, [loading, waitingForUpstream, onLoadingChange, readOnly]);
 
   return (
     <div className="space-y-6">
@@ -181,7 +185,7 @@ export function StoryPreview({
       </div>
       </Reveal>
 
-      {loading && (
+      {((loading && !data) || waitingForUpstream) && (
         <Reveal variant="enter" key="loading">
         <Card className="bg-card shadow-hard">
           <CardContent className="flex items-center gap-3 py-8 font-mono text-sm font-bold tracking-wider text-muted-foreground uppercase">

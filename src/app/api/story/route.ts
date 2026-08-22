@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { buildDevStoryData, toPreviewData } from "@/lib/devstory/aggregate";
 import { isValidGitHubUsername, normalizeGitHubUsername } from "@/lib/github/username";
-import { STORY_COMMIT_PROBE } from "@/lib/github/probe-repos";
+import { DEFAULT_COMMIT_PROBE } from "@/lib/github/probe-repos";
 
 const querySchema = z.object({
   username: z.string().min(1).max(39),
@@ -24,7 +24,7 @@ export async function GET(request: Request) {
   try {
     const data = await buildDevStoryData(username, {
       forceRefresh,
-      commitProbeLimit: STORY_COMMIT_PROBE,
+      commitProbeLimit: DEFAULT_COMMIT_PROBE,
     });
     return NextResponse.json({ preview: toPreviewData(data) });
   } catch (error) {

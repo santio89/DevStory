@@ -4,6 +4,10 @@ import { runWithModelFallback } from "./providers";
 import { storySchema, type DevStory } from "./story";
 import type { Locale } from "@/lib/i18n/dictionary";
 
+export function storyFingerprint(story: DevStory): string {
+  return story.eras.map((era) => `${era.year}|${era.name}`).join("§");
+}
+
 const translatedEraSchema = z.object({
   name: z.string(),
   description: z.string(),

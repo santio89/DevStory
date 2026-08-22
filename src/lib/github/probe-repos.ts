@@ -9,7 +9,7 @@ export const STORY_COMMIT_PROBE = 20;
 /** Chat biographer — deepest commit sampling. */
 export const CHAT_COMMIT_PROBE = 24;
 
-const PROBE_BATCH_SIZE = 6;
+const PROBE_BATCH_SIZE = 10;
 
 export function selectReposForCommitProbe(
   repos: RepoSnapshot[],

@@ -159,7 +159,7 @@ ${langInstruction(locale)}`;
       system,
       prompt: `Era: ${era.year} — ${era.name}\n${era.description}\n\nRaw data context:\n${eraData || "(no detailed data available)"}`,
       temperature: 0.8,
-      maxOutputTokens: 1024,
+      maxOutputTokens: 768,
     }),
   );
 
@@ -251,8 +251,8 @@ ${langInstruction(locale)}`;
       }),
       system,
       prompt: `Today's focus:\n${focus}\n\nRaw data context:\n${eraData || "(no detailed data available)"}`,
-      temperature: 0.95,
-      maxOutputTokens: 400,
+      temperature: 0.88,
+      maxOutputTokens: 280,
     }),
   );
 
@@ -282,8 +282,8 @@ ${langInstruction(locale)}`;
       }),
       system,
       prompt: `Translate this moment:\nTitle: ${moment.title}\n\n${moment.text}`,
-      temperature: 0.6,
-      maxOutputTokens: 400,
+      temperature: 0.5,
+      maxOutputTokens: 280,
     }),
   );
 

@@ -1,5 +1,11 @@
 import { NextResponse } from "next/server";
-import { translateStory, validateStory } from "@/lib/devstory/translate";
+import {
+  translateStory,
+  validateStory,
+  storyFingerprint,
+} from "@/lib/devstory/translate";
+import { aiCacheKey, readAiCache, writeAiCache } from "@/lib/devstory/ai-cache";
+import type { DevStory } from "@/lib/devstory/story";
 import { isLocale, type Locale } from "@/lib/i18n/dictionary";
 
 export const maxDuration = 60;
@@ -23,8 +29,20 @@ export async function POST(request: Request) {
   const sourceLocale: Locale = isLocale(sourceValue) ? sourceValue : "en";
   const targetLocale: Locale = isLocale(targetValue) ? targetValue : "en";
 
+  const cacheKey = aiCacheKey([
+    "translate",
+    storyFingerprint(story),
+    sourceLocale,
+    targetLocale,
+  ]);
+  const cached = readAiCache<DevStory>(cacheKey);
+  if (cached) {
+    return NextResponse.json({ story: cached });
+  }
+
   try {
     const translated = await translateStory(story, sourceLocale, targetLocale);
+    writeAiCache(cacheKey, translated);
     return NextResponse.json({ story: translated });
   } catch (error) {
     console.error("Translate route failed:", error);

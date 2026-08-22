@@ -7,6 +7,10 @@ import {
   hasAIGatewayConfigured,
   hasOpenRouterConfigured,
 } from "./providers";
+import { narrationText } from "./tts-narration";
+import { readTtsCache, ttsCacheKey, writeTtsCache } from "./tts-cache";
+
+export { narrationText } from "./tts-narration";
 
 const OPENROUTER_TTS_ENDPOINT = "https://openrouter.ai/api/v1/audio/speech";
 
@@ -24,34 +28,13 @@ const DEEPGRAM_NARRATOR_VOICE: Record<Locale, string> = {
 const OPENAI_TTS_MODEL = "openai/gpt-4o-mini-tts";
 const OPENAI_NARRATOR_VOICE = "onyx";
 
-const GATEWAY_HD_MODEL = "openai/tts-1-hd";
-const GATEWAY_HD_VOICE = "onyx";
+const GATEWAY_FAST_MODEL = "openai/tts-1";
+const GATEWAY_FAST_VOICE = "onyx";
 
 function narratorInstructions(locale: Locale): string {
   return locale === "es"
     ? "Narrador de cine clásico — un hombre mayor sabio, sesenta u ochenta años, como la voz de un documental épico o un monólogo de apertura. Barítono profundo, ronco, cálido, con peso dramático. Ritmo natural y fluido: pausado donde importa, pero nunca arrastrado, monótono ni aburrido. Nunca suenes joven, femenino, conversacional ni demasiado alegre."
     : "Classic movie narrator — a wise old man in his late sixties or seventies, like a prestige documentary or epic opening monologue. Deep baritone, gravelly, warm, cinematic, and authoritative. Natural pacing with weight: unhurried at the right moments, but never sluggish, flat, or boring. Brief pauses before key phrases. Never sound young, feminine, chatty, breathy, or perky.";
-}
-
-/** Keep narration short; paragraph breaks become natural dramatic pauses. */
-export function narrationText(story: DevStory, locale: Locale): string {
-  const eraLine =
-    story.eras.length > 0
-      ? story.eras.map((era) => era.name).join(", ")
-      : locale === "es"
-        ? "tus primeros commits"
-        : "your first commits";
-
-  const parts = [
-    story.title,
-    story.summary,
-    locale === "es"
-      ? `El viaje atraviesa ${eraLine}.`
-      : `The journey moves through ${eraLine}.`,
-    story.closing,
-  ].filter((part): part is string => Boolean(part?.trim()));
-
-  return parts.join("\n\n");
 }
 
 function assertAudioBuffer(buffer: Buffer): Buffer {
@@ -162,13 +145,13 @@ async function synthesizeViaGateway(
     });
     return assertAudioBuffer(Buffer.from(result.audio.uint8Array));
   } catch (error) {
-    console.warn("Gateway steerable TTS failed, trying tts-1-hd onyx:", error);
+    console.warn("Gateway steerable TTS failed, trying tts-1 onyx:", error);
   }
 
   const result = await generateSpeech({
-    model: gateway.speechModel(GATEWAY_HD_MODEL),
+    model: gateway.speechModel(GATEWAY_FAST_MODEL),
     text,
-    voice: GATEWAY_HD_VOICE,
+    voice: GATEWAY_FAST_VOICE,
     speed: NARRATOR_SPEECH_SPEED,
     language: locale === "es" ? "es" : "en",
     outputFormat: "mp3",
@@ -185,14 +168,24 @@ export async function synthesizeStorySpeech(
     throw new NoAIError();
   }
 
+  const text = narrationText(story, locale);
+  const cacheKey = ttsCacheKey(text, locale);
+  const cached = readTtsCache(cacheKey);
+  if (cached) return cached;
+
+  let audio: Buffer;
   if (hasOpenRouterConfigured()) {
     try {
-      return await synthesizeViaOpenRouter(story, locale);
+      audio = await synthesizeViaOpenRouter(story, locale);
     } catch (error) {
       if (!hasAIGatewayConfigured()) throw error;
       console.warn("OpenRouter TTS failed, trying Vercel AI Gateway:", error);
+      audio = await synthesizeViaGateway(story, locale);
     }
+  } else {
+    audio = await synthesizeViaGateway(story, locale);
   }
 
-  return synthesizeViaGateway(story, locale);
+  writeTtsCache(cacheKey, audio);
+  return audio;
 }

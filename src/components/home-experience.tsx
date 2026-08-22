@@ -8,6 +8,7 @@ import { FadeIn } from "@/components/motion/fade-in";
 import { StoryGenerator } from "@/components/story/story-generator";
 import { StoryPreview } from "@/components/story/story-preview";
 import { Marquee } from "@/components/story/marquee";
+import type { StoryPreviewData } from "@/lib/devstory/aggregate";
 import type { Messages } from "@/lib/i18n/dictionary";
 import {
   isValidGitHubUsername,
@@ -25,7 +26,8 @@ export function HomeExperience({
 }) {
   const [username, setUsername] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
-  const [previewLoading, setPreviewLoading] = useState(false);
+  const [brainPreview, setBrainPreview] = useState<StoryPreviewData | null>(null);
+  const [storyLoading, setStoryLoading] = useState(false);
   const shouldScrollRef = useRef(false);
 
   useEffect(() => {
@@ -36,7 +38,8 @@ export function HomeExperience({
         ? normalizeGitHubUsername(initialUsername).toLowerCase()
         : null;
       if (fromUrl && isValidGitHubUsername(fromUrl)) {
-        setPreviewLoading(true);
+        setBrainPreview(null);
+        setStoryLoading(true);
         setUsername(fromUrl);
         setReady(true);
         return;
@@ -68,7 +71,8 @@ export function HomeExperience({
 
   const handleLookup = useCallback((next: string) => {
     shouldScrollRef.current = true;
-    setPreviewLoading(true);
+    setBrainPreview(null);
+    setStoryLoading(true);
     setUsername(next);
     try {
       const url = new URL(window.location.href);
@@ -104,7 +108,7 @@ export function HomeExperience({
                 <HeroLookup
                   key={username ?? "lookup"}
                   username={username}
-                  loading={previewLoading}
+                  loading={storyLoading && !brainPreview}
                   onLookup={handleLookup}
                 />
               )}
@@ -130,15 +134,16 @@ export function HomeExperience({
         >
           <StoryPreview
             username={username}
-            onLoadingChange={setPreviewLoading}
+            staticData={brainPreview}
+            deferFetch
           />
           <div className="mt-20 mb-16">
             <Marquee />
           </div>
           <StoryGenerator
             username={username}
-            brainLoading={previewLoading}
-            brainReady={!previewLoading}
+            onBrainPreview={setBrainPreview}
+            onLoadingChange={setStoryLoading}
           />
         </section>
       )}

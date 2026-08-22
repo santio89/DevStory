@@ -6,54 +6,16 @@ import { Button } from "@/components/ui/button";
 import { MomentSparkIcon } from "@/components/story/story-decorations";
 import { Reveal } from "@/components/motion/fade-in";
 import { fluidSpring } from "@/lib/motion/reveal";
+import {
+  fetchStoryMoment,
+  readStoredMoments,
+  writeStoredMoment,
+  type Moment,
+} from "@/lib/client/story-moment-client";
 import { useLocale } from "@/components/locale/locale-provider";
 import type { DevStory } from "@/lib/devstory/story";
 import type { StoryDataSnapshot } from "@/lib/devstory/minify";
 import { BookOpen, Clock3, Loader2, RefreshCw } from "lucide-react";
-
-type Moment = { title: string; text: string; year: string; dateLabel?: string };
-
-const STORAGE_KEY = "devstory-moment";
-
-type StoredMoment = {
-  fingerprint: string;
-  byLocale: Record<string, Moment>;
-  moment?: Moment;
-  locale?: string;
-};
-
-function readStored(fingerprint: string): Record<string, Moment> | null {
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw) as StoredMoment;
-    if (parsed?.fingerprint !== fingerprint) return null;
-    if (
-      parsed.byLocale &&
-      typeof parsed.byLocale === "object" &&
-      Object.keys(parsed.byLocale).length > 0
-    ) {
-      return parsed.byLocale;
-    }
-    if (
-      parsed?.moment &&
-      typeof parsed.moment.title === "string" &&
-      typeof parsed.locale === "string"
-    ) {
-      return { [parsed.locale]: parsed.moment };
-    }
-  } catch {}
-  return null;
-}
-
-function writeStored(fingerprint: string, byLocale: Record<string, Moment>) {
-  try {
-    window.localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({ fingerprint, byLocale }),
-    );
-  } catch {}
-}
 
 export function StoryMoment({
   story,
@@ -73,36 +35,7 @@ export function StoryMoment({
   const [translating, setTranslating] = useState(false);
   const autoSummonedRef = useRef(false);
 
-  async function handleMoment() {
-    const requestLocale = locale;
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/story/moment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ story, data, locale: requestLocale }),
-      });
-      const json = (await res.json()) as { error?: string } & Moment;
-      if (!res.ok) {
-        setError(res.status === 503 ? t.moment.noAI : t.moment.failed);
-        return;
-      }
-      if (requestLocale !== locale) return;
-      const next = { title: json.title, text: json.text, year: json.year, dateLabel: json.dateLabel };
-      setMoment(next);
-      writeStored(fingerprint, { [requestLocale]: next });
-    } catch {
-      if (requestLocale === locale) setError(t.moment.failed);
-    } finally {
-      if (requestLocale === locale) setLoading(false);
-    }
-  }
-
-  async function handleTranslate(
-    current: Moment,
-    byLocale: Record<string, Moment>,
-  ) {
+  async function handleTranslate(current: Moment) {
     setTranslating(true);
     setError(null);
     try {
@@ -118,12 +51,30 @@ export function StoryMoment({
       }
       const next = { ...current, title: json.title, text: json.text };
       setMoment(next);
-      writeStored(fingerprint, { ...byLocale, [locale]: next });
+      writeStoredMoment(fingerprint, locale, next);
     } catch {
       setError(t.moment.failed);
     } finally {
       setTranslating(false);
     }
+  }
+
+  async function handleMoment(refresh = false) {
+    setLoading(true);
+    setError(null);
+    const result = await fetchStoryMoment({
+      story,
+      data,
+      locale,
+      fingerprint,
+      refresh,
+    });
+    if (result) {
+      setMoment(result);
+    } else {
+      setError(t.moment.failed);
+    }
+    setLoading(false);
   }
 
   useEffect(() => {
@@ -132,9 +83,10 @@ export function StoryMoment({
 
   useEffect(() => {
     let active = true;
+
     queueMicrotask(() => {
       if (!active) return;
-      const byLocale = readStored(fingerprint);
+      const byLocale = readStoredMoments(fingerprint);
       if (byLocale) {
         const cached = byLocale[locale];
         if (cached) {
@@ -144,16 +96,17 @@ export function StoryMoment({
         const anyMoment = Object.values(byLocale)[0];
         if (anyMoment) {
           setMoment(anyMoment);
-          void handleTranslate(anyMoment, byLocale);
+          void handleTranslate(anyMoment);
           return;
         }
       }
 
       if (autoSummon && !autoSummonedRef.current) {
         autoSummonedRef.current = true;
-        void handleMoment();
+        void handleMoment(false);
       }
     });
+
     return () => {
       active = false;
     };
@@ -183,7 +136,7 @@ export function StoryMoment({
             variant="outline"
             size="sm"
             disabled={loading || translating}
-            onClick={() => void handleMoment()}
+            onClick={() => void handleMoment(Boolean(moment))}
             className="border-dashed border-foreground/50 bg-background/70 hover:border-foreground hover:bg-background"
           >
             {loading || translating ? (

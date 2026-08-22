@@ -1,6 +1,7 @@
 import type { Era } from "./story";
 import type { StoryDataSnapshot } from "./minify";
 import type { Locale } from "@/lib/i18n/dictionary";
+import { seededIndex } from "./seeded";
 
 export type MomentAnchor =
   | { kind: "memory"; year: string; dateLabel: string; event: string }
@@ -29,6 +30,7 @@ export function pickMomentAnchor(
   data: StoryDataSnapshot | null,
   era: Era,
   locale: Locale,
+  options?: { seed?: string },
 ): MomentAnchor {
   const candidates: Candidate[] = [];
   for (const m of data?.milestones ?? []) {
@@ -43,7 +45,10 @@ export function pickMomentAnchor(
   }
 
   if (candidates.length > 0) {
-    const c = candidates[Math.floor(Math.random() * candidates.length)];
+    const idx = options?.seed
+      ? seededIndex(`${options.seed}:anchor`, candidates.length)
+      : Math.floor(Math.random() * candidates.length);
+    const c = candidates[idx];
     return {
       kind: "memory",
       year: c.date.slice(0, 4),

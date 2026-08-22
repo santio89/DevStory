@@ -1,20 +1,41 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/motion/fade-in";
 import { useLocale } from "@/components/locale/locale-provider";
+import { readCachedAudio, writeCachedAudio } from "@/lib/client/audio-cache";
 import type { DevStory } from "@/lib/devstory/story";
+import type { Locale } from "@/lib/i18n/dictionary";
 import { Loader2, Square, Volume2 } from "lucide-react";
 
-function storyCacheKey(story: DevStory, locale: string): string {
+const PREFETCH_DELAY_MS = 1200;
+
+function storyCacheKey(story: DevStory, locale: Locale): string {
   return `narrator-v5|${story.title}|${story.eras.map((e) => e.year).join(",")}|${locale}`;
+}
+
+async function fetchStoryAudio(
+  story: DevStory,
+  locale: Locale,
+): Promise<Blob> {
+  const res = await fetch("/api/story/retell/audio", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ story, locale }),
+  });
+  if (!res.ok) {
+    const json = (await res.json().catch(() => ({}))) as { error?: string };
+    throw new Error(json.error ?? `Audio failed (${res.status})`);
+  }
+  return res.blob();
 }
 
 export function StoryHear({ story }: { story: DevStory }) {
   const { t, locale } = useLocale();
-  const audioCache = useRef(new Map<string, string>());
+  const memoryCache = useRef(new Map<string, string>());
   const audioEl = useRef<HTMLAudioElement | null>(null);
+  const prefetchRef = useRef<AbortController | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [generatingAudio, setGeneratingAudio] = useState(false);
   const [playing, setPlaying] = useState(false);
@@ -23,7 +44,7 @@ export function StoryHear({ story }: { story: DevStory }) {
   const audioKey = storyCacheKey(story, locale);
 
   useEffect(() => {
-    const cache = audioCache.current;
+    const cache = memoryCache.current;
     const el = new Audio();
     audioEl.current = el;
     const onPlay = () => setPlaying(true);
@@ -33,6 +54,7 @@ export function StoryHear({ story }: { story: DevStory }) {
     el.addEventListener("pause", onPause);
     el.addEventListener("ended", onEnded);
     return () => {
+      prefetchRef.current?.abort();
       el.pause();
       el.removeEventListener("play", onPlay);
       el.removeEventListener("pause", onPause);
@@ -44,13 +66,72 @@ export function StoryHear({ story }: { story: DevStory }) {
     };
   }, []);
 
+  function storeBlob(blob: Blob): string {
+    const url = URL.createObjectURL(blob);
+    memoryCache.current.set(audioKey, url);
+    setAudioUrl(url);
+    void writeCachedAudio(audioKey, blob);
+    return url;
+  }
+
+  async function resolveAudioUrl(): Promise<string> {
+    const mem = memoryCache.current.get(audioKey);
+    if (mem) return mem;
+
+    const cached = await readCachedAudio(audioKey);
+    if (cached) return storeBlob(cached);
+
+    const blob = await fetchStoryAudio(story, locale);
+    return storeBlob(blob);
+  }
+
+  const prefetchAudio = useCallback(
+    async (signal: AbortSignal) => {
+      if (memoryCache.current.has(audioKey)) return;
+      const cached = await readCachedAudio(audioKey);
+      if (signal.aborted) return;
+      if (cached) {
+        storeBlob(cached);
+        return;
+      }
+      try {
+        const blob = await fetchStoryAudio(story, locale);
+        if (!signal.aborted) storeBlob(blob);
+      } catch {
+        // Prefetch is best-effort — user can still click to retry.
+      }
+    },
+    [audioKey, story, locale],
+  );
+
+  useEffect(() => {
+    prefetchRef.current?.abort();
+    const ac = new AbortController();
+    prefetchRef.current = ac;
+
+    const timer = window.setTimeout(() => {
+      if (ac.signal.aborted) return;
+      const run = () => void prefetchAudio(ac.signal);
+      if (typeof requestIdleCallback !== "undefined") {
+        requestIdleCallback(run, { timeout: 4000 });
+      } else {
+        run();
+      }
+    }, PREFETCH_DELAY_MS);
+
+    return () => {
+      window.clearTimeout(timer);
+      ac.abort();
+    };
+  }, [audioKey, prefetchAudio]);
+
   async function handleListen() {
     setAudioError(null);
-    const cached = audioCache.current.get(audioKey);
-    if (cached) {
-      if (audioUrl !== cached) setAudioUrl(cached);
-      if (audioEl.current && audioEl.current.src !== cached) {
-        audioEl.current.src = cached;
+    const mem = memoryCache.current.get(audioKey);
+    if (mem) {
+      if (audioUrl !== mem) setAudioUrl(mem);
+      if (audioEl.current && audioEl.current.src !== mem) {
+        audioEl.current.src = mem;
       }
       if (audioEl.current) {
         if (audioEl.current.paused) void audioEl.current.play();
@@ -58,30 +139,20 @@ export function StoryHear({ story }: { story: DevStory }) {
       }
       return;
     }
+
     setGeneratingAudio(true);
     try {
-      const res = await fetch("/api/story/retell/audio", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ story, locale }),
-      });
-      if (!res.ok) {
-        const json = (await res.json().catch(() => ({}))) as { error?: string };
-        setAudioError(
-          res.status === 503 ? t.play.noAI : (json.error ?? t.play.audioFailed),
-        );
-        return;
-      }
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      audioCache.current.set(audioKey, url);
-      setAudioUrl(url);
+      const url = await resolveAudioUrl();
       if (audioEl.current) {
         audioEl.current.src = url;
         void audioEl.current.play();
       }
-    } catch {
-      setAudioError(t.play.audioFailed);
+    } catch (e) {
+      setAudioError(
+        e instanceof Error && e.message.includes("503")
+          ? t.play.noAI
+          : t.play.audioFailed,
+      );
     } finally {
       setGeneratingAudio(false);
     }

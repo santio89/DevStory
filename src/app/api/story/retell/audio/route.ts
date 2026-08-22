@@ -28,7 +28,7 @@ export async function POST(request: Request) {
       headers: {
         "Content-Type": "audio/mpeg",
         "Content-Length": String(bytes.length),
-        "Cache-Control": "no-store",
+        "Cache-Control": "private, max-age=3600",
       },
     });
   } catch (error) {

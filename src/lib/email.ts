@@ -1,12 +1,17 @@
-import { Resend } from "resend";
 import { render } from "react-email";
 import { DevStoryEmail } from "@/components/emails/devstory-email";
 import type { DevStory } from "@/lib/devstory/story";
+import {
+  EmailSendError,
+  getActiveEmailProvider,
+  hasEmailProviderConfigured,
+  sendTransactionalEmail,
+} from "@/lib/email/provider";
 
-const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+export { EmailSendError, getActiveEmailProvider };
 
 export function hasEmailConfigured(): boolean {
-  return resend !== null;
+  return hasEmailProviderConfigured();
 }
 
 export async function sendStoryEmail({
@@ -24,10 +29,6 @@ export async function sendStoryEmail({
   username: string;
   storyUrl: string;
 }) {
-  if (!resend) {
-    throw new Error("RESEND_API_KEY is not configured.");
-  }
-
   const email = DevStoryEmail({
     title: story.title,
     summary: story.summary,
@@ -39,16 +40,10 @@ export async function sendStoryEmail({
   const html = await render(email);
   const text = await render(email, { plainText: true });
 
-  const from = process.env.RESEND_FROM ?? "Dev Story <onboarding@resend.dev>";
-
-  const { error } = await resend.emails.send({
-    from,
+  await sendTransactionalEmail({
     to,
     subject,
     html,
     text,
   });
-  if (error) {
-    throw new Error(`Resend error: ${error.name}: ${error.message}`);
-  }
 }

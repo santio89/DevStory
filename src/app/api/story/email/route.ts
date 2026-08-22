@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { generateEmailCopy } from "@/lib/devstory/generate";
 import { storySchema } from "@/lib/devstory/story";
-import { sendStoryEmail } from "@/lib/email";
+import { sendStoryEmail, EmailSendError, hasEmailConfigured } from "@/lib/email";
 import {
   isValidGitHubUsername,
   normalizeGitHubUsername,
@@ -18,7 +18,7 @@ const bodySchema = z.object({
 });
 
 export async function POST(request: Request) {
-  if (!process.env.RESEND_API_KEY) {
+  if (!hasEmailConfigured()) {
     return NextResponse.json(
       { error: "Email is not configured." },
       { status: 503 },
@@ -58,6 +58,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error("Story email send failed:", error);
+    if (error instanceof EmailSendError) {
+      return NextResponse.json(
+        { error: error.userMessage },
+        { status: error.statusCode },
+      );
+    }
     return NextResponse.json(
       { error: "Email could not be sent. Try again." },
       { status: 502 },

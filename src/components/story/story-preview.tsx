@@ -77,6 +77,7 @@ export function StoryPreview({
   async function fetchPreview(refresh = false, signal?: AbortSignal) {
     setLoading(true);
     setError(null);
+    setData(null);
     try {
       const params = new URLSearchParams({ username });
       if (refresh) params.set("refresh", "1");

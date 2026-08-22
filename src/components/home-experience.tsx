@@ -47,6 +47,7 @@ export function HomeExperience({
           window.history.replaceState(null, "", url);
         } catch {}
       }
+      setUsername(null);
       setReady(true);
     });
     return () => {
@@ -66,13 +67,16 @@ export function HomeExperience({
 
   const handleLookup = useCallback((next: string) => {
     shouldScrollRef.current = true;
+    if (next !== username) {
+      setPreviewLoading(true);
+    }
     setUsername(next);
     try {
       const url = new URL(window.location.href);
       url.searchParams.set("u", next);
       window.history.replaceState(null, "", url);
     } catch {}
-  }, []);
+  }, [username]);
 
   return (
     <>
@@ -119,6 +123,7 @@ export function HomeExperience({
 
       {ready && username && (
         <section
+          key={username}
           id="story"
           className="mx-auto w-full max-w-5xl scroll-mt-20 px-4 pt-10 pb-24 sm:px-6 sm:pt-12"
         >

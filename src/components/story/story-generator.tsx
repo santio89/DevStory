@@ -39,32 +39,27 @@ export function StoryGenerator({ username }: { username: string }) {
   const [failedLocales, setFailedLocales] = useState<Locale[]>([]);
 
   useEffect(() => {
-    let active = true;
-    queueMicrotask(() => {
-      if (!active) return;
-      setStory(null);
-      setMode(null);
-      setData(null);
-      setTranslations({});
-      setError(null);
-      setFailedLocales([]);
-      setDisplayName(username);
-      try {
-        const raw = window.localStorage.getItem(STORAGE_KEY);
-        if (!raw) return;
-        const parsed = JSON.parse(raw) as PersistedStory;
-        if (!parsed?.story || parsed.username !== username) return;
-        setStory(parsed.story);
-        setMode(parsed.mode ?? "mock");
-        setAuthoredLocale(parsed.authoredLocale ?? "en");
-        setTranslations(parsed.translations ?? {});
-        setData(parsed.data ?? null);
-        setDisplayName(parsed.data?.name ?? username);
-      } catch {}
-    });
-    return () => {
-      active = false;
-    };
+    setStory(null);
+    setMode(null);
+    setData(null);
+    setTranslations({});
+    setError(null);
+    setFailedLocales([]);
+    setDisplayName(username);
+    setLoading(false);
+
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as PersistedStory;
+      if (!parsed?.story || parsed.username !== username) return;
+      setStory(parsed.story);
+      setMode(parsed.mode ?? "mock");
+      setAuthoredLocale(parsed.authoredLocale ?? "en");
+      setTranslations(parsed.translations ?? {});
+      setData(parsed.data ?? null);
+      setDisplayName(parsed.data?.name ?? username);
+    } catch {}
   }, [username]);
 
   useEffect(() => {

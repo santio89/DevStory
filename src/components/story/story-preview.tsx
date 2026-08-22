@@ -9,7 +9,14 @@ import { useLocale } from "@/components/locale/locale-provider";
 import type { StoryPreviewData } from "@/lib/devstory/aggregate";
 import type { Locale } from "@/lib/i18n/dictionary";
 import { RepoBookIcon } from "@/components/icons/repo-book";
-import { GitCommit, RefreshCw, Star, FolderGit2, AlertTriangle } from "lucide-react";
+import {
+  GitCommit,
+  Loader2,
+  RefreshCw,
+  Star,
+  FolderGit2,
+  AlertTriangle,
+} from "lucide-react";
 
 function formatDate(iso: string | null, locale: Locale) {
   if (!iso) return "-";
@@ -78,15 +85,18 @@ export function StoryPreview({
   const [fetching, setFetching] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const readOnly = Boolean(staticData) || deferFetch;
-  const data = staticData ?? fetchedData;
-  const waitingForUpstream = deferFetch && !staticData && !error;
+  const data = fetchedData ?? staticData;
+  const waitingForUpstream =
+    deferFetch && !staticData && !fetchedData && !error;
   const loading = waitingForUpstream || fetching;
+  const showRefreshButton = !waitingForUpstream;
 
   async function fetchPreview(refresh = false, signal?: AbortSignal) {
     setFetching(true);
     setError(null);
-    setFetchedData(null);
+    if (!staticData) {
+      setFetchedData(null);
+    }
     try {
       const params = new URLSearchParams({ username });
       if (refresh) params.set("refresh", "1");
@@ -152,12 +162,11 @@ export function StoryPreview({
       active = false;
       ac.abort();
     };
-  }, [username, staticData, deferFetch, locale, t.preview]);
+  }, [username, staticData, deferFetch]);
 
   useEffect(() => {
-    if (readOnly && !waitingForUpstream) return;
     onLoadingChange?.(loading);
-  }, [loading, waitingForUpstream, onLoadingChange, readOnly]);
+  }, [loading, onLoadingChange]);
 
   return (
     <div className="space-y-6">
@@ -176,11 +185,11 @@ export function StoryPreview({
           variant="outline"
           size="sm"
           onClick={() => void fetchPreview(true)}
-          disabled={loading || readOnly}
-          className={readOnly ? "invisible" : undefined}
+          disabled={loading}
+          className={showRefreshButton ? undefined : "invisible"}
         >
-          <RefreshCw className={loading ? "animate-spin" : ""} />
-          {loading ? t.preview.digging : t.preview.refresh}
+          <RefreshCw className={fetching ? "animate-spin" : ""} />
+          {fetching ? t.preview.digging : t.preview.refresh}
         </Button>
       </div>
       </Reveal>
@@ -189,7 +198,7 @@ export function StoryPreview({
         <Reveal variant="enter" key="loading">
         <Card className="bg-card shadow-hard">
           <CardContent className="flex items-center gap-3 py-8 font-mono text-sm font-bold tracking-wider text-muted-foreground uppercase">
-            <GitCommit className="size-4 animate-pulse text-bauhaus-deep" />
+            <Loader2 className="size-4 animate-spin text-bauhaus-deep" />
             {t.preview.harvestingFor(username)}
           </CardContent>
         </Card>
@@ -205,7 +214,7 @@ export function StoryPreview({
         </Card>
       )}
 
-      {data && !loading && (
+      {data && (
         <>
           <div className="grid gap-5 sm:grid-cols-4">
             {[

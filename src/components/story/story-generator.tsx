@@ -219,7 +219,7 @@ export function StoryGenerator({
     };
   }, [story, locale, authoredLocale, translations]);
 
-  const showGenerating = loading && !story;
+  const showLoading = loading;
 
   return (
     <div className="space-y-6">
@@ -246,7 +246,7 @@ export function StoryGenerator({
         </Button>
       </div>
 
-      {showGenerating && (
+      {showLoading && (
         <Reveal variant="enter" key="generating">
         <Card className="bg-card shadow-hard">
           <CardContent className="flex items-center gap-3 py-8 font-mono text-sm font-bold tracking-wider text-muted-foreground uppercase">
@@ -325,7 +325,7 @@ export function StoryGenerator({
         </>
       )}
 
-      {story && (
+      {story && !loading && (
         <StoryChat story={activeStory ?? story} data={data} username={username} />
       )}
     </div>

@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useLocale } from "@/components/locale/locale-provider";
 import { setLocaleCookie } from "@/app/actions";
 import { cn } from "@/lib/utils";
@@ -8,14 +7,13 @@ import type { Locale } from "@/lib/i18n/dictionary";
 
 export function LocaleToggle() {
   const { locale, setLocale, t } = useLocale();
-  const router = useRouter();
 
   async function switchLocale(next: Locale) {
+    if (next === locale) return;
     setLocale(next);
     try {
       await setLocaleCookie(next);
     } catch {}
-    router.refresh();
   }
 
   return (

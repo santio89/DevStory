@@ -97,10 +97,6 @@ export function StorySavedView({
   const pivot = Math.floor(words.length / 2);
   const previewData = data ? snapshotToPreview(data) : null;
 
-  if (translating) {
-    return <StoryTranslating />;
-  }
-
   return (
     <div className="space-y-10">
       {translationFailed && locale !== authoredLocale && (
@@ -109,7 +105,11 @@ export function StorySavedView({
         </p>
       )}
 
-      <Reveal variant="subtle">
+      {translating ? (
+        <StoryTranslating />
+      ) : (
+        <>
+          <Reveal variant="subtle">
         <div className="relative rounded-none border-2 border-foreground bg-card px-6 py-8 shadow-hard sm:px-10 sm:py-10">
         <span className="pointer-events-none absolute top-5 right-5 size-6 rounded-full border-2 border-foreground bg-bauhaus-sky/30" />
         <div className="pointer-events-none absolute -top-8 -right-8 opacity-[0.08]">
@@ -164,6 +164,8 @@ export function StorySavedView({
         data={data}
         fingerprint={fingerprint}
       />
+        </>
+      )}
 
       {previewData && (
         <StoryPreview

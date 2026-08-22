@@ -38,8 +38,6 @@ export function HomeExperience({
         ? normalizeGitHubUsername(initialUsername).toLowerCase()
         : null;
       if (fromUrl && isValidGitHubUsername(fromUrl)) {
-        setBrainPreview(null);
-        setStoryLoading(true);
         setUsername(fromUrl);
         setReady(true);
         return;

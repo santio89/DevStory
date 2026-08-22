@@ -10,27 +10,27 @@ import {
 
 const OPENROUTER_TTS_ENDPOINT = "https://openrouter.ai/api/v1/audio/speech";
 
+/** 1.0 = provider default. Just under 1 keeps cinematic gravitas without dragging. */
+const NARRATOR_SPEECH_SPEED = 0.95;
+
 /** Deepgram baritone storyteller voices — most reliable for an older male narrator. */
 const DEEPGRAM_TTS_MODEL = "deepgram/aura-2";
 const DEEPGRAM_NARRATOR_VOICE: Record<Locale, string> = {
   en: "aura-2-pluto-en",
   es: "aura-2-sirio-es",
 };
-const DEEPGRAM_NARRATOR_SPEED = 0.82;
 
 /** Steerable OpenAI model — use with explicit elderly-male instructions. */
 const OPENAI_TTS_MODEL = "openai/gpt-4o-mini-tts";
 const OPENAI_NARRATOR_VOICE = "onyx";
-const OPENAI_NARRATOR_SPEED = 0.78;
 
 const GATEWAY_HD_MODEL = "openai/tts-1-hd";
 const GATEWAY_HD_VOICE = "onyx";
-const GATEWAY_HD_SPEED = 0.8;
 
 function narratorInstructions(locale: Locale): string {
   return locale === "es"
-    ? "Voz masculina grave de un biógrafo mayor, de unos sesenta u ochenta años. Tono profundo, ronco, pausado y sabio. Ritmo lento y deliberado. Nunca suenes joven, femenina, alegre ni conversacional."
-    : "Deep elderly male baritone voice — a biographer in his late sixties or seventies. Gravelly, slow, warm, and authoritative. Measured pacing with brief pauses. Never sound young, feminine, bright, breathy, or upbeat.";
+    ? "Narrador de cine clásico — un hombre mayor sabio, sesenta u ochenta años, como la voz de un documental épico o un monólogo de apertura. Barítono profundo, ronco, cálido, con peso dramático. Ritmo natural y fluido: pausado donde importa, pero nunca arrastrado, monótono ni aburrido. Nunca suenes joven, femenino, conversacional ni demasiado alegre."
+    : "Classic movie narrator — a wise old man in his late sixties or seventies, like a prestige documentary or epic opening monologue. Deep baritone, gravelly, warm, cinematic, and authoritative. Natural pacing with weight: unhurried at the right moments, but never sluggish, flat, or boring. Brief pauses before key phrases. Never sound young, feminine, chatty, breathy, or perky.";
 }
 
 /** Keep narration short; paragraph breaks become natural dramatic pauses. */
@@ -97,7 +97,7 @@ async function synthesizeDeepgramViaOpenRouter(
     provider: {
       options: {
         deepgram: {
-          speed: DEEPGRAM_NARRATOR_SPEED,
+          speed: NARRATOR_SPEECH_SPEED,
         },
       },
     },
@@ -115,7 +115,7 @@ async function synthesizeOpenAIViaOpenRouter(
     input: text,
     voice: OPENAI_NARRATOR_VOICE,
     response_format: "mp3",
-    speed: OPENAI_NARRATOR_SPEED,
+    speed: NARRATOR_SPEECH_SPEED,
     provider: {
       options: {
         openai: {
@@ -155,7 +155,7 @@ async function synthesizeViaGateway(
       model: gateway.speechModel(OPENAI_TTS_MODEL),
       text,
       voice: OPENAI_NARRATOR_VOICE,
-      speed: OPENAI_NARRATOR_SPEED,
+      speed: NARRATOR_SPEECH_SPEED,
       language: locale === "es" ? "es" : "en",
       instructions: narratorInstructions(locale),
       outputFormat: "mp3",
@@ -169,7 +169,7 @@ async function synthesizeViaGateway(
     model: gateway.speechModel(GATEWAY_HD_MODEL),
     text,
     voice: GATEWAY_HD_VOICE,
-    speed: GATEWAY_HD_SPEED,
+    speed: NARRATOR_SPEECH_SPEED,
     language: locale === "es" ? "es" : "en",
     outputFormat: "mp3",
   });

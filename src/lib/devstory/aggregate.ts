@@ -14,6 +14,7 @@ import {
   type RepoSnapshot,
 } from "@/lib/github/repos";
 import { normalizeGitHubUsername } from "@/lib/github/username";
+import { buildEarliestMilestones, buildLatestMilestones } from "./milestones";
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
@@ -50,6 +51,7 @@ export type DevStoryData = {
   languagesByYear: LanguageYear[];
   repos: RepoSnapshot[];
   milestones: CommitMilestone[];
+  latestMilestones: CommitMilestone[];
   repoCommits: Record<string, RepoCommitData>;
 };
 
@@ -95,6 +97,7 @@ export type StoryPreviewData = {
   };
   languagesByYear: LanguageYear[];
   milestones: CommitMilestone[];
+  latestMilestones: CommitMilestone[];
 };
 
 export function toPreviewData(data: DevStoryData): StoryPreviewData {
@@ -108,6 +111,7 @@ export function toPreviewData(data: DevStoryData): StoryPreviewData {
     },
     languagesByYear: data.languagesByYear,
     milestones: data.milestones,
+    latestMilestones: data.latestMilestones,
   };
 }
 
@@ -199,14 +203,13 @@ function assembleDevStoryDataFromParts(
   base: DevStoryData,
   repoCommits: Record<string, RepoCommitData>,
 ): DevStoryData {
-  const milestones = Object.values(repoCommits)
-    .map((c) => c.firstCommit)
-    .filter((c): c is CommitMilestone => c !== null)
-    .sort((a, b) => a.date.localeCompare(b.date));
+  const milestones = buildEarliestMilestones(base.repos, repoCommits);
+  const latestMilestones = buildLatestMilestones(base.repos, repoCommits);
 
   return {
     ...base,
     milestones,
+    latestMilestones,
     totals: {
       ...base.totals,
       commitsAnalyzed: Object.values(repoCommits).reduce(
@@ -225,10 +228,8 @@ function assembleDevStoryData(
   repos: RepoSnapshot[],
   repoCommits: Record<string, RepoCommitData>,
 ): DevStoryData {
-  const milestones = Object.values(repoCommits)
-    .map((c) => c.firstCommit)
-    .filter((c): c is CommitMilestone => c !== null)
-    .sort((a, b) => a.date.localeCompare(b.date));
+  const milestones = buildEarliestMilestones(repos, repoCommits);
+  const latestMilestones = buildLatestMilestones(repos, repoCommits);
 
   const sortedRepos = [...repos].sort((a, b) =>
     a.createdAt.localeCompare(b.createdAt),
@@ -265,6 +266,7 @@ function assembleDevStoryData(
     languagesByYear: groupLanguagesByYear(repos),
     repos,
     milestones,
+    latestMilestones,
     repoCommits,
   };
 }

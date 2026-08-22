@@ -8,6 +8,7 @@ import { langColor } from "@/components/story/languages";
 import { useLocale } from "@/components/locale/locale-provider";
 import type { StoryPreviewData } from "@/lib/devstory/aggregate";
 import type { Locale } from "@/lib/i18n/dictionary";
+import { RepoBookIcon } from "@/components/icons/repo-book";
 import { GitCommit, RefreshCw, Star, FolderGit2, AlertTriangle } from "lucide-react";
 
 function formatDate(iso: string | null, locale: Locale) {
@@ -17,6 +18,48 @@ function formatDate(iso: string | null, locale: Locale) {
     month: "short",
     day: "numeric",
   });
+}
+
+function CommitList({
+  commits,
+  emptyLabel,
+  locale,
+}: {
+  commits: StoryPreviewData["milestones"];
+  emptyLabel: string;
+  locale: Locale;
+}) {
+  if (commits.length === 0) {
+    return (
+      <p className="font-mono text-sm font-bold tracking-wider text-muted-foreground uppercase">
+        {emptyLabel}
+      </p>
+    );
+  }
+
+  return (
+    <>
+      {commits.map((m) => (
+        <div
+          key={`${m.repo}-${m.sha}`}
+          className="border-l-4 border-bauhaus-deep pl-3"
+        >
+          <div className="flex items-center gap-2 font-mono text-xs font-bold">
+            <span className="bg-bauhaus-sky/20 px-1.5 text-bauhaus-deep">
+              {m.sha}
+            </span>
+            <span className="text-muted-foreground">
+              {formatDate(m.date, locale)}
+            </span>
+          </div>
+          <p className="mt-1 text-sm text-pretty">{m.message}</p>
+          <p className="mt-0.5 font-mono text-xs font-bold tracking-wider text-muted-foreground uppercase">
+            {m.repo}
+          </p>
+        </div>
+      ))}
+    </>
+  );
 }
 
 export function StoryPreview({
@@ -31,13 +74,16 @@ export function StoryPreview({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  async function fetchPreview(refresh = false) {
+  async function fetchPreview(refresh = false, signal?: AbortSignal) {
     setLoading(true);
     setError(null);
     try {
       const params = new URLSearchParams({ username });
       if (refresh) params.set("refresh", "1");
-      const res = await fetch(`/api/story?${params}`, { cache: "no-store" });
+      const res = await fetch(`/api/story?${params}`, {
+        cache: "no-store",
+        signal,
+      });
       const json = (await res.json()) as {
         preview?: StoryPreviewData;
         error?: string;
@@ -47,15 +93,23 @@ export function StoryPreview({
       }
       setData(json.preview ?? null);
     } catch (e) {
+      if (e instanceof DOMException && e.name === "AbortError") return;
       setError(e instanceof Error ? e.message : t.preview.genericError);
       setData(null);
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) {
+        setLoading(false);
+      }
     }
   }
 
   useEffect(() => {
-    void fetchPreview();
+    const ac = new AbortController();
+    void fetchPreview(false, ac.signal);
+    return () => {
+      ac.abort();
+      onLoadingChange?.(false);
+    };
   }, [username]);
 
   useEffect(() => {
@@ -131,7 +185,7 @@ export function StoryPreview({
               {
                 label: t.preview.firstRepo,
                 value: formatDate(data.totals.oldestRepoDate, locale),
-                icon: GitCommit,
+                icon: RepoBookIcon,
                 color: "text-bauhaus-deep",
                 block: false,
               },
@@ -199,31 +253,25 @@ export function StoryPreview({
 
             <FadeIn delay={0.1}>
               <Card className="relative h-full bg-card shadow-hard">
-                <CardHeader>
+                <CardHeader className="space-y-4">
                   <CardTitle>{t.preview.earliestCommits}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {data.milestones.length === 0 && (
-                    <p className="font-mono text-sm font-bold tracking-wider text-muted-foreground uppercase">
-                      {t.preview.noCommits}
-                    </p>
-                  )}
-                  {data.milestones.map((m) => (
-                    <div key={`${m.repo}-${m.sha}`} className="border-l-4 border-bauhaus-deep pl-3">
-                      <div className="flex items-center gap-2 font-mono text-xs font-bold">
-                        <span className="bg-bauhaus-sky/20 px-1.5 text-bauhaus-deep">
-                          {m.sha}
-                        </span>
-                        <span className="text-muted-foreground">
-                          {formatDate(m.date, locale)}
-                        </span>
-                      </div>
-                      <p className="mt-1 text-sm text-pretty">{m.message}</p>
-                      <p className="mt-0.5 font-mono text-xs font-bold tracking-wider text-muted-foreground uppercase">
-                        {m.repo}
-                      </p>
-                    </div>
-                  ))}
+                  <CommitList
+                    commits={data.milestones}
+                    emptyLabel={t.preview.noCommits}
+                    locale={locale}
+                  />
+                </CardContent>
+                <CardHeader className="space-y-4 border-t-2 border-foreground pt-4">
+                  <CardTitle>{t.preview.latestCommits}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <CommitList
+                    commits={data.latestMilestones}
+                    emptyLabel={t.preview.noLatestCommits}
+                    locale={locale}
+                  />
                 </CardContent>
               </Card>
             </FadeIn>

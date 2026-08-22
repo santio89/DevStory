@@ -11,7 +11,7 @@ import { useLocale } from "@/components/locale/locale-provider";
 import type { DevStory } from "@/lib/devstory/story";
 import type { StoryDataSnapshot } from "@/lib/devstory/minify";
 import type { Locale } from "@/lib/i18n/dictionary";
-import { Sparkles, Loader2, AlertTriangle } from "lucide-react";
+import { BookOpen, Sparkles, Loader2, AlertTriangle } from "lucide-react";
 
 const STORAGE_KEY = "devstory-story";
 
@@ -212,8 +212,8 @@ export function StoryGenerator({ username }: { username: string }) {
       {!story && !loading && (
         <Card className="border-2 border-dashed border-foreground/40 bg-muted/30 shadow-none">
           <CardContent className="flex flex-col items-center gap-4 py-10 text-center sm:py-12">
-            <span className="flex size-12 items-center justify-center rounded-none border-2 border-foreground bg-bauhaus-yellow/20 shadow-hard-sm">
-              <Sparkles className="size-5 text-bauhaus-deep" />
+            <span className="flex size-12 items-center justify-center rounded-none border-2 border-foreground bg-bauhaus-deep shadow-hard-sm">
+              <BookOpen className="size-5 text-bauhaus-yellow" />
             </span>
             <div className="max-w-md space-y-2">
               <h3 className="font-heading text-lg font-black tracking-normal uppercase">

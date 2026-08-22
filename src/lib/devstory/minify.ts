@@ -134,6 +134,12 @@ export function minifyDevStory(
       msg: m.message,
       sha: m.sha,
     })),
+    latestMilestones: data.latestMilestones.map((m) => ({
+      repo: m.repo,
+      date: m.date.slice(0, 10),
+      msg: m.message,
+      sha: m.sha,
+    })),
     narrativeFingerprint: fingerprint,
   });
 }

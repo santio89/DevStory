@@ -329,10 +329,10 @@ function buildStoryContext(
     firstCommit: data.milestones[0]
       ? { message: data.milestones[0].message, repo: data.milestones[0].repo }
       : null,
-    lastCommit: data.milestones.at(-1)
+    lastCommit: data.latestMilestones[0]
       ? {
-          message: data.milestones.at(-1)!.message,
-          repo: data.milestones.at(-1)!.repo,
+          message: data.latestMilestones[0].message,
+          repo: data.latestMilestones[0].repo,
         }
       : null,
     bio: data.profile.bio,

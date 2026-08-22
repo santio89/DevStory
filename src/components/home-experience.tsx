@@ -37,7 +37,6 @@ export function HomeExperience({
         : null;
       if (fromUrl && isValidGitHubUsername(fromUrl)) {
         setUsername(fromUrl);
-        setPreviewLoading(true);
         setReady(true);
         return;
       }
@@ -67,7 +66,6 @@ export function HomeExperience({
 
   const handleLookup = useCallback((next: string) => {
     shouldScrollRef.current = true;
-    setPreviewLoading(true);
     setUsername(next);
     try {
       const url = new URL(window.location.href);

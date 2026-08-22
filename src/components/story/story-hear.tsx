@@ -8,7 +8,7 @@ import type { DevStory } from "@/lib/devstory/story";
 import { Loader2, Square, Volume2 } from "lucide-react";
 
 function storyCacheKey(story: DevStory, locale: string): string {
-  return `narrator-v3|${story.title}|${story.eras.map((e) => e.year).join(",")}|${locale}`;
+  return `narrator-v5|${story.title}|${story.eras.map((e) => e.year).join(",")}|${locale}`;
 }
 
 export function StoryHear({ story }: { story: DevStory }) {

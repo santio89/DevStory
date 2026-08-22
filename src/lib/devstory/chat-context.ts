@@ -115,7 +115,7 @@ Public repos: ${fallback.totals.repos} · Stars: ${fallback.totals.stars}`,
 
   if (extras?.moment) {
     sections.push(
-      `A MEMORY THEY SUMMONED EARLIER
+      `A MEMORY FROM THIS TIMELINE
 Title: ${extras.moment.title}
 ${extras.moment.dateLabel ?? extras.moment.year ?? ""}
 ${extras.moment.text}`,

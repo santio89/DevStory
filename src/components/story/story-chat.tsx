@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { fluidSpring } from "@/lib/motion/reveal";
+import { pickChatSuggestions } from "@/lib/devstory/chat-suggestions";
 import { Button } from "@/components/ui/button";
 import { useLocale } from "@/components/locale/locale-provider";
 import type { DevStory } from "@/lib/devstory/story";
@@ -248,6 +249,15 @@ export function StoryChat({
   const awaitingReply =
     streaming && messages[messages.length - 1]?.role === "user";
 
+  const suggestions = pickChatSuggestions({
+    username,
+    story,
+    data,
+    pool: t.chat.suggestionPool,
+    count: 3,
+    seed: `${fingerprint}|${locale}`,
+  });
+
   return (
     <>
       <AnimatePresence>
@@ -304,7 +314,7 @@ export function StoryChat({
               )}
               {showSuggestions && (
                 <div className="flex flex-col gap-1.5 pt-1">
-                  {t.chat.suggestions.map((suggestion) => (
+                  {suggestions.map((suggestion) => (
                     <button
                       key={suggestion}
                       type="button"

@@ -147,7 +147,7 @@ const en = {
   },
   moment: {
     title: "Summon a memory",
-    subtitle: "A random memory from this timeline.",
+    subtitle: "A scene from this timeline, recalled in voice-over.",
     summon: "Summon a memory",
     summonAnother: "Summon another memory",
     loading: "summoning a memory…",
@@ -159,7 +159,7 @@ const en = {
   chat: {
     open: "Ask the biographer",
     title: "The biographer",
-    subtitle: "I've read your story. Ask me anything.",
+    subtitle: "I've read this journey. Ask what you will.",
     placeholder: "Ask the biographer",
     send: "Send",
     you: "you",
@@ -167,15 +167,36 @@ const en = {
     failed: "The biographer went quiet. Try again.",
     noAI: "The biographer isn't awake yet. AI isn't configured.",
     greeting:
-      "I've been sitting with your story for a while now. Ask me about the quiet years, the loud ones, a repo you almost forgot. I'll tell you what I remember.",
+      "I've sat with this story long enough to know its quiet corners. Ask about the early years, the loud ones, a repo nearly lost to time. I'll tell you what the ledger remembers.",
     close: "Close chat",
     offTopic:
-      "Mm. That's a tale for another film. I'm only here for *your* story: the eras, the repos, the commits that made you. Ask me about those.",
-    suggestions: [
-      "What defined my earliest years?",
-      "Which repo tells my story best?",
-      "Tell me about a commit that mattered.",
-    ],
+      "Mm. That's another picture entirely. I'm only here for this developer's journey — the eras, the repos, the commits that shaped them. Ask me about those.",
+    suggestionPool: {
+      earliestYears: (username: string) =>
+        `What defined @${username}'s earliest years?`,
+      storyRepo: (username: string) =>
+        `Which repo carries @${username}'s story best?`,
+      eraChapter: (username: string, eraName: string) =>
+        `What happened during @${username}'s "${eraName}" chapter?`,
+      archetypeMeaning: (username: string, archetype: string) =>
+        `Why does @${username} fit the archetype "${archetype}"?`,
+      commitScene: (username: string, commitMsg: string) =>
+        `Tell me about @${username}'s commit: "${commitMsg}"`,
+      languageTurn: (username: string, from: string, to: string) =>
+        `How did @${username} move from ${from} toward ${to}?`,
+      quietStretch: (username: string) =>
+        `Were there quiet years in @${username}'s ledger?`,
+      latestChapter: (username: string, eraName: string) =>
+        `What does "${eraName}" reveal about where @${username} is headed?`,
+      standoutRepo: (username: string, repo: string) =>
+        `What makes the repo "${repo}" matter for @${username}?`,
+      invisibleHours: (username: string) =>
+        `What do @${username}'s invisible hours look like?`,
+      firstLight: (username: string, year: string) =>
+        `How did @${username}'s story begin around ${year}?`,
+      journeyAhead: (username: string) =>
+        `Where does @${username}'s journey seem to be heading?`,
+    },
     thinking: "Let me turn the pages…",
   },
   story: {
@@ -347,7 +368,7 @@ const es: Messages = {
   },
   moment: {
     title: "Evocar un recuerdo",
-    subtitle: "Un recuerdo al azar de esta línea de tiempo.",
+    subtitle: "Una escena de esta línea de tiempo, recordada en voz en off.",
     summon: "Evocar un recuerdo",
     summonAnother: "Evocar otro recuerdo",
     loading: "evocando un recuerdo…",
@@ -359,7 +380,7 @@ const es: Messages = {
   chat: {
     open: "Pregúntale al biógrafo",
     title: "El biógrafo",
-    subtitle: "He leído tu historia. Pregunta lo que quieras.",
+    subtitle: "He leído este recorrido. Pregunta lo que quieras.",
     placeholder: "Pregúntale al biógrafo",
     send: "Enviar",
     you: "tú",
@@ -367,15 +388,36 @@ const es: Messages = {
     failed: "El biógrafo se quedó en silencio. Inténtalo de nuevo.",
     noAI: "El biógrafo aún no despierta. La IA no está configurada.",
     greeting:
-      "Llevo un rato con tu historia. Pregúntame por los años callados, los ruidosos, un repo que casi olvidaste. Te diré lo que recuerdo.",
+      "Llevo bastante tiempo con esta historia para conocer sus rincones callados. Pregunta por los primeros años, los ruidosos, un repo casi olvidado. Te diré lo que guarda el legado.",
     close: "Cerrar chat",
     offTopic:
-      "Mm. Esa es otra película. Solo estoy aquí por *tu* historia: las épocas, los repos, los commits que te hicieron. Pregúntame por eso.",
-    suggestions: [
-      "¿Qué definió mis primeros años?",
-      "¿Qué repo cuenta mejor mi historia?",
-      "Cuéntame un commit que importó.",
-    ],
+      "Mm. Esa es otra película. Solo estoy aquí por el viaje de este desarrollador: las épocas, los repos, los commits que lo forjaron. Pregúntame por eso.",
+    suggestionPool: {
+      earliestYears: (username: string) =>
+        `¿Qué definió los primeros años de @${username}?`,
+      storyRepo: (username: string) =>
+        `¿Qué repo cuenta mejor la historia de @${username}?`,
+      eraChapter: (username: string, eraName: string) =>
+        `¿Qué pasó en el capítulo "${eraName}" de @${username}?`,
+      archetypeMeaning: (username: string, archetype: string) =>
+        `¿Por qué encaja @${username} con el arquetipo "${archetype}"?`,
+      commitScene: (username: string, commitMsg: string) =>
+        `Cuéntame el commit de @${username}: "${commitMsg}"`,
+      languageTurn: (username: string, from: string, to: string) =>
+        `¿Cómo pasó @${username} de ${from} hacia ${to}?`,
+      quietStretch: (username: string) =>
+        `¿Hubo años callados en el legado de @${username}?`,
+      latestChapter: (username: string, eraName: string) =>
+        `¿Qué revela "${eraName}" sobre hacia dónde va @${username}?`,
+      standoutRepo: (username: string, repo: string) =>
+        `¿Por qué importa el repo "${repo}" para @${username}?`,
+      invisibleHours: (username: string) =>
+        `¿Cómo se ven las horas invisibles de @${username}?`,
+      firstLight: (username: string, year: string) =>
+        `¿Cómo empezó la historia de @${username} hacia ${year}?`,
+      journeyAhead: (username: string) =>
+        `¿Hacia dónde parece dirigirse el viaje de @${username}?`,
+    },
     thinking: "Déjame pasar las páginas…",
   },
   story: {

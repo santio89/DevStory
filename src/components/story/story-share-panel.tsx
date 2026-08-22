@@ -103,7 +103,7 @@ export function StorySharePanel({
   return (
     <Reveal
       variant="subtle"
-      className="relative overflow-hidden rounded-none border-2 border-foreground bg-bauhaus-deep p-6 text-white shadow-hard-lg sm:p-8"
+      className="relative overflow-visible rounded-none border-2 border-foreground bg-bauhaus-deep p-6 text-white shadow-hard-lg sm:p-8"
     >
       <span className="pointer-events-none absolute top-5 left-5 size-3 rotate-45 rounded-none bg-bauhaus-yellow" />
       <ShareOrbitIcon className="pointer-events-none absolute -top-4 -right-4 size-28 text-white/30" />

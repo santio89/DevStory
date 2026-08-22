@@ -139,7 +139,7 @@ export function ShareMenu({
       {open && (
         <div
           role="menu"
-          className="absolute right-0 bottom-full z-50 mb-3 w-64 rounded-none border-2 border-foreground bg-background p-2 text-foreground shadow-hard-lg"
+          className="absolute right-0 top-full z-50 mt-2 w-64 rounded-none border-2 border-foreground bg-background p-2 text-foreground shadow-hard-lg"
         >
           <p className="px-2 pt-1 pb-2 font-mono text-xs font-bold tracking-[0.2em] text-muted-foreground uppercase">
             {t.share.shareMenuTitle}

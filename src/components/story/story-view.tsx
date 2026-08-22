@@ -183,6 +183,15 @@ export function StoryView({
                   {t.share.sendAnother}
                 </Button>
               </div>
+            ) : emailStatus === "loading" ? (
+              <div
+                className="mt-3 flex items-center gap-3 font-mono text-sm font-bold tracking-wider text-bauhaus-yellow uppercase"
+                aria-live="polite"
+                aria-busy="true"
+              >
+                <Loader2 className="size-4 shrink-0 animate-spin" />
+                {t.share.sending}
+              </div>
             ) : (
               <form
                 onSubmit={(e) => void handleEmail(e)}
@@ -194,26 +203,17 @@ export function StoryView({
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={t.share.emailPlaceholder}
-                  disabled={emailStatus === "loading"}
                   aria-label={t.share.emailAriaLabel}
-                  className="h-10 flex-1 rounded-none border-2 border-foreground bg-background px-3 font-mono text-sm text-foreground placeholder:text-muted-foreground focus:border-bauhaus-deep focus:outline-none disabled:opacity-50"
+                  className="h-10 flex-1 rounded-none border-2 border-foreground bg-background px-3 font-mono text-sm text-foreground placeholder:text-muted-foreground focus:border-bauhaus-deep focus:outline-none"
                 />
                 <Button
                   type="submit"
                   size="sm"
-                  disabled={
-                    emailStatus === "loading" || !EMAIL_PATTERN.test(email)
-                  }
+                  disabled={!EMAIL_PATTERN.test(email)}
                   className="bg-bauhaus-yellow text-bauhaus-ink hover:bg-bauhaus-yellow/90"
                 >
-                  {emailStatus === "loading" ? (
-                    <Loader2 className="size-4 animate-spin" />
-                  ) : (
-                    <Send className="size-4" />
-                  )}
-                  {emailStatus === "loading"
-                    ? t.share.sending
-                    : t.share.send}
+                  <Send className="size-4" />
+                  {t.share.send}
                 </Button>
               </form>
             )}

@@ -18,15 +18,15 @@ type StoredChat = {
   byUser: Record<string, ChatMessage[]>;
 };
 
-function chatKey(username: string, locale: Locale): string {
-  return `${username}|${locale}`;
+function chatKey(scope: string, locale: Locale): string {
+  return `${scope}|${locale}`;
 }
 
 function hasUserMessages(messages: ChatMessage[]): boolean {
   return messages.some((m) => m.role === "user");
 }
 
-function readStored(username: string, locale: Locale): ChatMessage[] {
+function readStored(scope: string, locale: Locale): ChatMessage[] {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
@@ -34,7 +34,7 @@ function readStored(username: string, locale: Locale): ChatMessage[] {
       byLocale?: Record<string, ChatMessage[]>;
     };
     const messages =
-      parsed?.byUser?.[chatKey(username, locale)] ?? parsed?.byLocale?.[locale];
+      parsed?.byUser?.[chatKey(scope, locale)] ?? parsed?.byLocale?.[locale];
     if (!Array.isArray(messages)) return [];
     const filtered = messages.filter(
       (m): m is ChatMessage =>
@@ -51,7 +51,7 @@ function readStored(username: string, locale: Locale): ChatMessage[] {
 }
 
 function writeStored(
-  username: string,
+  scope: string,
   locale: Locale,
   messages: ChatMessage[],
 ) {
@@ -65,7 +65,7 @@ function writeStored(
       parsed?.byUser && typeof parsed.byUser === "object"
         ? parsed.byUser
         : {};
-    const key = chatKey(username, locale);
+    const key = chatKey(scope, locale);
     window.localStorage.setItem(
       STORAGE_KEY,
       JSON.stringify({
@@ -109,11 +109,14 @@ export function StoryChat({
   story,
   data,
   username,
+  storageScope,
 }: {
   story: DevStory;
   data: StoryDataSnapshot | null;
   username: string;
+  storageScope?: string;
 }) {
+  const chatScope = storageScope ?? username;
   const fingerprint = story.eras
     .map((era) => `${era.year}|${era.name}`)
     .join("§");
@@ -132,18 +135,18 @@ export function StoryChat({
     setOpen(false);
     queueMicrotask(() => {
       if (!active) return;
-      setMessages(readStored(username, locale));
+      setMessages(readStored(chatScope, locale));
       setHydrated(true);
     });
     return () => {
       active = false;
     };
-  }, [username, locale]);
+  }, [chatScope, locale]);
 
   useEffect(() => {
     if (!hydrated || messages.length === 0) return;
-    writeStored(username, locale, messages);
-  }, [messages, username, locale, hydrated]);
+    writeStored(chatScope, locale, messages);
+  }, [messages, chatScope, locale, hydrated]);
 
   useEffect(() => {
     const el = scrollRef.current;

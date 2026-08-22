@@ -37,7 +37,6 @@ export function HomeExperience({
         : null;
       if (fromUrl && isValidGitHubUsername(fromUrl)) {
         setUsername(fromUrl);
-        setPreviewLoading(true);
         setReady(true);
         return;
       }
@@ -68,16 +67,13 @@ export function HomeExperience({
 
   const handleLookup = useCallback((next: string) => {
     shouldScrollRef.current = true;
-    if (next !== username) {
-      setPreviewLoading(true);
-    }
     setUsername(next);
     try {
       const url = new URL(window.location.href);
       url.searchParams.set("u", next);
       window.history.replaceState(null, "", url);
     } catch {}
-  }, [username]);
+  }, []);
 
   return (
     <>

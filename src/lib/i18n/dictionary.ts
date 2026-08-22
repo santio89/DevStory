@@ -188,6 +188,7 @@ const en = {
   },
   sharePage: {
     of: (name: string) => `${name}'s Dev Story`,
+    savedStory: "A saved Dev Story",
     writeYours: "Look up another developer.",
     ctaDesc:
       "Every commit is a chapter. Type any public GitHub username and let Dev Story turn their invisible hours into a narrative timeline.",
@@ -388,6 +389,7 @@ const es: Messages = {
   },
   sharePage: {
     of: (name: string) => `Dev Story de ${name}`,
+    savedStory: "Una Dev Story guardada",
     writeYours: "Busca a otro desarrollador.",
     ctaDesc:
       "Cada commit es un capítulo. Escribe cualquier usuario público de GitHub y deja que Dev Story convierta sus horas invisibles en una línea de tiempo narrativa.",

@@ -15,10 +15,13 @@ async function main() {
   const db = drizzle(neon(url));
   await migrate(db, { migrationsFolder: "./drizzle" });
   console.log("Migrations complete");
-  process.exit(0);
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+main()
+  .then(() => {
+    setTimeout(() => process.exit(0), 100);
+  })
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });

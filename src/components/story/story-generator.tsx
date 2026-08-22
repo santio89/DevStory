@@ -17,6 +17,7 @@ const STORAGE_KEY = "devstory-story";
 
 type PersistedStory = {
   username: string;
+  storyId: string | null;
   story: DevStory;
   mode: "ai" | "mock";
   authoredLocale: Locale;
@@ -33,6 +34,7 @@ export function StoryGenerator({
 }) {
   const { t, locale } = useLocale();
   const [story, setStory] = useState<DevStory | null>(null);
+  const [storyId, setStoryId] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState(username);
   const [authoredLocale, setAuthoredLocale] = useState<Locale>("en");
   const [translations, setTranslations] = useState<
@@ -43,9 +45,12 @@ export function StoryGenerator({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [failedLocales, setFailedLocales] = useState<Locale[]>([]);
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
+    setHydrated(false);
     setStory(null);
+    setStoryId(null);
     setMode(null);
     setData(null);
     setTranslations({});
@@ -56,34 +61,48 @@ export function StoryGenerator({
 
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
+      if (!raw) {
+        setHydrated(true);
+        return;
+      }
       const parsed = JSON.parse(raw) as PersistedStory;
-      if (!parsed?.story || parsed.username !== username) return;
+      if (!parsed?.story || parsed.username !== username) {
+        setHydrated(true);
+        return;
+      }
+      if (parsed.mode === "mock") {
+        window.localStorage.removeItem(STORAGE_KEY);
+        setHydrated(true);
+        return;
+      }
       setStory(parsed.story);
+      setStoryId(parsed.storyId ?? null);
       setMode(parsed.mode ?? "mock");
       setAuthoredLocale(parsed.authoredLocale ?? "en");
       setTranslations(parsed.translations ?? {});
       setData(parsed.data ?? null);
       setDisplayName(parsed.data?.name ?? username);
     } catch {}
+    setHydrated(true);
   }, [username]);
 
   useEffect(() => {
-    if (!story) return;
+    if (!story || mode === "mock") return;
     try {
       window.localStorage.setItem(
         STORAGE_KEY,
         JSON.stringify({
           username,
+          storyId,
           story,
-          mode: mode ?? "mock",
+          mode: mode ?? "ai",
           authoredLocale,
           translations,
           data,
         } satisfies PersistedStory),
       );
     } catch {}
-  }, [story, mode, authoredLocale, translations, data, username]);
+  }, [story, storyId, mode, authoredLocale, translations, data, username]);
 
   async function handleGenerate() {
     setLoading(true);
@@ -96,6 +115,7 @@ export function StoryGenerator({
         cache: "no-store",
       });
       const json = (await res.json()) as {
+        id?: string | null;
         story?: DevStory;
         mode?: "ai" | "mock";
         data?: StoryDataSnapshot | null;
@@ -106,6 +126,7 @@ export function StoryGenerator({
       }
       if (!json.story) throw new Error(t.generator.failed);
       setStory(json.story);
+      setStoryId(json.id ?? null);
       setMode(json.mode ?? "mock");
       setAuthoredLocale(json.mode === "ai" ? locale : "en");
       setTranslations({});
@@ -167,6 +188,8 @@ export function StoryGenerator({
     };
   }, [story, locale, authoredLocale, translations]);
 
+  const waitingForBrain = brainLoading && !story;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
@@ -180,7 +203,7 @@ export function StoryGenerator({
         </div>
         <Button
           onClick={() => void handleGenerate()}
-          disabled={loading || translating || brainLoading}
+          disabled={loading || translating || waitingForBrain}
           size="sm"
         >
           <Sparkles className="text-bauhaus-yellow" />
@@ -210,7 +233,16 @@ export function StoryGenerator({
         </Card>
       )}
 
-      {!story && !loading && brainLoading && (
+      {!story && !loading && !hydrated && (
+        <Card className="bg-card shadow-hard">
+          <CardContent className="flex items-center gap-3 py-8 font-mono text-sm font-bold tracking-wider text-muted-foreground uppercase">
+            <Loader2 className="size-4 animate-spin text-bauhaus-deep" />
+            {t.generator.readingFor(username)}
+          </CardContent>
+        </Card>
+      )}
+
+      {!story && !loading && hydrated && waitingForBrain && (
         <Card className="border-2 border-dashed border-foreground/40 bg-muted/30 shadow-none">
           <CardContent className="flex flex-col items-center gap-4 py-10 text-center sm:py-12">
             <span className="flex size-12 items-center justify-center rounded-none border-2 border-foreground bg-bauhaus-deep shadow-hard-sm">
@@ -228,7 +260,7 @@ export function StoryGenerator({
         </Card>
       )}
 
-      {!story && !loading && !brainLoading && (
+      {!story && !loading && hydrated && !waitingForBrain && (
         <Card className="border-2 border-dashed border-foreground/40 bg-muted/30 shadow-none">
           <CardContent className="flex flex-col items-center gap-4 py-10 text-center sm:py-12">
             <span className="flex size-12 items-center justify-center rounded-none border-2 border-foreground bg-bauhaus-deep shadow-hard-sm">
@@ -267,6 +299,7 @@ export function StoryGenerator({
                 username={username}
                 displayName={displayName}
                 data={data}
+                storyId={storyId}
               />
             </>
           )}

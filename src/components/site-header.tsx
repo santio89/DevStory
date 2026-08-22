@@ -54,8 +54,8 @@ export function SiteHeader({ children }: { children?: ReactNode }) {
           <Brand />
         </Link>
         <div className="flex items-center gap-2 sm:gap-2.5">
-          <ThemeToggle />
           {children}
+          <ThemeToggle />
         </div>
       </header>
     </div>

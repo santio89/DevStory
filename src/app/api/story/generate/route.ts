@@ -9,6 +9,7 @@ import {
   isValidGitHubUsername,
   normalizeGitHubUsername,
 } from "@/lib/github/username";
+import { saveStory } from "@/lib/stories";
 
 export const maxDuration = 120;
 
@@ -37,12 +38,22 @@ export async function POST(request: Request) {
       commitProbeLimit: STORY_COMMIT_PROBE,
     });
     const { story, mode } = await generateStory(data, locale);
+    const snapshot = summarizeStoryData(data);
+    const id = await saveStory({
+      githubLogin: data.username,
+      username: data.name,
+      story,
+      data: snapshot,
+      mode,
+      authoredLocale: mode === "ai" ? locale : "en",
+    });
 
     return NextResponse.json({
+      id,
       story,
       mode,
       username: data.username,
-      data: summarizeStoryData(data),
+      data: snapshot,
     });
   } catch (error) {
     console.error("Story generation failed:", error);

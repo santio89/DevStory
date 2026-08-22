@@ -194,7 +194,7 @@ export function StoryMoment({
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-5 rounded-none border-2 border-foreground bg-background p-5 shadow-hard-sm"
+            className="mt-6 border-t-2 border-foreground/20 pt-6"
           >
             <div className="flex items-center gap-2">
               <BookOpen className="size-3.5 text-bauhaus-deep" />

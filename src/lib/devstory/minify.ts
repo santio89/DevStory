@@ -1,4 +1,5 @@
 import type { DevStoryData } from "./aggregate";
+import type { StoryPreviewData } from "./aggregate";
 import { buildNarrativeFingerprint } from "./narrative-context";
 
 const MAX_SNAPSHOT_REPOS = 30;
@@ -24,6 +25,7 @@ export type StoryDataSnapshot = {
     commits: number;
   }[];
   milestones: { repo: string; date: string; msg: string; sha: string }[];
+  latestMilestones: { repo: string; date: string; msg: string; sha: string }[];
 };
 
 function topReposForSnapshot(data: DevStoryData) {
@@ -59,6 +61,34 @@ export function summarizeStoryData(data: DevStoryData): StoryDataSnapshot {
       msg: m.message,
       sha: m.sha,
     })),
+    latestMilestones: data.latestMilestones.map((m) => ({
+      repo: m.repo,
+      date: m.date.slice(0, 10),
+      msg: m.message,
+      sha: m.sha,
+    })),
+  };
+}
+
+export function snapshotToPreview(data: StoryDataSnapshot): StoryPreviewData {
+  const toMilestone = (m: StoryDataSnapshot["milestones"][number]) => ({
+    repo: m.repo,
+    date: m.date,
+    message: m.msg,
+    sha: m.sha,
+  });
+
+  return {
+    username: data.username,
+    totals: {
+      repoCount: data.totals.repos,
+      totalStars: data.totals.stars,
+      commitsAnalyzed: data.totals.commitsAnalyzed,
+      oldestRepoDate: data.totals.oldestRepoDate,
+    },
+    languagesByYear: data.languagesByYear,
+    milestones: data.milestones.map(toMilestone),
+    latestMilestones: (data.latestMilestones ?? []).map(toMilestone),
   };
 }
 

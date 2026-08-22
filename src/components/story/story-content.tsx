@@ -42,10 +42,12 @@ export function StoryContent({
 
         <div className="relative">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex w-fit items-center gap-1.5 rounded-none border-2 border-foreground bg-background px-2.5 py-1 font-mono text-xs font-bold tracking-[0.2em] text-foreground uppercase shadow-hard-sm">
-              <Wand2 className="size-3 text-bauhaus-deep" />
-              {mode === "ai" ? t.story.crafted : t.story.previewSample}
-            </span>
+            {mode === "ai" && (
+              <span className="inline-flex w-fit items-center gap-1.5 rounded-none border-2 border-foreground bg-background px-2.5 py-1 font-mono text-xs font-bold tracking-[0.2em] text-foreground uppercase shadow-hard-sm">
+                <Wand2 className="size-3 text-bauhaus-deep" />
+                {t.story.crafted}
+              </span>
+            )}
             {story.archetype && (
               <span className="inline-flex w-fit items-center gap-1.5 rounded-none border-2 border-foreground bg-bauhaus-pink/20 px-2.5 py-1 font-mono text-xs font-bold tracking-[0.2em] text-foreground uppercase shadow-hard-sm">
                 <Award className="size-3 text-bauhaus-deep" />

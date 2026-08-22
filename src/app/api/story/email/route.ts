@@ -7,6 +7,7 @@ import {
   isValidGitHubUsername,
   normalizeGitHubUsername,
 } from "@/lib/github/username";
+import { publicUrl } from "@/lib/site";
 
 export const maxDuration = 60;
 
@@ -15,6 +16,7 @@ const bodySchema = z.object({
   email: z.string().email().max(254),
   story: storySchema,
   displayName: z.string().min(1).max(120).optional(),
+  storyId: z.string().uuid().optional(),
 });
 
 export async function POST(request: Request) {
@@ -40,10 +42,9 @@ export async function POST(request: Request) {
   const normalizedEmail = parsed.email.toLowerCase();
   const displayName = parsed.displayName ?? username;
 
-  const baseUrl = (
-    process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
-  ).replace(/\/+$/, "");
-  const storyUrl = `${baseUrl}/?u=${encodeURIComponent(username)}`;
+  const storyUrl = parsed.storyId
+    ? publicUrl(`/story/${parsed.storyId}`)
+    : publicUrl(`/?u=${encodeURIComponent(username)}`);
 
   try {
     const copy = await generateEmailCopy(parsed.story);

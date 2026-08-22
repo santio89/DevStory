@@ -2,14 +2,14 @@ import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 import type { Metadata } from "next";
 import { Button } from "@/components/ui/button";
+import { HeroField, HeroTilt } from "@/components/hero-field";
 import { SiteHeader } from "@/components/site-header";
 import { LocaleToggle } from "@/components/locale-toggle";
-import { StoryContent } from "@/components/story/story-content";
+import { StorySavedView } from "@/components/story/story-saved-view";
 import { ShareMenu } from "@/components/story/share-menu";
-import { FloatingSymbol } from "@/components/motion/floating-symbol";
 import { getStory } from "@/lib/stories";
 import { dictionary, isLocale } from "@/lib/i18n/dictionary";
-import { siteName, siteDescription, siteUrl } from "@/lib/site";
+import { siteName, siteDescription, publicUrl } from "@/lib/site";
 import type { Messages } from "@/lib/i18n/dictionary";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
@@ -27,7 +27,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const story = await getStory(id);
-  const url = `${siteUrl}/story/${id}`;
+  const url = publicUrl(`/story/${id}`);
 
   if (!story) {
     return {
@@ -80,29 +80,35 @@ export default async function StoryPage({
 
       <main className="flex-1">
         <section className="relative overflow-hidden pt-28 pb-10 text-center">
-          <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-            <div className="bauhaus-grid absolute inset-0 opacity-40 [mask-image:linear-gradient(to_bottom,black,transparent_90%)]" />
-            <FloatingSymbol
-              className="pointer-events-auto absolute right-[10%] bottom-2 rounded-none border-2 border-foreground bg-bauhaus-deep px-2.5 py-1 font-mono text-base font-black text-white shadow-hard-sm"
-              idleRotate={6}
-            >
-              {"&&"}
-            </FloatingSymbol>
-            <FloatingSymbol
-              className="pointer-events-auto absolute bottom-8 left-[8%] rounded-none border-2 border-foreground bg-bauhaus-yellow px-2.5 py-1 font-mono text-sm font-black text-bauhaus-ink shadow-hard-sm"
-              drift={2}
-              idleRotate={-3}
-            >
-              {"{ }"}
-            </FloatingSymbol>
+          <div
+            data-hero-stage
+            className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
+          >
+            <div className="bauhaus-grid absolute inset-0 hidden opacity-40 [mask-image:linear-gradient(to_bottom,black,transparent_90%)] motion-reduce:block" />
+            <HeroTilt>
+              <HeroField />
+            </HeroTilt>
           </div>
-          <p className="relative z-10 font-mono text-xs font-bold tracking-[0.3em] text-muted-foreground uppercase">
-            {t.sharePage.of(story.username)}
-          </p>
+          <div className="relative z-10 px-4">
+            <h1 className="font-heading text-3xl font-black tracking-normal text-balance uppercase sm:text-4xl md:text-5xl">
+              {t.sharePage.of(story.username)}
+            </h1>
+            <p className="mt-3 font-mono text-sm font-bold tracking-[0.2em] text-muted-foreground uppercase">
+              @{story.githubLogin}
+            </p>
+          </div>
         </section>
 
         <section className="mx-auto w-full max-w-5xl px-4 pb-20 sm:px-6">
-          <StoryContent story={story.story} mode={mode} />
+          <StorySavedView
+            storyId={story.id}
+            githubLogin={story.githubLogin}
+            username={story.username}
+            story={story.story}
+            data={story.data}
+            mode={mode}
+            authoredLocale={story.authoredLocale}
+          />
         </section>
 
         <section className="mx-auto w-full max-w-5xl px-4 pb-24 sm:px-6">
@@ -127,8 +133,8 @@ export default async function StoryPage({
             </Button>
             <div className="mt-6 flex justify-center">
               <ShareMenu
-                url={`${siteUrl}/?u=${encodeURIComponent(story.githubLogin)}`}
-                text={`${story.title} — ${t.common.shareTagline}`}
+                url={publicUrl(`/story/${story.id}`)}
+                text={`${story.title} - ${t.common.shareTagline}`}
                 buttonClassName="border-white bg-transparent text-white shadow-none hover:bg-white/10"
               />
             </div>

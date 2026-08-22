@@ -47,11 +47,12 @@ export function FloatingSymbol({
       animate={controls}
       onHoverStart={() => {
         controls.start({
-          y: [0, -14, 0, -8, 0],
-          scale: [1, 1.06, 1.02, 1.05, 1],
+          y: [0, -9, 0, -6, 0, -3, 0],
+          scale: [1, 1.04, 0.995, 1.025, 0.998, 1.01, 1],
           transition: {
-            duration: 0.6,
-            ease: "easeOut",
+            duration: 1,
+            ease: [0.34, 1.1, 0.45, 1],
+            times: [0, 0.16, 0.32, 0.5, 0.66, 0.82, 1],
             onComplete: startIdle,
           },
         });

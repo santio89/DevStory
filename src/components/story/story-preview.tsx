@@ -65,14 +65,18 @@ function CommitList({
 export function StoryPreview({
   username,
   onLoadingChange,
+  staticData = null,
 }: {
   username: string;
   onLoadingChange?: (loading: boolean) => void;
+  staticData?: StoryPreviewData | null;
 }) {
   const { t, locale } = useLocale();
-  const [data, setData] = useState<StoryPreviewData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<StoryPreviewData | null>(staticData);
+  const [loading, setLoading] = useState(!staticData);
   const [error, setError] = useState<string | null>(null);
+
+  const readOnly = Boolean(staticData);
 
   async function fetchPreview(refresh = false, signal?: AbortSignal) {
     setLoading(true);
@@ -105,17 +109,55 @@ export function StoryPreview({
   }
 
   useEffect(() => {
+    if (staticData) {
+      setData(staticData);
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
     const ac = new AbortController();
-    void fetchPreview(false, ac.signal);
+    let active = true;
+
+    void (async () => {
+      setLoading(true);
+      setError(null);
+      setData(null);
+      try {
+        const params = new URLSearchParams({ username });
+        const res = await fetch(`/api/story?${params}`, {
+          cache: "no-store",
+          signal: ac.signal,
+        });
+        const json = (await res.json()) as {
+          preview?: StoryPreviewData;
+          error?: string;
+        };
+        if (!res.ok) {
+          throw new Error(json.error ?? t.preview.fetchError(res.status));
+        }
+        if (active) setData(json.preview ?? null);
+      } catch (e) {
+        if (e instanceof DOMException && e.name === "AbortError") return;
+        if (active) {
+          setError(e instanceof Error ? e.message : t.preview.genericError);
+          setData(null);
+        }
+      } finally {
+        if (active) setLoading(false);
+      }
+    })();
+
     return () => {
+      active = false;
       ac.abort();
-      onLoadingChange?.(false);
     };
-  }, [username]);
+  }, [username, staticData, locale, t.preview.fetchError, t.preview.genericError]);
 
   useEffect(() => {
+    if (readOnly) return;
     onLoadingChange?.(loading);
-  }, [loading, onLoadingChange]);
+  }, [loading, onLoadingChange, readOnly]);
 
   return (
     <div className="space-y-6">
@@ -133,7 +175,8 @@ export function StoryPreview({
           variant="outline"
           size="sm"
           onClick={() => void fetchPreview(true)}
-          disabled={loading}
+          disabled={loading || readOnly}
+          className={readOnly ? "invisible" : undefined}
         >
           <RefreshCw className={loading ? "animate-spin" : ""} />
           {loading ? t.preview.digging : t.preview.refresh}

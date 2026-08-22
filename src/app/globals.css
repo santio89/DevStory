@@ -164,6 +164,7 @@
   html {
     @apply font-sans;
     scroll-behavior: smooth;
+    scrollbar-gutter: stable;
   }
   @media (prefers-reduced-motion: reduce) {
     html {

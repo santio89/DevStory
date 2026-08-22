@@ -27,6 +27,7 @@ import Link from "next/link";
 import { ArrowRight, GitCommit, Sparkles, TerminalSquare } from "lucide-react";
 
 import { HeroScrollCue } from "@/components/hero-scroll-cue";
+import { HeroField, HeroTilt } from "@/components/hero-field";
 
 const FEATURE_ICONS = [GitCommit, Sparkles, TerminalSquare];
 const FEATURE_ICON_COLORS = [
@@ -109,9 +110,15 @@ export default async function Home() {
       </SiteHeader>
 
       <main className="flex-1">
-        <section className="relative flex h-svh flex-col overflow-x-clip">
-          <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-            <div className="bauhaus-grid absolute inset-0 opacity-40 [mask-image:linear-gradient(to_bottom,black,transparent_90%)]" />
+        <section className="relative flex h-svh w-full flex-col overflow-hidden">
+          <div
+            data-hero-stage
+            className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
+          >
+            <div className="bauhaus-grid absolute inset-0 hidden opacity-40 [mask-image:linear-gradient(to_bottom,black,transparent_90%)] motion-reduce:block" />
+            <HeroTilt>
+              <HeroField />
+            </HeroTilt>
           </div>
 
           <div className="relative z-10 mx-auto flex min-h-0 w-full max-w-5xl flex-1 flex-col px-4 sm:px-6">

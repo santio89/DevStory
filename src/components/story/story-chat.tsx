@@ -17,6 +17,10 @@ type StoredChat = {
   byLocale: Record<string, ChatMessage[]>;
 };
 
+function hasUserMessages(messages: ChatMessage[]): boolean {
+  return messages.some((m) => m.role === "user");
+}
+
 function readStored(locale: Locale): ChatMessage[] {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
@@ -24,19 +28,22 @@ function readStored(locale: Locale): ChatMessage[] {
     const parsed = JSON.parse(raw) as StoredChat;
     const messages = parsed?.byLocale?.[locale];
     if (!Array.isArray(messages)) return [];
-    return messages.filter(
+    const filtered = messages.filter(
       (m): m is ChatMessage =>
         typeof m === "object" &&
         m !== null &&
         (m.role === "user" || m.role === "assistant") &&
         typeof m.content === "string",
     );
+    // Greeting is ephemeral — only restore threads the user actually started.
+    return hasUserMessages(filtered) ? filtered : [];
   } catch {
     return [];
   }
 }
 
 function writeStored(locale: Locale, messages: ChatMessage[]) {
+  if (!hasUserMessages(messages)) return;
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     const parsed = raw

@@ -20,13 +20,14 @@ export class EmailSendError extends Error {
 export type EmailProvider = "emailjs";
 
 const EMAILJS_SETUP_HINT =
-  "Check EmailJS: connect a mail service (e.g. a dedicated Gmail), create a template with to_email, subject, and {{{story_html}}}, and set all EMAILJS_* env vars in Vercel.";
+  "Check EmailJS Account → Security: enable “Allow EmailJS API for non-browser applications”, add your Vercel domain under Allowed domains, and confirm EMAILJS_PRIVATE_KEY is set in Vercel.";
 
 function emailJsConfigured(): boolean {
   return Boolean(
     process.env.EMAILJS_SERVICE_ID?.trim() &&
       process.env.EMAILJS_TEMPLATE_ID?.trim() &&
-      process.env.EMAILJS_PUBLIC_KEY?.trim(),
+      process.env.EMAILJS_PUBLIC_KEY?.trim() &&
+      process.env.EMAILJS_PRIVATE_KEY?.trim(),
   );
 }
 
@@ -47,10 +48,20 @@ async function sendViaEmailJS(payload: EmailPayload): Promise<void> {
     );
   }
 
+  const privateKey = process.env.EMAILJS_PRIVATE_KEY?.trim();
+  if (!privateKey) {
+    throw new EmailSendError(
+      "EMAILJS_PRIVATE_KEY missing",
+      "Email is not configured.",
+      503,
+    );
+  }
+
   const body: Record<string, unknown> = {
     service_id: process.env.EMAILJS_SERVICE_ID!.trim(),
     template_id: process.env.EMAILJS_TEMPLATE_ID!.trim(),
     user_id: process.env.EMAILJS_PUBLIC_KEY!.trim(),
+    accessToken: privateKey,
     template_params: {
       to_email: payload.to,
       subject: payload.subject,
@@ -58,11 +69,6 @@ async function sendViaEmailJS(payload: EmailPayload): Promise<void> {
       story_text: payload.text,
     },
   };
-
-  const privateKey = process.env.EMAILJS_PRIVATE_KEY?.trim();
-  if (privateKey) {
-    body.accessToken = privateKey;
-  }
 
   const res = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
     method: "POST",
@@ -73,11 +79,13 @@ async function sendViaEmailJS(payload: EmailPayload): Promise<void> {
   if (res.ok) return;
 
   const detail = (await res.text()).slice(0, 400);
+  const userMessage =
+    res.status === 403 || res.status === 401
+      ? detail.trim() || EMAILJS_SETUP_HINT
+      : "Email could not be sent. Try again.";
   throw new EmailSendError(
     `EmailJS ${res.status}: ${detail}`,
-    res.status === 403 || res.status === 401
-      ? EMAILJS_SETUP_HINT
-      : "Email could not be sent. Try again.",
+    userMessage,
     res.status === 403 || res.status === 401 ? 503 : 502,
   );
 }

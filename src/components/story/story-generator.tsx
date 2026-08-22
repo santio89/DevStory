@@ -24,7 +24,13 @@ type PersistedStory = {
   data: StoryDataSnapshot | null;
 };
 
-export function StoryGenerator({ username }: { username: string }) {
+export function StoryGenerator({
+  username,
+  brainLoading = false,
+}: {
+  username: string;
+  brainLoading?: boolean;
+}) {
   const { t, locale } = useLocale();
   const [story, setStory] = useState<DevStory | null>(null);
   const [displayName, setDisplayName] = useState(username);
@@ -174,7 +180,7 @@ export function StoryGenerator({ username }: { username: string }) {
         </div>
         <Button
           onClick={() => void handleGenerate()}
-          disabled={loading || translating}
+          disabled={loading || translating || brainLoading}
           size="sm"
         >
           <Sparkles className="text-bauhaus-yellow" />
@@ -204,7 +210,25 @@ export function StoryGenerator({ username }: { username: string }) {
         </Card>
       )}
 
-      {!story && !loading && (
+      {!story && !loading && brainLoading && (
+        <Card className="border-2 border-dashed border-foreground/40 bg-muted/30 shadow-none">
+          <CardContent className="flex flex-col items-center gap-4 py-10 text-center sm:py-12">
+            <span className="flex size-12 items-center justify-center rounded-none border-2 border-foreground bg-bauhaus-deep shadow-hard-sm">
+              <Loader2 className="size-5 animate-spin text-bauhaus-yellow" />
+            </span>
+            <div className="max-w-md space-y-2">
+              <h3 className="font-heading text-lg font-black tracking-normal uppercase">
+                {t.generator.waitingTitle}
+              </h3>
+              <p className="text-sm text-muted-foreground text-pretty">
+                {t.generator.waitingBody(username)}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {!story && !loading && !brainLoading && (
         <Card className="border-2 border-dashed border-foreground/40 bg-muted/30 shadow-none">
           <CardContent className="flex flex-col items-center gap-4 py-10 text-center sm:py-12">
             <span className="flex size-12 items-center justify-center rounded-none border-2 border-foreground bg-bauhaus-deep shadow-hard-sm">

@@ -37,6 +37,7 @@ export function HomeExperience({
         : null;
       if (fromUrl && isValidGitHubUsername(fromUrl)) {
         setUsername(fromUrl);
+        setPreviewLoading(true);
         setReady(true);
         return;
       }
@@ -134,7 +135,7 @@ export function HomeExperience({
           <div className="mt-20 mb-16">
             <Marquee />
           </div>
-          <StoryGenerator username={username} />
+          <StoryGenerator username={username} brainLoading={previewLoading} />
         </section>
       )}
     </>

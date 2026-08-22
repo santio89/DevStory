@@ -77,6 +77,9 @@ const en = {
     emptyBody: (username: string) =>
       `GitHub data for @${username} is in. Generate the narrative timeline when you're ready.`,
     emptyCta: "Generate story",
+    waitingTitle: "Waiting on the brain",
+    waitingBody: (username: string) =>
+      `Still harvesting @${username}'s GitHub history before the biographer can begin.`,
     translationFailed: "Translation unavailable — showing the original.",
   },
   share: {
@@ -272,6 +275,9 @@ const es: Messages = {
     emptyBody: (username: string) =>
       `Los datos de GitHub de @${username} están aquí. Genera la línea de tiempo narrativa cuando quieras.`,
     emptyCta: "Generar historia",
+    waitingTitle: "Esperando al cerebro",
+    waitingBody: (username: string) =>
+      `Todavía estamos recopilando el historial de GitHub de @${username} antes de que el biógrafo pueda empezar.`,
     translationFailed: "Traducción no disponible — mostrando el original.",
   },
   share: {

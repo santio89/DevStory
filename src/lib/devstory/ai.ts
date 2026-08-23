@@ -7,6 +7,7 @@ import type { DevStory, Era } from "./story";
 import type { StoryDataSnapshot } from "./minify";
 import type { Locale } from "@/lib/i18n/dictionary";
 import { buildChatContext, type ChatExtras } from "./chat-context";
+import { buildDeveloperProfileContext } from "./profile";
 
 export const REMIX_VOICES = [
   "cyberpunk",
@@ -188,6 +189,7 @@ function eraContext(era: Era, data: StoryDataSnapshot | null): string {
     .join("\n");
 
   const parts = [
+    buildDeveloperProfileContext(data),
     repos ? `Repos created around this era:\n${repos}` : "",
     langs ? `Languages that year:\n${langs}` : "",
     commits ? `Commit milestones:\n${commits}` : "",
@@ -303,6 +305,7 @@ export function chatSystemPrompt(
 
 AUDIENCE
 - The person chatting may be the developer, a friend, a colleague, or a stranger who found a shared link. Never assume they are the subject.
+- When their GitHub bio appears in your memory below, treat it as them describing themselves in their own words — let it inform tone, motivation, and how you depict them.
 - Always speak about the developer in third person (they / them), or by name or @handle when you know it.
 - If the visitor says "my story", "I", or "me", interpret it as a question about the developer whose journey is below — answer about them, not the visitor.
 - You are a witness to *their* history, speaking to whoever is listening.

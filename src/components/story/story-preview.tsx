@@ -4,11 +4,14 @@ import { FadeIn, Reveal } from "@/components/motion/fade-in";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { langColor } from "@/components/story/languages";
+import { DeveloperPortrait } from "@/components/story/developer-portrait";
+import { ProfileCaption } from "@/components/story/profile-caption";
 import { useBrain } from "@/components/story/brain-provider";
 import { BrainPreviewSkeleton } from "@/components/story/story-loading-skeletons";
 import { useLocale } from "@/components/locale/locale-provider";
 import type { StoryPreviewData } from "@/lib/devstory/aggregate";
 import type { Locale } from "@/lib/i18n/dictionary";
+import { cn } from "@/lib/utils";
 import { RepoBookIcon } from "@/components/icons/repo-book";
 import {
   GitCommit,
@@ -96,6 +99,116 @@ function previewFromBrain(
   };
 }
 
+function BrainIdentityMeta({
+  brain,
+  totals,
+  locale,
+}: {
+  brain: NonNullable<ReturnType<typeof useBrain>["brain"]>;
+  totals: StoryPreviewData["totals"];
+  locale: Locale;
+}) {
+  const { t } = useLocale();
+  const meta = [brain.profile.location, brain.profile.company]
+    .map((value) => value?.trim())
+    .filter(Boolean) as string[];
+
+  const stats = [
+    {
+      label: t.preview.repos,
+      value: totals.repoCount,
+      icon: FolderGit2,
+      color: "text-bauhaus-deep",
+      highlight: false,
+      compact: false,
+    },
+    {
+      label: t.preview.stars,
+      value: totals.totalStars,
+      icon: Star,
+      color: "text-bauhaus-ink",
+      highlight: true,
+      compact: false,
+    },
+    {
+      label: t.preview.commitsAnalyzed,
+      value: totals.commitsAnalyzed,
+      icon: GitCommit,
+      color: "text-bauhaus-deep",
+      highlight: false,
+      compact: false,
+    },
+    {
+      label: t.preview.firstRepo,
+      value: formatDate(totals.oldestRepoDate, locale),
+      icon: RepoBookIcon,
+      color: "text-bauhaus-deep",
+      highlight: false,
+      compact: true,
+    },
+  ] as const;
+
+  return (
+    <div className="relative overflow-hidden rounded-none border-2 border-foreground bg-card p-4 shadow-hard sm:p-5">
+      <span
+        className="pointer-events-none absolute top-3 right-3 size-2.5 rotate-45 bg-bauhaus-cyan"
+        aria-hidden
+      />
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-stretch">
+        <div className="flex min-w-0 flex-1 flex-col gap-4 sm:flex-row sm:items-start sm:gap-5">
+          <DeveloperPortrait data={brain} size="brain" className="shrink-0" />
+          <div className="min-w-0 flex-1 self-start">
+            <ProfileCaption data={brain} className="text-center sm:text-left" />
+            {meta.length > 0 && (
+              <div className="mt-2 flex flex-wrap justify-center gap-2 sm:justify-start">
+                {meta.map((item) => (
+                  <span
+                    key={item}
+                    className="inline-flex rounded-none border-2 border-foreground bg-bauhaus-sky/15 px-2 py-0.5 font-mono text-[10px] font-bold tracking-[0.18em] text-bauhaus-deep uppercase shadow-hard-sm"
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="grid min-w-0 grid-cols-2 gap-3 border-t-2 border-foreground pt-4 sm:gap-3 lg:w-[min(100%,34rem)] lg:shrink-0 lg:grid-cols-4 lg:border-t-0 lg:border-l-2 lg:pt-0 lg:pl-5 xl:w-[36rem]">
+          {stats.map((stat) => (
+            <div
+              key={stat.label}
+              className={cn(
+                "flex min-h-[5.5rem] flex-col justify-between gap-2 rounded-none border-2 border-foreground p-3 shadow-hard-sm transition-transform duration-200 hover:-translate-y-0.5",
+                stat.highlight
+                  ? "bg-bauhaus-yellow text-bauhaus-ink"
+                  : "bg-background",
+              )}
+            >
+              <stat.icon className={cn("size-4 shrink-0", stat.color)} />
+              <div>
+                <div
+                  className={cn(
+                    "font-mono font-bold tracking-tight",
+                    stat.compact
+                      ? "text-sm leading-tight sm:text-base"
+                      : "text-xl sm:text-2xl",
+                  )}
+                >
+                  {stat.value}
+                </div>
+                <div className="mt-0.5 text-[10px] font-bold tracking-[0.16em] uppercase opacity-80 sm:text-xs">
+                  {stat.label}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function StoryPreview({ username }: { username: string }) {
   const { t, locale } = useLocale();
   const { brain, brainLoading, brainError, refreshBrain } = useBrain();
@@ -107,13 +220,13 @@ export function StoryPreview({ username }: { username: string }) {
   return (
     <div className="space-y-6">
       <Reveal variant="subtle">
-      <div className="flex items-center justify-between gap-4">
-        <div>
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0 flex-1">
           <p className="font-mono text-xs font-bold tracking-[0.2em] text-muted-foreground uppercase">
             {t.preview.phase}
           </p>
           <h2 className="mt-1 font-heading text-2xl font-black tracking-normal text-balance uppercase">
-            {t.preview.titleFor(username)}
+            {displayData ? t.preview.title : t.preview.titleFor(username)}
           </h2>
         </div>
         <Button
@@ -145,63 +258,18 @@ export function StoryPreview({ username }: { username: string }) {
         </Card>
       )}
 
+      {displayData && brain && (
+        <FadeIn>
+          <BrainIdentityMeta
+            brain={brain}
+            totals={displayData.totals}
+            locale={locale}
+          />
+        </FadeIn>
+      )}
+
       {displayData && (
         <>
-          <div className="grid gap-5 sm:grid-cols-4">
-            {[
-              {
-                label: t.preview.repos,
-                value: displayData.totals.repoCount,
-                icon: FolderGit2,
-                color: "text-bauhaus-deep",
-                block: false,
-              },
-              {
-                label: t.preview.stars,
-                value: displayData.totals.totalStars,
-                icon: Star,
-                color: "text-bauhaus-ink",
-                block: true,
-              },
-              {
-                label: t.preview.commitsAnalyzed,
-                value: displayData.totals.commitsAnalyzed,
-                icon: GitCommit,
-                color: "text-bauhaus-deep",
-                block: false,
-              },
-              {
-                label: t.preview.firstRepo,
-                value: formatDate(displayData.totals.oldestRepoDate, locale),
-                icon: RepoBookIcon,
-                color: "text-bauhaus-deep",
-                block: false,
-              },
-            ].map((stat, i) => (
-              <FadeIn key={stat.label} delay={0.05 * i}>
-                <Card
-                  className={`relative h-full shadow-hard transition-transform duration-200 hover:-translate-y-1 ${
-                    stat.block
-                      ? "border-foreground bg-bauhaus-yellow text-bauhaus-ink"
-                      : "bg-card"
-                  }`}
-                >
-                  <CardContent className="flex flex-col gap-3 py-5">
-                    <stat.icon className={`size-4 ${stat.color}`} />
-                    <div>
-                      <div className="font-mono text-2xl font-bold tracking-tight">
-                        {stat.value}
-                      </div>
-                      <div className="mt-0.5 text-xs font-bold tracking-wider uppercase opacity-80">
-                        {stat.label}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </FadeIn>
-            ))}
-          </div>
-
           <div className="grid gap-5 lg:grid-cols-2">
             <FadeIn>
               <Card className="relative h-full bg-card shadow-hard">

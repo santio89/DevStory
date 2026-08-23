@@ -119,7 +119,6 @@ function StorySavedContent({
               <DeveloperPortrait
                 data={brain}
                 size="lg"
-                showHandle
                 className="shrink-0 sm:pt-1"
               />
             ) : null}

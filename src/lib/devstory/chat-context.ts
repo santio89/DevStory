@@ -1,5 +1,6 @@
 import type { StoryDataSnapshot } from "./minify";
 import { normalizeBrainSnapshot } from "./minify";
+import { buildDeveloperProfileContext } from "./profile";
 import type { DevStory } from "./story";
 
 const MAX_REPO_CATALOG = 250;
@@ -79,12 +80,7 @@ export function buildChatContext(
 
   if (snapshot) {
     const profile = [
-      `Name: ${snapshot.name} (@${snapshot.username})`,
-      snapshot.profile.bio ? `Bio: ${snapshot.profile.bio}` : null,
-      snapshot.profile.location ? `Location: ${snapshot.profile.location}` : null,
-      snapshot.profile.company ? `Company: ${snapshot.profile.company}` : null,
-      snapshot.profile.blog ? `Website: ${snapshot.profile.blog}` : null,
-      `On GitHub since: ${snapshot.memberSince?.slice(0, 10) ?? "unknown"}`,
+      buildDeveloperProfileContext(snapshot),
       `Followers: ${snapshot.profile.followers} · Following: ${snapshot.profile.following}`,
       `Public repos: ${snapshot.totals.repos} · Stars: ${snapshot.totals.stars} · Commits counted (probed repos): ${snapshot.totals.commitsAnalyzed}`,
       snapshot.totals.oldestRepo

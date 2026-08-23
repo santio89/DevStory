@@ -47,6 +47,7 @@ const en = {
   },
   preview: {
     phase: "phase 02 · the brain",
+    title: "GitHub data",
     titleFor: (username: string) => `GitHub data for @${username}`,
     refresh: "Re-fetch",
     digging: "Digging…",
@@ -66,6 +67,7 @@ const en = {
   },
   generator: {
     phase: "phase 03 · the biographer",
+    title: "Dev Story",
     titleFor: (username: string) => `Dev Story · @${username}`,
     writing: "Writing…",
     rewrite: "Rewrite story",
@@ -266,6 +268,7 @@ const es: Messages = {
   },
   preview: {
     phase: "fase 02 · el cerebro",
+    title: "Datos de GitHub",
     titleFor: (username: string) => `Datos de GitHub · @${username}`,
     refresh: "Recargar",
     digging: "Rastreando…",
@@ -287,6 +290,7 @@ const es: Messages = {
   },
   generator: {
     phase: "fase 03 · el biógrafo",
+    title: "Dev Story",
     titleFor: (username: string) => `Dev Story · @${username}`,
     writing: "Escribiendo…",
     rewrite: "Reescribir historia",

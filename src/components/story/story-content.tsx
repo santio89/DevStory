@@ -43,7 +43,6 @@ export function StoryContent({
               <DeveloperPortrait
                 data={data}
                 size="lg"
-                showHandle
                 className="shrink-0 sm:pt-1"
               />
             ) : null}

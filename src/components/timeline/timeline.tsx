@@ -14,9 +14,27 @@ import { cn } from "@/lib/utils";
 import type { Era } from "@/lib/devstory/story";
 import type { StoryDataSnapshot } from "@/lib/devstory/minify";
 import { DeveloperPortrait } from "@/components/story/developer-portrait";
+import { ProfileCaption } from "@/components/story/profile-caption";
 import { BookOpen, Loader2 } from "lucide-react";
 
 type Dive = { narrative: string; highlights: string[] };
+
+function TimelineOrigin({ data }: { data: StoryDataSnapshot }) {
+  return (
+    <div className="absolute left-4 -translate-x-1/2 sm:left-1/2">
+      <div className="relative flex flex-col items-center">
+        <DeveloperPortrait data={data} size="timeline" />
+        <div className="absolute top-0 left-full ml-4 flex h-[4.5rem] items-center sm:ml-5 sm:h-24">
+          <ProfileCaption
+            data={data}
+            showBio={false}
+            className="min-w-max [&_p:first-child]:text-base [&_p:first-child]:sm:text-lg"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function TimelineItem({
   era,
@@ -202,16 +220,8 @@ export function Timeline({
           transition={fluidSpring}
           className="relative z-20 mb-12 sm:mb-16"
         >
-          <div className="absolute left-4 flex -translate-x-1/2 flex-col items-center sm:left-1/2">
-            <p className="mb-2 bg-background px-1.5 font-mono text-xs font-bold tracking-[0.22em] text-foreground uppercase">
-              @{data.username}
-            </p>
-            <DeveloperPortrait data={data} size="timeline" />
-          </div>
-          <div
-            className="h-[calc(1.5rem+4.5rem)] sm:h-[calc(1.5rem+6rem)]"
-            aria-hidden
-          />
+          <TimelineOrigin data={data} />
+          <div className="h-[4.5rem] sm:h-24" aria-hidden />
         </motion.div>
       ) : null}
       <motion.div
@@ -219,10 +229,7 @@ export function Timeline({
         whileInView={{ scaleY: 1, opacity: 1 }}
         viewport={revealViewport}
         transition={fluidSpring}
-        className={cn(
-          "absolute bottom-0 left-4 w-[3px] origin-top -translate-x-1/2 bg-foreground sm:left-1/2",
-          data ? "top-6" : "top-0",
-        )}
+        className="absolute top-0 bottom-0 left-4 w-[3px] origin-top -translate-x-1/2 bg-foreground sm:left-1/2"
       />
       <div className="space-y-12 sm:space-y-16">
         {eras.map((era, index) => (

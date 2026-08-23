@@ -225,7 +225,7 @@ export function StoryGenerator({
             {t.generator.phase}
           </p>
           <h2 className="mt-1 font-heading text-2xl font-black tracking-normal text-balance uppercase">
-            {t.generator.titleFor(username)}
+            {story || brain ? t.generator.title : t.generator.titleFor(username)}
           </h2>
         </div>
         <Button

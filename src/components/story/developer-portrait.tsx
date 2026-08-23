@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 const sizeClasses = {
   sm: "size-14",
   md: "size-20",
+  brain: "size-20 sm:size-24",
   lg: "size-28 sm:size-32",
   timeline: "size-[4.5rem] sm:size-24",
 } as const;
@@ -17,11 +18,13 @@ export function DeveloperPortrait({
   data,
   size = "md",
   showHandle = false,
+  showSince = true,
   className,
 }: {
   data: Pick<StoryDataSnapshot, "username" | "name" | "avatarUrl" | "memberSince"> | null;
   size?: keyof typeof sizeClasses;
   showHandle?: boolean;
+  showSince?: boolean;
   className?: string;
 }) {
   const { t } = useLocale();
@@ -33,7 +36,13 @@ export function DeveloperPortrait({
   if (!data) return null;
 
   return (
-    <div className={cn("flex flex-col items-center gap-2", className)}>
+    <div
+      className={cn(
+        "flex flex-col items-center",
+        showHandle ? "gap-3" : "gap-2",
+        className,
+      )}
+    >
       <div className="relative">
         <span
           className="absolute inset-0 translate-x-1.5 translate-y-1.5 bg-foreground"
@@ -73,7 +82,7 @@ export function DeveloperPortrait({
           <p className="font-mono text-xs font-bold tracking-[0.25em] text-foreground uppercase">
             @{data.username}
           </p>
-          {sinceYear ? (
+          {showSince && sinceYear ? (
             <p className="mt-0.5 font-mono text-[10px] font-bold tracking-[0.2em] text-muted-foreground uppercase">
               {t.story.portraitSince(sinceYear)}
             </p>

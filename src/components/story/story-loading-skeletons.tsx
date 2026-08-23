@@ -1,17 +1,19 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { SkeletonBar } from "@/components/ui/skeleton-bar";
 
-function StatCardSkeleton({ highlight = false }: { highlight?: boolean }) {
+function BrainStatSkeleton({ highlight = false }: { highlight?: boolean }) {
   return (
-    <Card
-      className={`h-full shadow-hard ${highlight ? "border-foreground bg-bauhaus-yellow/40" : "bg-card"}`}
+    <div
+      className={`flex min-h-[5.5rem] flex-col justify-between gap-2 rounded-none border-2 border-foreground p-3 shadow-hard-sm ${
+        highlight ? "bg-bauhaus-yellow/40" : "bg-background"
+      }`}
     >
-      <CardContent className="flex flex-col gap-3 py-5">
-        <SkeletonBar className="size-4" />
-        <SkeletonBar className="h-7 w-14" />
-        <SkeletonBar className="h-3 w-20" />
-      </CardContent>
-    </Card>
+      <SkeletonBar className="size-4" />
+      <div className="space-y-2">
+        <SkeletonBar className="h-6 w-12" />
+        <SkeletonBar className="h-3 w-16" />
+      </div>
+    </div>
   );
 }
 
@@ -28,11 +30,24 @@ export function BrainPreviewSkeleton({
         </p>
       ) : null}
 
-      <div className="grid gap-5 sm:grid-cols-4">
-        <StatCardSkeleton />
-        <StatCardSkeleton highlight />
-        <StatCardSkeleton />
-        <StatCardSkeleton />
+      <div className="rounded-none border-2 border-foreground bg-card p-4 shadow-hard sm:p-5">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-stretch">
+          <div className="flex flex-1 flex-col items-center gap-4 sm:flex-row sm:items-center">
+            <SkeletonBar className="size-20 shrink-0 sm:size-24" />
+            <div className="w-full space-y-2 sm:flex-1">
+              <SkeletonBar className="mx-auto h-4 w-28 sm:mx-0" />
+              <SkeletonBar className="mx-auto h-3 w-36 sm:mx-0" />
+              <SkeletonBar className="h-3 w-full" />
+              <SkeletonBar className="h-3 w-4/5" />
+            </div>
+          </div>
+          <div className="grid min-w-0 grid-cols-2 gap-3 border-t-2 border-foreground pt-4 lg:w-[min(100%,34rem)] lg:shrink-0 lg:grid-cols-4 lg:border-t-0 lg:border-l-2 lg:pt-0 lg:pl-5 xl:w-[36rem]">
+            <BrainStatSkeleton />
+            <BrainStatSkeleton highlight />
+            <BrainStatSkeleton />
+            <BrainStatSkeleton />
+          </div>
+        </div>
       </div>
 
       <div className="grid gap-5 lg:grid-cols-2">

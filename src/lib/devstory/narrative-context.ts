@@ -114,6 +114,9 @@ export function buildNarrativeFingerprint(data: DevStoryData): NarrativeFingerpr
   const lens = pickLens(data.username);
 
   const mandates = [
+    data.profile.bio
+      ? `Honor their GitHub bio in tone and motivation: "${data.profile.bio}"`
+      : null,
     `Quote at least one real commit message from the data verbatim.`,
     `Name at least ${Math.min(3, Math.max(2, standouts.length))} specific repositories by exact name.`,
     standouts[0]
@@ -135,7 +138,7 @@ export function buildNarrativeFingerprint(data: DevStoryData): NarrativeFingerpr
     busiestYear: busiestYear(data),
     archivedRepos: data.repos.filter((r) => r.archived).length,
     topLanguages: data.languages.slice(0, 5).map((l) => l.language),
-    writingMandates: mandates,
+    writingMandates: mandates.filter((m): m is string => Boolean(m)),
   };
 }
 
@@ -153,7 +156,7 @@ export function buildUniquenessGuidance(
 
   return `UNIQUENESS CONTRACT — @${data.username}
 This timeline must be unmistakably theirs. Generic biographer prose that could describe any developer is a failure.
-
+${data.profile.bio ? `\nTheir GitHub bio (in their own words): "${data.profile.bio}" — let this shape how you see their motivation and voice.\n` : ""}
 Follow the narrativeFingerprint object in the JSON above — especially metaphorLens and writingMandates.
 
 Narrative lens for THIS story only: ${fingerprint.metaphorLens}

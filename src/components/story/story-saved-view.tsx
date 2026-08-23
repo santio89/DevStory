@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { StoryPreview } from "@/components/story/story-preview";
 import { StoryView } from "@/components/story/story-view";
 import { StoryChat } from "@/components/story/story-chat";
 import { StoryTranslating } from "@/components/story/story-translating";
@@ -82,8 +81,6 @@ function StorySavedContent({
 
   return (
     <div className="space-y-10">
-      <StoryPreview username={githubLogin} />
-
       {translationFailed && locale !== authoredLocale && (
         <p className="font-mono text-xs font-bold tracking-wider text-muted-foreground uppercase">
           {t.generator.translationFailed}

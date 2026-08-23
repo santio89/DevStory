@@ -11,8 +11,8 @@ const en = {
   },
   hero: {
     badge: "Git, narrated.",
-    titleFirst: "Any Code.",
-    titleSecond: "Any Story.",
+    titleFirst: "Every Code.",
+    titleSecond: "Every Story.",
     subtitle:
       "Type a public GitHub username. We turn their commit history into a narrative timeline.",
     lookupPlaceholder: "github-username",

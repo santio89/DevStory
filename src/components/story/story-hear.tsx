@@ -5,24 +5,28 @@ import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/motion/fade-in";
 import { useLocale } from "@/components/locale/locale-provider";
 import { readCachedAudio, writeCachedAudio } from "@/lib/client/audio-cache";
+import {
+  clearMemoryAudioUrls,
+  getMemoryAudioUrl,
+  setMemoryAudioUrl,
+  storyAudioCacheKey,
+} from "@/lib/client/story-audio-cache";
 import type { DevStory } from "@/lib/devstory/story";
 import type { Locale } from "@/lib/i18n/dictionary";
 import { Loader2, Square, Volume2 } from "lucide-react";
 
 const PREFETCH_DELAY_MS = 1200;
 
-function storyCacheKey(story: DevStory, locale: Locale): string {
-  return `narrator-v5|${story.title}|${story.eras.map((e) => e.year).join(",")}|${locale}`;
-}
-
 async function fetchStoryAudio(
   story: DevStory,
   locale: Locale,
+  signal?: AbortSignal,
 ): Promise<Blob> {
   const res = await fetch("/api/story/retell/audio", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ story, locale }),
+    signal,
   });
   if (!res.ok) {
     const json = (await res.json().catch(() => ({}))) as { error?: string };
@@ -33,18 +37,25 @@ async function fetchStoryAudio(
 
 export function StoryHear({ story }: { story: DevStory }) {
   const { t, locale } = useLocale();
-  const memoryCache = useRef(new Map<string, string>());
   const audioEl = useRef<HTMLAudioElement | null>(null);
   const prefetchRef = useRef<AbortController | null>(null);
+  const fetchAbortRef = useRef<AbortController | null>(null);
+  const epochRef = useRef(0);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [generatingAudio, setGeneratingAudio] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [audioError, setAudioError] = useState<string | null>(null);
 
-  const audioKey = storyCacheKey(story, locale);
+  const audioKey = storyAudioCacheKey(story, locale);
+
+  const persistBlob = useCallback((key: string, blob: Blob): string => {
+    const url = URL.createObjectURL(blob);
+    setMemoryAudioUrl(key, url);
+    void writeCachedAudio(key, blob);
+    return url;
+  }, []);
 
   useEffect(() => {
-    const cache = memoryCache.current;
     const el = new Audio();
     audioEl.current = el;
     const onPlay = () => setPlaying(true);
@@ -55,63 +66,91 @@ export function StoryHear({ story }: { story: DevStory }) {
     el.addEventListener("ended", onEnded);
     return () => {
       prefetchRef.current?.abort();
+      fetchAbortRef.current?.abort();
       el.pause();
       el.removeEventListener("play", onPlay);
       el.removeEventListener("pause", onPause);
       el.removeEventListener("ended", onEnded);
       el.src = "";
       audioEl.current = null;
-      for (const url of cache.values()) URL.revokeObjectURL(url);
-      cache.clear();
+      clearMemoryAudioUrls();
     };
   }, []);
 
-  function storeBlob(blob: Blob): string {
-    const url = URL.createObjectURL(blob);
-    memoryCache.current.set(audioKey, url);
-    setAudioUrl(url);
-    void writeCachedAudio(audioKey, blob);
-    return url;
-  }
+  useEffect(() => {
+    epochRef.current += 1;
+    const epoch = epochRef.current;
 
-  async function resolveAudioUrl(): Promise<string> {
-    const mem = memoryCache.current.get(audioKey);
-    if (mem) return mem;
+    prefetchRef.current?.abort();
+    fetchAbortRef.current?.abort();
 
-    const cached = await readCachedAudio(audioKey);
-    if (cached) return storeBlob(cached);
+    const el = audioEl.current;
+    if (el) {
+      el.pause();
+      el.currentTime = 0;
+    }
+    setPlaying(false);
+    setGeneratingAudio(false);
+    setAudioError(null);
 
-    const blob = await fetchStoryAudio(story, locale);
-    return storeBlob(blob);
-  }
+    const mem = getMemoryAudioUrl(audioKey);
+    if (mem) {
+      setAudioUrl(mem);
+      if (el) el.src = mem;
+      return;
+    }
+
+    setAudioUrl(null);
+    if (el) el.src = "";
+
+    void readCachedAudio(audioKey).then((blob) => {
+      if (epochRef.current !== epoch || !blob) return;
+      const url = persistBlob(audioKey, blob);
+      setAudioUrl(url);
+      if (audioEl.current) audioEl.current.src = url;
+    });
+  }, [audioKey, persistBlob]);
 
   const prefetchAudio = useCallback(
-    async (signal: AbortSignal) => {
-      if (memoryCache.current.has(audioKey)) return;
+    async (signal: AbortSignal, epoch: number) => {
+      if (epochRef.current !== epoch) return;
+      if (getMemoryAudioUrl(audioKey)) return;
+
       const cached = await readCachedAudio(audioKey);
-      if (signal.aborted) return;
+      if (signal.aborted || epochRef.current !== epoch) return;
       if (cached) {
-        storeBlob(cached);
+        const url = persistBlob(audioKey, cached);
+        if (epochRef.current === epoch) {
+          setAudioUrl(url);
+          if (audioEl.current) audioEl.current.src = url;
+        }
         return;
       }
+
       try {
-        const blob = await fetchStoryAudio(story, locale);
-        if (!signal.aborted) storeBlob(blob);
+        const blob = await fetchStoryAudio(story, locale, signal);
+        if (signal.aborted || epochRef.current !== epoch) return;
+        const url = persistBlob(audioKey, blob);
+        if (epochRef.current === epoch) {
+          setAudioUrl(url);
+          if (audioEl.current) audioEl.current.src = url;
+        }
       } catch {
-        // Prefetch is best-effort — user can still click to retry.
+        // Prefetch is best-effort; the user can still click to retry.
       }
     },
-    [audioKey, story, locale],
+    [audioKey, story, locale, persistBlob],
   );
 
   useEffect(() => {
     prefetchRef.current?.abort();
     const ac = new AbortController();
     prefetchRef.current = ac;
+    const epoch = epochRef.current;
 
     const timer = window.setTimeout(() => {
       if (ac.signal.aborted) return;
-      const run = () => void prefetchAudio(ac.signal);
+      const run = () => void prefetchAudio(ac.signal, epoch);
       if (typeof requestIdleCallback !== "undefined") {
         requestIdleCallback(run, { timeout: 4000 });
       } else {
@@ -126,8 +165,10 @@ export function StoryHear({ story }: { story: DevStory }) {
   }, [audioKey, prefetchAudio]);
 
   async function handleListen() {
+    const epoch = epochRef.current;
     setAudioError(null);
-    const mem = memoryCache.current.get(audioKey);
+
+    const mem = getMemoryAudioUrl(audioKey);
     if (mem) {
       if (audioUrl !== mem) setAudioUrl(mem);
       if (audioEl.current && audioEl.current.src !== mem) {
@@ -140,21 +181,42 @@ export function StoryHear({ story }: { story: DevStory }) {
       return;
     }
 
+    fetchAbortRef.current?.abort();
+    const ac = new AbortController();
+    fetchAbortRef.current = ac;
     setGeneratingAudio(true);
+
     try {
-      const url = await resolveAudioUrl();
+      let url = getMemoryAudioUrl(audioKey);
+
+      if (!url) {
+        const cached = await readCachedAudio(audioKey);
+        if (epochRef.current !== epoch) return;
+        if (cached) url = persistBlob(audioKey, cached);
+      }
+
+      if (!url) {
+        const blob = await fetchStoryAudio(story, locale, ac.signal);
+        if (epochRef.current !== epoch) return;
+        url = persistBlob(audioKey, blob);
+      }
+
+      if (epochRef.current !== epoch) return;
+
+      setAudioUrl(url);
       if (audioEl.current) {
         audioEl.current.src = url;
         void audioEl.current.play();
       }
     } catch (e) {
+      if (ac.signal.aborted || epochRef.current !== epoch) return;
       setAudioError(
         e instanceof Error && e.message.includes("503")
           ? t.play.noAI
           : t.play.audioFailed,
       );
     } finally {
-      setGeneratingAudio(false);
+      if (epochRef.current === epoch) setGeneratingAudio(false);
     }
   }
 

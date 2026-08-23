@@ -25,7 +25,7 @@ const en = {
     title: "How it works",
     one: {
       t: "Every commit is a chapter",
-      d: "We read their public GitHub history — repos, languages, and commits.",
+      d: "We read their public GitHub history: repos, languages, and commits.",
     },
     two: {
       t: "The biographer writes",
@@ -180,7 +180,7 @@ const en = {
       "I've sat with this story long enough to know its quiet corners. Ask about the early years, the loud ones, a repo nearly lost to time. I'll tell you what the ledger remembers.",
     close: "Close chat",
     offTopic:
-      "Mm. That's another picture entirely. I'm only here for this developer's journey — the eras, the repos, the commits that shaped them. Ask me about those.",
+      "Mm. That's another picture entirely. I'm only here for this developer's journey: the eras, the repos, the commits that shaped them. Ask me about those.",
     suggestionPool: {
       earliestYears: (username: string) =>
         `What defined @${username}'s earliest years?`,

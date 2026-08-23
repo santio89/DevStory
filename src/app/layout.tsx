@@ -83,6 +83,7 @@ export default async function RootLayout({
   return (
     <html
       lang={locale}
+      data-scroll-behavior="smooth"
       suppressHydrationWarning
       className={`dark ${outfit.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >

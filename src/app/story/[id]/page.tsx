@@ -91,8 +91,8 @@ export default async function StoryPage({
       </SiteHeader>
 
       <main className="flex-1">
-        <div className="relative overflow-hidden">
-          <HeroStageBackground />
+        <div className="relative min-h-[clamp(15rem,34vh,22rem)] overflow-hidden">
+          <HeroStageBackground variant="share" />
           <StoryPageHero username={story.username} githubLogin={story.githubLogin} />
         </div>
 

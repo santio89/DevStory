@@ -22,29 +22,58 @@ type Theme = {
 type GlyphBody = {
   glyph: string;
   color: keyof Omit<Theme, "foreground" | "background" | "ink">;
-  x: number;
-  y: number;
+  /** Radians on the hero ellipse — left arc ≈ 2.1–3.8, right arc ≈ -0.75–0.55. */
+  angle: number;
+  /** Per-glyph radius multiplier for depth variation. */
+  radius: number;
   z: number;
   size: number;
   spin: number;
   phase: number;
 };
 
-/** Six per flank — 12 unique programming tokens, text-only with soft shadow. */
+const ELLIPSE_CY = 0.43;
+const SHARE_ELLIPSE_CY = 0.54;
+
+/** Evenly spaced on left / right arcs — pairs read top-to-bottom on each flank. */
+const LEFT_ARC_ANGLES = [3.95, 3.48, 3.02, 2.55, 2.08, 1.72] as const;
+const RIGHT_ARC_ANGLES = [-0.92, -0.46, 0, 0.46, 0.92, 1.28] as const;
+
+const SHARE_LEFT_ARC_ANGLES = [3.88, 3.28, 2.68, 2.02] as const;
+const SHARE_RIGHT_ARC_ANGLES = [-0.86, -0.3, 0.26, 0.82] as const;
+
+/** Twelve tokens on a soft ellipse framing the hero copy. */
 const GLYPHS: GlyphBody[] = [
-  { glyph: "< />", color: "yellow", x: 0.13, y: 0.17, z: 0.55, size: 13, spin: 0.05, phase: 0.2 },
-  { glyph: "{ }", color: "deep", x: 0.87, y: 0.19, z: 0.85, size: 14, spin: -0.04, phase: 1.0 },
-  { glyph: "[ ]", color: "sky", x: 0.15, y: 0.31, z: 0.7, size: 13, spin: 0.06, phase: 1.6 },
-  { glyph: "=>", color: "cyan", x: 0.85, y: 0.33, z: 0.5, size: 13, spin: -0.05, phase: 2.2 },
-  { glyph: "&&", color: "pink", x: 0.12, y: 0.45, z: 0.9, size: 12, spin: 0.07, phase: 0.8 },
-  { glyph: "?.", color: "deep", x: 0.88, y: 0.46, z: 0.65, size: 12, spin: -0.06, phase: 2.8 },
-  { glyph: "#", color: "yellow", x: 0.16, y: 0.58, z: 0.6, size: 13, spin: 0.04, phase: 3.1 },
-  { glyph: "//", color: "cyan", x: 0.84, y: 0.59, z: 0.75, size: 12, spin: -0.05, phase: 1.3 },
-  { glyph: ";", color: "sky", x: 0.14, y: 0.71, z: 0.45, size: 15, spin: 0.08, phase: 2.5 },
-  { glyph: "...", color: "pink", x: 0.86, y: 0.72, z: 0.8, size: 13, spin: -0.03, phase: 0.5 },
-  { glyph: "??", color: "yellow", x: 0.18, y: 0.84, z: 0.7, size: 12, spin: 0.05, phase: 3.6 },
-  { glyph: "**", color: "deep", x: 0.82, y: 0.85, z: 0.55, size: 12, spin: -0.06, phase: 1.9 },
+  { glyph: "< />", color: "yellow", angle: LEFT_ARC_ANGLES[0], radius: 1, z: 0.55, size: 13, spin: 0.05, phase: 0.2 },
+  { glyph: "{ }", color: "deep", angle: RIGHT_ARC_ANGLES[0], radius: 1, z: 0.85, size: 14, spin: -0.04, phase: 1.0 },
+  { glyph: "[ ]", color: "sky", angle: LEFT_ARC_ANGLES[1], radius: 1, z: 0.7, size: 13, spin: 0.06, phase: 1.6 },
+  { glyph: "=>", color: "cyan", angle: RIGHT_ARC_ANGLES[1], radius: 1, z: 0.5, size: 13, spin: -0.05, phase: 2.2 },
+  { glyph: "&&", color: "pink", angle: LEFT_ARC_ANGLES[2], radius: 1, z: 0.9, size: 12, spin: 0.07, phase: 0.8 },
+  { glyph: "?.", color: "deep", angle: RIGHT_ARC_ANGLES[2], radius: 1, z: 0.65, size: 12, spin: -0.06, phase: 2.8 },
+  { glyph: "#", color: "yellow", angle: LEFT_ARC_ANGLES[3], radius: 1, z: 0.6, size: 13, spin: 0.04, phase: 3.1 },
+  { glyph: "//", color: "cyan", angle: RIGHT_ARC_ANGLES[3], radius: 1, z: 0.75, size: 12, spin: -0.05, phase: 1.3 },
+  { glyph: ";", color: "sky", angle: LEFT_ARC_ANGLES[4], radius: 1, z: 0.45, size: 15, spin: 0.08, phase: 2.5 },
+  { glyph: "...", color: "pink", angle: RIGHT_ARC_ANGLES[4], radius: 1, z: 0.8, size: 13, spin: -0.03, phase: 0.5 },
+  { glyph: "??", color: "yellow", angle: LEFT_ARC_ANGLES[5], radius: 1, z: 0.7, size: 12, spin: 0.05, phase: 3.6 },
+  { glyph: "**", color: "deep", angle: RIGHT_ARC_ANGLES[5], radius: 1, z: 0.55, size: 12, spin: -0.06, phase: 1.9 },
 ];
+
+const SHARE_GLYPHS: GlyphBody[] = [
+  { glyph: "< />", color: "yellow", angle: SHARE_LEFT_ARC_ANGLES[0], radius: 1, z: 0.55, size: 12, spin: 0.05, phase: 0.2 },
+  { glyph: "{ }", color: "deep", angle: SHARE_RIGHT_ARC_ANGLES[0], radius: 1, z: 0.85, size: 13, spin: -0.04, phase: 1.0 },
+  { glyph: "[ ]", color: "sky", angle: SHARE_LEFT_ARC_ANGLES[1], radius: 1, z: 0.7, size: 12, spin: 0.06, phase: 1.6 },
+  { glyph: "=>", color: "cyan", angle: SHARE_RIGHT_ARC_ANGLES[1], radius: 1, z: 0.5, size: 12, spin: -0.05, phase: 2.2 },
+  { glyph: "&&", color: "pink", angle: SHARE_LEFT_ARC_ANGLES[2], radius: 1, z: 0.9, size: 11, spin: 0.07, phase: 0.8 },
+  { glyph: "?.", color: "deep", angle: SHARE_RIGHT_ARC_ANGLES[2], radius: 1, z: 0.65, size: 11, spin: -0.06, phase: 2.8 },
+  { glyph: "#", color: "yellow", angle: SHARE_LEFT_ARC_ANGLES[3], radius: 1, z: 0.6, size: 12, spin: 0.04, phase: 3.1 },
+  { glyph: "//", color: "cyan", angle: SHARE_RIGHT_ARC_ANGLES[3], radius: 1, z: 0.75, size: 11, spin: -0.05, phase: 1.3 },
+];
+
+export type HeroFieldVariant = "home" | "share";
+
+function glyphsForVariant(variant: HeroFieldVariant) {
+  return variant === "share" ? SHARE_GLYPHS : GLYPHS;
+}
 
 if (process.env.NODE_ENV !== "production") {
   const glyphs = GLYPHS.map((g) => g.glyph);
@@ -82,13 +111,105 @@ function lerp(a: number, b: number, t: number) {
   return a + (b - a) * t;
 }
 
-/** Pull flank glyphs toward center on wide viewports; mobile stays as authored. */
-function compressGlyphX(viewportWidth: number, x: number) {
-  if (viewportWidth < 768) return x;
+function smoothstep(edge0: number, edge1: number, x: number) {
+  const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
+  return t * t * (3 - 2 * t);
+}
 
-  const t = Math.min(1, (viewportWidth - 768) / 640);
-  const factor = 1 - t * 0.32;
-  return 0.5 + (x - 0.5) * factor;
+type EllipseFrame = {
+  cx: number;
+  cy: number;
+  rx: number;
+  ry: number;
+};
+
+/** Content-aware ellipse — consistent pixel orbit on large screens, tighter on small. */
+function homeEllipseFrame(viewportWidth: number, viewportHeight: number): EllipseFrame {
+  const w = viewportWidth;
+  const h = viewportHeight;
+  const cy = ELLIPSE_CY;
+
+  const contentHalfW = Math.min(420, w * 0.34);
+  const contentHeight = Math.min(500, h * 0.54);
+
+  if (w < 640) {
+    return {
+      cx: 0.5,
+      cy,
+      rx: Math.min(0.44, (contentHalfW + 28) / w),
+      ry: Math.min(0.42, (contentHeight * 0.56 + 20) / h),
+    };
+  }
+
+  if (w < 1024) {
+    return {
+      cx: 0.5,
+      cy,
+      rx: Math.min(0.36, (contentHalfW + 40) / w),
+      ry: Math.min(0.36, (contentHeight * 0.58 + 28) / h),
+    };
+  }
+
+  const padX = 68 + Math.min(28, (w - 1280) / 70);
+  const padY = 58 + Math.min(24, (h - 880) / 55);
+
+  return {
+    cx: 0.5,
+    cy,
+    rx: (contentHalfW + padX) / w,
+    ry: Math.min(0.38, (contentHeight * 0.64 + padY) / h),
+  };
+}
+
+/** Compact ellipse around share-page title + handle. */
+function shareEllipseFrame(viewportWidth: number, viewportHeight: number): EllipseFrame {
+  const w = viewportWidth;
+  const h = Math.max(viewportHeight, 220);
+  const cy = SHARE_ELLIPSE_CY;
+  const titleHalfW = Math.min(360, w * 0.4);
+  const blockH = Math.min(150, h * 0.7);
+
+  if (w < 640) {
+    return {
+      cx: 0.5,
+      cy,
+      rx: Math.min(0.5, (titleHalfW + 22) / w),
+      ry: Math.min(0.44, (blockH * 0.6 + 16) / h),
+    };
+  }
+
+  const padX = 40 + Math.min(22, (w - 1024) / 90);
+  const padY = 20 + Math.min(12, (h - 280) / 35);
+
+  return {
+    cx: 0.5,
+    cy,
+    rx: Math.min(0.44, (titleHalfW + padX) / w),
+    ry: Math.min(0.42, (blockH * 0.66 + padY) / h),
+  };
+}
+
+function ellipseFrame(
+  viewportWidth: number,
+  viewportHeight: number,
+  variant: HeroFieldVariant,
+): EllipseFrame {
+  return variant === "share"
+    ? shareEllipseFrame(viewportWidth, viewportHeight)
+    : homeEllipseFrame(viewportWidth, viewportHeight);
+}
+
+function glyphEllipsePosition(
+  viewportWidth: number,
+  viewportHeight: number,
+  body: GlyphBody,
+  variant: HeroFieldVariant,
+) {
+  const { cx, cy, rx, ry } = ellipseFrame(viewportWidth, viewportHeight, variant);
+  const depth = 0.96 + body.z * 0.06;
+  const x = cx + Math.cos(body.angle) * rx * body.radius * depth;
+  const y = cy + Math.sin(body.angle) * ry * body.radius * depth;
+  return { x: x * viewportWidth, y: y * viewportHeight, cy };
 }
 
 function hexAlpha(hex: string, alpha: number) {
@@ -147,7 +268,7 @@ function drawGlyph(
   ctx.restore();
 }
 
-export function HeroField() {
+export function HeroField({ variant = "home" }: { variant?: HeroFieldVariant }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -158,8 +279,13 @@ export function HeroField() {
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
-    const pointer = { x: 0.5, y: 0.42, active: false };
-    const mouse = { x: 0.5, y: 0.42 };
+    const focusCy = variant === "share" ? SHARE_ELLIPSE_CY : ELLIPSE_CY;
+    const glyphs = glyphsForVariant(variant);
+    const motionScale = variant === "share" ? 0.82 : 1;
+    const glyphScale = variant === "share" ? 0.9 : 1;
+
+    const pointer = { x: 0.5, y: focusCy, active: false };
+    const mouse = { x: 0.5, y: focusCy };
     const bursts: { x: number; y: number; born: number }[] = [];
     let theme = readTheme();
     let monoFont = readMonoFont();
@@ -221,7 +347,7 @@ export function HeroField() {
 
       const t = (now - start) / 1000;
       const idleX = 0.5 + Math.sin(t * 0.22) * 0.12;
-      const idleY = 0.42 + Math.cos(t * 0.17) * 0.08;
+      const idleY = focusCy + Math.cos(t * 0.17) * 0.08;
       const targetX = pointer.active ? pointer.x : idleX;
       const targetY = pointer.active ? pointer.y : idleY;
       const follow = pointer.active ? 0.085 : 0.035;
@@ -236,8 +362,8 @@ export function HeroField() {
       ctx.clearRect(0, 0, width, height);
 
       const spacing = 22;
-      const radius = Math.min(width, height) * 0.28;
-      const force = 26;
+      const radius = Math.min(width, height) * 0.26;
+      const force = 17;
       const cols = Math.ceil(width / spacing) + 1;
       const rows = Math.ceil(height / spacing) + 1;
 
@@ -261,13 +387,13 @@ export function HeroField() {
             const bdx = gx - bx;
             const bdy = gy - by;
             const bd = Math.hypot(bdx, bdy) || 0.001;
-            const waveR = 24 + age * 280;
-            const crest = Math.max(0, 1 - Math.abs(bd - waveR) / 90);
-            const core = Math.exp(-age * 1.6) * Math.exp(-(bd * bd) / (160 * 160));
-            const push = crest * crest * 14 + core * 18;
+            const waveR = 18 + age * 190;
+            const crest = Math.max(0, 1 - Math.abs(bd - waveR) / 72);
+            const core = Math.exp(-age * 2.1) * Math.exp(-(bd * bd) / (210 * 210));
+            const push = crest * crest * 7 + core * 8;
             px += (bdx / bd) * push;
             py += (bdy / bd) * push;
-            burstGlow = Math.max(burstGlow, crest * 0.35 * Math.max(0, 1 - age / 1.8));
+            burstGlow = Math.max(burstGlow, crest * 0.28 * Math.max(0, 1 - age / 2));
           }
 
           const accent = ((gx / spacing + gy / spacing) | 0) % 7 === 0;
@@ -283,26 +409,26 @@ export function HeroField() {
       }
       ctx.globalAlpha = 1;
 
-      const projected = GLYPHS.map((body) => {
-        const bob = Math.sin(t * 0.55 + body.phase) * 10;
-        const sway = Math.cos(t * 0.4 + body.phase) * 8;
-        const parallax = 18 + body.z * 22;
+      const projected = glyphs.map((body) => {
+        const bob = Math.sin(t * 0.55 + body.phase) * 7 * motionScale;
+        const sway = Math.cos(t * 0.4 + body.phase) * 5 * motionScale;
+        const parallax = (14 + body.z * 16) * motionScale;
+        const base = glyphEllipsePosition(width, height, body, variant);
         let x =
-          compressGlyphX(width, body.x) * width +
+          base.x +
           sway +
-          (mouse.x - 0.5) * parallax * (pointer.active ? 1 : 0.45);
+          (mouse.x - 0.5) * parallax * (pointer.active ? 0.9 : 0.4);
         let y =
-          body.y * height +
+          base.y +
           bob +
-          (mouse.y - 0.42) * parallax * 0.7 * (pointer.active ? 1 : 0.45);
+          (mouse.y - base.cy) * parallax * 0.65 * (pointer.active ? 0.9 : 0.4);
 
         const gdx = x - mx;
         const gdy = y - my;
         const gd = Math.hypot(gdx, gdy) || 0.001;
-        const glyphRadius = Math.min(width, height) * 0.24;
-        const gFall = Math.max(0, 1 - gd / glyphRadius);
-        const gEased = gFall * gFall * (3 - 2 * gFall);
-        const push = 22 * gEased * (pointer.active ? 1.15 : 0.5);
+        const glyphRadius = Math.min(width, height) * 0.22;
+        const gFall = smoothstep(glyphRadius, 0, gd);
+        const push = 13 * gFall * (pointer.active ? 0.82 : 0.52);
         x += (gdx / gd) * push;
         y += (gdy / gd) * push;
 
@@ -313,22 +439,28 @@ export function HeroField() {
           const bdx = x - bx;
           const bdy = y - by;
           const bd = Math.hypot(bdx, bdy) || 0.001;
-          const kick = Math.exp(-age * 1.5) * Math.exp(-(bd * bd) / (280 * 280)) * 22;
+          const waveR = 16 + age * 175;
+          const crest = Math.max(0, 1 - Math.abs(bd - waveR) / 68);
+          const core = Math.exp(-age * 2.3) * Math.exp(-(bd * bd) / (340 * 340));
+          const kick = crest * crest * 6 + core * 10;
           x += (bdx / bd) * kick;
           y += (bdy / bd) * kick;
         }
 
         const scale = 0.82 + (1.15 - body.z) * 0.22;
+        const tangent = body.angle + Math.PI / 2;
         const rot =
-          Math.sin(t * 0.5 + body.phase) * 0.1 +
-          t * body.spin * 0.35 +
-          (mouse.x - 0.5) * 0.06;
+          Math.sin(t * 0.5 + body.phase) * 0.08 +
+          t * body.spin * 0.28 +
+          (mouse.x - 0.5) * 0.05 +
+          Math.sin(tangent) * 0.12;
         return { body, x, y, scale, rot };
       });
 
       for (const item of projected) {
         const fill = theme[item.body.color];
-        const uiScale = Math.min(1.28, Math.max(0.95, width / 880));
+        const uiScale =
+          Math.min(1.28, Math.max(0.95, width / 880)) * glyphScale;
         drawGlyph(
           ctx,
           item.body.glyph,
@@ -374,7 +506,7 @@ export function HeroField() {
       window.removeEventListener("pointerleave", onLeave);
       window.removeEventListener("blur", onLeave);
     };
-  }, []);
+  }, [variant]);
 
   return (
     <canvas

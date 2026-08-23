@@ -6,12 +6,39 @@ import {
   Heading,
   Hr,
   Html,
+  Img,
   Preview,
   Section,
   Text,
 } from "react-email";
 import type { CSSProperties } from "react";
 import type { Era } from "@/lib/devstory/story";
+
+const profileRow: CSSProperties = {
+  alignItems: "center",
+  display: "flex",
+  gap: "16px",
+  marginBottom: "16px",
+};
+
+const avatar: CSSProperties = {
+  border: "2px solid rgba(255, 255, 255, 0.15)",
+  borderRadius: "12px",
+  display: "block",
+  height: "64px",
+  objectFit: "cover",
+  width: "64px",
+};
+
+const handleText: CSSProperties = {
+  color: "#a1a1aa",
+  fontFamily: "ui-monospace, monospace",
+  fontSize: "13px",
+  fontWeight: 700,
+  letterSpacing: "0.12em",
+  margin: "4px 0 0",
+  textTransform: "uppercase",
+};
 
 const body: CSSProperties = {
   backgroundColor: "#09090b",
@@ -130,6 +157,8 @@ export function DevStoryEmail({
   summary,
   eras,
   username,
+  handle,
+  avatarUrl,
   ps,
   storyUrl,
 }: {
@@ -137,9 +166,13 @@ export function DevStoryEmail({
   summary: string;
   eras: Era[];
   username: string;
+  handle: string;
+  avatarUrl?: string | null;
   ps: string;
   storyUrl: string;
 }) {
+  const handleLabel = handle.startsWith("@") ? handle : `@${handle}`;
+
   return (
     <Html>
       <Head />
@@ -147,6 +180,21 @@ export function DevStoryEmail({
       <Body style={body}>
         <Container style={container}>
           <Text style={brand}>Dev Story</Text>
+          <Section style={profileRow}>
+            {avatarUrl ? (
+              <Img
+                src={avatarUrl}
+                alt={username}
+                width={64}
+                height={64}
+                style={avatar}
+              />
+            ) : null}
+            <div>
+              <Heading style={{ ...heading, margin: 0 }}>{username}</Heading>
+              <Text style={handleText}>{handleLabel}</Text>
+            </div>
+          </Section>
           <Heading style={heading}>{title}</Heading>
           <Text style={subtitle}>
             The story of {username}&apos;s invisible hours.

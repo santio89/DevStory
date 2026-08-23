@@ -48,6 +48,7 @@ export function StoryView({
         storyId={storyId}
         username={username}
         displayName={displayName}
+        brain={brain}
       />
     </div>
   );

@@ -102,6 +102,67 @@ export function LookupOrbitIcon({ className }: { className?: string }) {
   );
 }
 
+export function BrainMarkIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden
+      className={className}
+    >
+      <circle
+        cx="10.5"
+        cy="10.5"
+        r="5.75"
+        stroke="currentColor"
+        strokeWidth="1.75"
+      />
+      <path
+        d="M15.2 15.2 20 20"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+export function BiographerMarkIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden
+      className={className}
+    >
+      <path
+        d="M5 6h7v13H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1Z"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M12 6h7a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1h-7V6Z"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M12 6v13"
+        stroke="currentColor"
+        strokeWidth="1.75"
+      />
+      <path
+        d="M16 4.5 20 3v5l-4-1.5"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export function MomentSparkIcon({ className }: { className?: string }) {
   return (
     <svg

@@ -7,7 +7,9 @@ import { ShareOrbitIcon } from "@/components/story/story-decorations";
 import { Button } from "@/components/ui/button";
 import { useLocale } from "@/components/locale/locale-provider";
 import type { DevStory } from "@/lib/devstory/story";
+import type { StoryDataSnapshot } from "@/lib/devstory/minify";
 import { publicUrl } from "@/lib/site";
+import { resolveGitHubAvatar } from "@/lib/github/avatar";
 import {
   Check,
   Copy,
@@ -40,11 +42,13 @@ export function StorySharePanel({
   storyId,
   username,
   displayName,
+  brain = null,
 }: {
   story: DevStory;
   storyId?: string | null;
   username: string;
   displayName: string;
+  brain?: StoryDataSnapshot | null;
 }) {
   const { t } = useLocale();
   const [copied, setCopied] = useState(false);
@@ -85,6 +89,7 @@ export function StorySharePanel({
           story,
           displayName,
           storyId,
+          avatarUrl: resolveGitHubAvatar(brain ?? { username, avatarUrl: null }),
         }),
       });
       const json = (await res.json()) as { error?: string };

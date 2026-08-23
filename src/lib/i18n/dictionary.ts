@@ -46,7 +46,7 @@ const en = {
     tagline: "commits are letters, repos are chapters",
   },
   preview: {
-    phase: "phase 02 · the brain",
+    section: "the brain",
     title: "GitHub data",
     titleFor: (username: string) => `GitHub data for @${username}`,
     refresh: "Re-fetch",
@@ -66,7 +66,7 @@ const en = {
     genericError: "Something went wrong.",
   },
   generator: {
-    phase: "phase 03 · the biographer",
+    section: "the biographer",
     title: "Dev Story",
     titleFor: (username: string) => `Dev Story · @${username}`,
     writing: "Writing…",
@@ -267,7 +267,7 @@ const es: Messages = {
     tagline: "los commits son letras, los repos son capítulos",
   },
   preview: {
-    phase: "fase 02 · el cerebro",
+    section: "el cerebro",
     title: "Datos de GitHub",
     titleFor: (username: string) => `Datos de GitHub · @${username}`,
     refresh: "Recargar",
@@ -289,7 +289,7 @@ const es: Messages = {
     genericError: "Algo salió mal.",
   },
   generator: {
-    phase: "fase 03 · el biógrafo",
+    section: "el biógrafo",
     title: "Dev Story",
     titleFor: (username: string) => `Dev Story · @${username}`,
     writing: "Escribiendo…",

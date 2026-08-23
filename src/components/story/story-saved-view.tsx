@@ -1,35 +1,29 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Reveal } from "@/components/motion/fade-in";
-import { Timeline } from "@/components/timeline/timeline";
-import { StoryMoment } from "@/components/story/story-moment";
 import { StoryPreview } from "@/components/story/story-preview";
-import { StorySharePanel } from "@/components/story/story-share-panel";
+import { StoryView } from "@/components/story/story-view";
 import { StoryChat } from "@/components/story/story-chat";
 import { StoryTranslating } from "@/components/story/story-translating";
 import { BrainProvider, useBrain } from "@/components/story/brain-provider";
-import { DeveloperPortrait } from "@/components/story/developer-portrait";
-import { resolveToken, Sigil } from "@/components/story/sigil";
 import { useLocale } from "@/components/locale/locale-provider";
 import type { StoryDataSnapshot } from "@/lib/devstory/minify";
 import type { DevStory } from "@/lib/devstory/story";
-import type { TokenId } from "@/lib/devstory/tokens";
 import type { Locale } from "@/lib/i18n/dictionary";
-import { cn } from "@/lib/utils";
-import { Award } from "lucide-react";
 
 function StorySavedContent({
   storyId,
   githubLogin,
   username,
   story: initialStory,
+  mode,
   authoredLocale,
 }: {
   storyId: string;
   githubLogin: string;
   username: string;
   story: DevStory;
+  mode: "ai" | "mock";
   authoredLocale: Locale;
 }) {
   const { brain } = useBrain();
@@ -86,17 +80,10 @@ function StorySavedContent({
     };
   }, [initialStory, locale, authoredLocale, translations]);
 
-  const displayStory = activeStory;
-  const fingerprint = displayStory.eras
-    .map((era) => `${era.year}|${era.name}`)
-    .join("§");
-  const lastEra = displayStory.eras[displayStory.eras.length - 1] ?? displayStory.eras[0];
-  const heroToken: TokenId = lastEra ? resolveToken(lastEra) : "sprout";
-  const words = displayStory.title.split(/\s+/);
-  const pivot = Math.floor(words.length / 2);
-
   return (
     <div className="space-y-10">
+      <StoryPreview username={githubLogin} />
+
       {translationFailed && locale !== authoredLocale && (
         <p className="font-mono text-xs font-bold tracking-wider text-muted-foreground uppercase">
           {t.generator.translationFailed}
@@ -106,84 +93,18 @@ function StorySavedContent({
       {translating ? (
         <StoryTranslating />
       ) : (
-        <>
-          <Reveal variant="subtle">
-        <div className="relative rounded-none border-2 border-foreground bg-card px-6 py-8 shadow-hard sm:px-10 sm:py-10">
-        <span className="pointer-events-none absolute top-5 right-5 size-6 rounded-full border-2 border-foreground bg-bauhaus-sky/30" />
-        <div className="pointer-events-none absolute -top-8 -right-8 opacity-[0.08]">
-          <Sigil token={heroToken} className="size-56" />
-        </div>
-        <div className="relative">
-          <div className="flex flex-col gap-8 sm:flex-row sm:items-start">
-            {brain ? (
-              <DeveloperPortrait
-                data={brain}
-                size="lg"
-                className="shrink-0 sm:pt-1"
-              />
-            ) : null}
-            <div className="min-w-0 flex-1">
-          {displayStory.archetype && (
-            <span className="inline-flex w-fit items-center gap-1.5 rounded-none border-2 border-foreground bg-bauhaus-pink/20 px-2.5 py-1 font-mono text-xs font-bold tracking-[0.2em] text-foreground uppercase shadow-hard-sm">
-              <Award className="size-3 text-bauhaus-deep" />
-              {t.story.archetype} · {displayStory.archetype}
-            </span>
-          )}
-          <h1 className="mt-4 max-w-3xl font-heading text-3xl leading-[1.1] font-black tracking-normal text-balance uppercase sm:text-4xl">
-            {words.map((word, i) => (
-              <span
-                key={`${word}-${i}`}
-                className={cn(i > 0 && i >= pivot && "text-bauhaus-deep")}
-              >
-                {word}{" "}
-              </span>
-            ))}
-          </h1>
-          <p className="mt-4 max-w-2xl text-base leading-relaxed text-pretty text-muted-foreground">
-            {displayStory.summary}
-          </p>
-            </div>
-          </div>
-        </div>
-        </div>
-      </Reveal>
-
-      <Timeline eras={displayStory.eras} data={brain} />
-
-      {displayStory.closing ? (
-        <Reveal variant="subtle">
-          <div className="relative rounded-none border-2 border-foreground bg-bauhaus-yellow p-6 text-bauhaus-ink shadow-hard sm:p-8">
-          <span className="pointer-events-none absolute top-4 right-4 size-4 rotate-45 rounded-none bg-bauhaus-deep" />
-          <p className="font-mono text-xs font-bold tracking-[0.25em] uppercase">
-            {t.story.closingLabel}
-          </p>
-          <p className="mt-3 font-heading text-lg leading-relaxed font-bold text-balance sm:text-xl">
-            {displayStory.closing}
-          </p>
-        </div>
-        </Reveal>
-      ) : null}
-
-      <StoryMoment
-        key={fingerprint}
-        story={displayStory}
-        data={brain}
-        fingerprint={fingerprint}
-      />
-        </>
+        <StoryView
+          story={activeStory}
+          mode={mode}
+          username={githubLogin}
+          displayName={username}
+          brain={brain}
+          storyId={storyId}
+        />
       )}
 
-      <StoryPreview username={githubLogin} />
-
-      <StorySharePanel
-        story={displayStory}
-        storyId={storyId}
-        username={githubLogin}
-        displayName={username}
-      />
-
       <StoryChat
-        story={displayStory}
+        story={activeStory}
         brain={brain}
         username={githubLogin}
         storageScope={storyId}
@@ -198,6 +119,7 @@ export function StorySavedView({
   username,
   story,
   data,
+  mode,
   authoredLocale,
 }: {
   storyId: string;
@@ -219,6 +141,7 @@ export function StorySavedView({
         githubLogin={githubLogin}
         username={username}
         story={story}
+        mode={mode}
         authoredLocale={authoredLocale}
       />
     </BrainProvider>

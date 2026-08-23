@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { langColor } from "@/components/story/languages";
 import { DeveloperPortrait } from "@/components/story/developer-portrait";
 import { ProfileCaption } from "@/components/story/profile-caption";
+import { SectionTitle } from "@/components/story/section-title";
 import { useBrain } from "@/components/story/brain-provider";
 import { BrainPreviewSkeleton } from "@/components/story/story-loading-skeletons";
 import { useLocale } from "@/components/locale/locale-provider";
@@ -221,14 +222,11 @@ export function StoryPreview({ username }: { username: string }) {
     <div className="space-y-6">
       <Reveal variant="subtle">
       <div className="flex items-start justify-between gap-4">
-        <div className="min-w-0 flex-1">
-          <p className="font-mono text-xs font-bold tracking-[0.2em] text-muted-foreground uppercase">
-            {t.preview.phase}
-          </p>
-          <h2 className="mt-1 font-heading text-2xl font-black tracking-normal text-balance uppercase">
-            {displayData ? t.preview.title : t.preview.titleFor(username)}
-          </h2>
-        </div>
+        <SectionTitle
+          section={t.preview.section}
+          title={displayData ? t.preview.title : t.preview.titleFor(username)}
+          mark="brain"
+        />
         <Button
           type="button"
           variant="outline"

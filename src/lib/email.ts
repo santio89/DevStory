@@ -1,6 +1,7 @@
 import { render } from "react-email";
 import { DevStoryEmail } from "@/components/emails/devstory-email";
 import type { DevStory } from "@/lib/devstory/story";
+import { resolveGitHubAvatar } from "@/lib/github/avatar";
 import {
   EmailSendError,
   getActiveEmailProvider,
@@ -20,6 +21,8 @@ export async function sendStoryEmail({
   subject,
   ps,
   username,
+  handle,
+  avatarUrl,
   storyUrl,
 }: {
   to: string;
@@ -27,6 +30,8 @@ export async function sendStoryEmail({
   subject: string;
   ps: string;
   username: string;
+  handle: string;
+  avatarUrl?: string | null;
   storyUrl: string;
 }) {
   const email = DevStoryEmail({
@@ -34,6 +39,8 @@ export async function sendStoryEmail({
     summary: story.summary,
     eras: story.eras,
     username,
+    handle,
+    avatarUrl,
     ps,
     storyUrl,
   });

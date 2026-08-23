@@ -7,6 +7,7 @@ import {
   isValidGitHubUsername,
   normalizeGitHubUsername,
 } from "@/lib/github/username";
+import { resolveGitHubAvatar } from "@/lib/github/avatar";
 import { publicUrl } from "@/lib/site";
 
 export const maxDuration = 60;
@@ -17,6 +18,7 @@ const bodySchema = z.object({
   story: storySchema,
   displayName: z.string().min(1).max(120).optional(),
   storyId: z.string().uuid().optional(),
+  avatarUrl: z.string().url().max(512).optional().nullable(),
 });
 
 export async function POST(request: Request) {
@@ -41,6 +43,9 @@ export async function POST(request: Request) {
   const username = normalizeGitHubUsername(parsed.username);
   const normalizedEmail = parsed.email.toLowerCase();
   const displayName = parsed.displayName ?? username;
+  const avatarUrl =
+    parsed.avatarUrl?.trim() ||
+    resolveGitHubAvatar({ username, avatarUrl: parsed.avatarUrl ?? null });
 
   const storyUrl = parsed.storyId
     ? publicUrl(`/story/${parsed.storyId}`)
@@ -54,6 +59,8 @@ export async function POST(request: Request) {
       subject: copy.subject,
       ps: copy.ps,
       username: displayName,
+      handle: username,
+      avatarUrl,
       storyUrl,
     });
     return NextResponse.json({ ok: true });

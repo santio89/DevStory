@@ -9,6 +9,7 @@ import { StoryView } from "@/components/story/story-view";
 import { StoryChat } from "@/components/story/story-chat";
 import { StoryTranslating } from "@/components/story/story-translating";
 import { BiographerSkeleton } from "@/components/story/story-loading-skeletons";
+import { SectionTitle } from "@/components/story/section-title";
 import { useLocale } from "@/components/locale/locale-provider";
 import type { DevStory } from "@/lib/devstory/story";
 import type { StoryDataSnapshot } from "@/lib/devstory/minify";
@@ -220,14 +221,11 @@ export function StoryGenerator({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
-        <div>
-          <p className="font-mono text-xs font-bold tracking-[0.2em] text-muted-foreground uppercase">
-            {t.generator.phase}
-          </p>
-          <h2 className="mt-1 font-heading text-2xl font-black tracking-normal text-balance uppercase">
-            {story || brain ? t.generator.title : t.generator.titleFor(username)}
-          </h2>
-        </div>
+        <SectionTitle
+          section={t.generator.section}
+          title={story || brain ? t.generator.title : t.generator.titleFor(username)}
+          mark="biographer"
+        />
         <Button
           onClick={() => void handleGenerate()}
           disabled={loading || translating || !brain}

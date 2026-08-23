@@ -21,7 +21,7 @@ export function HeroStageBackground({
     >
       <div
         className={cn(
-          "bauhaus-grid absolute inset-0 hidden opacity-50 motion-reduce:block",
+          "bauhaus-grid absolute inset-0 hidden opacity-55 motion-reduce:block",
           mask,
         )}
       />

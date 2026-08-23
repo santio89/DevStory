@@ -13,6 +13,7 @@ import {
 import { cn } from "@/lib/utils";
 import type { Era } from "@/lib/devstory/story";
 import type { StoryDataSnapshot } from "@/lib/devstory/minify";
+import { DeveloperPortrait } from "@/components/story/developer-portrait";
 import { BookOpen, Loader2 } from "lucide-react";
 
 type Dive = { narrative: string; highlights: string[] };
@@ -193,12 +194,35 @@ export function Timeline({
 }) {
   return (
     <div className="relative">
+      {data ? (
+        <motion.div
+          initial={timelineReveal.initial}
+          whileInView={timelineReveal.visible}
+          viewport={revealViewport}
+          transition={fluidSpring}
+          className="relative z-20 mb-12 sm:mb-16"
+        >
+          <div className="absolute left-4 flex -translate-x-1/2 flex-col items-center sm:left-1/2">
+            <p className="mb-2 bg-background px-1.5 font-mono text-xs font-bold tracking-[0.22em] text-foreground uppercase">
+              @{data.username}
+            </p>
+            <DeveloperPortrait data={data} size="timeline" />
+          </div>
+          <div
+            className="h-[calc(1.5rem+4.5rem)] sm:h-[calc(1.5rem+6rem)]"
+            aria-hidden
+          />
+        </motion.div>
+      ) : null}
       <motion.div
         initial={{ scaleY: 0, opacity: 0 }}
         whileInView={{ scaleY: 1, opacity: 1 }}
         viewport={revealViewport}
         transition={fluidSpring}
-        className="absolute top-0 bottom-0 left-4 h-full w-[3px] origin-top -translate-x-1/2 bg-foreground sm:left-1/2"
+        className={cn(
+          "absolute bottom-0 left-4 w-[3px] origin-top -translate-x-1/2 bg-foreground sm:left-1/2",
+          data ? "top-6" : "top-0",
+        )}
       />
       <div className="space-y-12 sm:space-y-16">
         {eras.map((era, index) => (

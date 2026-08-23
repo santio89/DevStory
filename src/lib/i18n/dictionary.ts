@@ -206,6 +206,7 @@ const en = {
     translating: "Translating…",
     closingLabel: "the journey continues",
     archetype: "archetype",
+    portraitSince: (year: string) => `Est. ${year}`,
   },
   sharePage: {
     of: (name: string) => `${name}'s Dev Story`,
@@ -428,6 +429,7 @@ const es: Messages = {
     translating: "Traduciendo…",
     closingLabel: "el viaje continúa",
     archetype: "arquetipo",
+    portraitSince: (year: string) => `Desde ${year}`,
   },
   sharePage: {
     of: (name: string) => `Dev Story de ${name}`,

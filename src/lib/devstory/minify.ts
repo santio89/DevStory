@@ -18,6 +18,7 @@ export type BrainCommitSample = {
 export type StoryDataSnapshot = {
   username: string;
   name: string;
+  avatarUrl?: string | null;
   memberSince: string | null;
   profile: {
     bio: string | null;
@@ -107,6 +108,7 @@ export function summarizeStoryData(
   return {
     username: data.username,
     name: data.name,
+    avatarUrl: data.avatarUrl,
     memberSince: data.profile.createdAt,
     profile: {
       bio: data.profile.bio,
@@ -205,6 +207,7 @@ export function normalizeBrainSnapshot(
 
   return {
     ...snapshot,
+    avatarUrl: snapshot.avatarUrl ?? null,
     profile: snapshot.profile ?? {
       bio: null,
       location: null,
@@ -282,7 +285,7 @@ export function snapshotToDevStoryData(
   return {
     username: snapshot.username,
     name: snapshot.name,
-    avatarUrl: "",
+    avatarUrl: snapshot.avatarUrl ?? "",
     profile: {
       bio: snapshot.profile.bio,
       location: snapshot.profile.location,

@@ -9,6 +9,7 @@ import { StorySharePanel } from "@/components/story/story-share-panel";
 import { StoryChat } from "@/components/story/story-chat";
 import { StoryTranslating } from "@/components/story/story-translating";
 import { BrainProvider, useBrain } from "@/components/story/brain-provider";
+import { DeveloperPortrait } from "@/components/story/developer-portrait";
 import { resolveToken, Sigil } from "@/components/story/sigil";
 import { useLocale } from "@/components/locale/locale-provider";
 import type { StoryDataSnapshot } from "@/lib/devstory/minify";
@@ -113,6 +114,16 @@ function StorySavedContent({
           <Sigil token={heroToken} className="size-56" />
         </div>
         <div className="relative">
+          <div className="flex flex-col gap-8 sm:flex-row sm:items-start">
+            {brain ? (
+              <DeveloperPortrait
+                data={brain}
+                size="lg"
+                showHandle
+                className="shrink-0 sm:pt-1"
+              />
+            ) : null}
+            <div className="min-w-0 flex-1">
           {displayStory.archetype && (
             <span className="inline-flex w-fit items-center gap-1.5 rounded-none border-2 border-foreground bg-bauhaus-pink/20 px-2.5 py-1 font-mono text-xs font-bold tracking-[0.2em] text-foreground uppercase shadow-hard-sm">
               <Award className="size-3 text-bauhaus-deep" />
@@ -132,9 +143,8 @@ function StorySavedContent({
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-pretty text-muted-foreground">
             {displayStory.summary}
           </p>
-          <p className="mt-3 font-mono text-xs font-bold tracking-[0.25em] text-muted-foreground uppercase">
-            @{githubLogin}
-          </p>
+            </div>
+          </div>
         </div>
         </div>
       </Reveal>

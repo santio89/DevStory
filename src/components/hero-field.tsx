@@ -10,6 +10,8 @@ import { cn } from "@/lib/utils";
 
 type Theme = {
   foreground: string;
+  background: string;
+  ink: string;
   yellow: string;
   cyan: string;
   deep: string;
@@ -17,11 +19,9 @@ type Theme = {
   sky: string;
 };
 
-type Kind = "circle" | "square" | "diamond" | "plus" | "triangle" | "x";
-
-type Body = {
-  kind: Kind;
-  color: keyof Omit<Theme, "foreground">;
+type GlyphBody = {
+  glyph: string;
+  color: keyof Omit<Theme, "foreground" | "background" | "ink">;
   x: number;
   y: number;
   z: number;
@@ -30,17 +30,20 @@ type Body = {
   phase: number;
 };
 
-const BODIES: Body[] = [
-  { kind: "circle", color: "yellow", x: 0.18, y: 0.22, z: 0.55, size: 18, spin: 0.12, phase: 0.2 },
-  { kind: "square", color: "deep", x: 0.82, y: 0.2, z: 0.9, size: 16, spin: -0.08, phase: 1.1 },
-  { kind: "diamond", color: "pink", x: 0.2, y: 0.72, z: 0.7, size: 14, spin: 0.18, phase: 2.4 },
-  { kind: "plus", color: "cyan", x: 0.84, y: 0.68, z: 0.45, size: 20, spin: -0.14, phase: 0.7 },
-  { kind: "square", color: "sky", x: 0.16, y: 0.46, z: 1.1, size: 10, spin: 0.22, phase: 1.8 },
-  { kind: "circle", color: "deep", x: 0.88, y: 0.42, z: 0.35, size: 12, spin: -0.1, phase: 3.1 },
-  { kind: "triangle", color: "cyan", x: 0.14, y: 0.34, z: 0.65, size: 15, spin: -0.11, phase: 1.4 },
-  { kind: "triangle", color: "yellow", x: 0.86, y: 0.61, z: 0.6, size: 13, spin: 0.13, phase: 2.7 },
-  { kind: "diamond", color: "yellow", x: 0.76, y: 0.84, z: 0.8, size: 11, spin: 0.16, phase: 2.0 },
-  { kind: "x", color: "pink", x: 0.22, y: 0.84, z: 0.75, size: 11, spin: -0.15, phase: 3.4 },
+/** Six per flank — programming tokens, text-only with soft shadow. */
+const GLYPHS: GlyphBody[] = [
+  { glyph: "< />", color: "yellow", x: 0.13, y: 0.17, z: 0.55, size: 13, spin: 0.05, phase: 0.2 },
+  { glyph: "{ }", color: "deep", x: 0.87, y: 0.19, z: 0.85, size: 14, spin: -0.04, phase: 1.0 },
+  { glyph: "[ ]", color: "sky", x: 0.15, y: 0.31, z: 0.7, size: 13, spin: 0.06, phase: 1.6 },
+  { glyph: "=>", color: "cyan", x: 0.85, y: 0.33, z: 0.5, size: 13, spin: -0.05, phase: 2.2 },
+  { glyph: "&&", color: "sky", x: 0.12, y: 0.45, z: 0.9, size: 12, spin: 0.07, phase: 0.8 },
+  { glyph: "||", color: "pink", x: 0.88, y: 0.46, z: 0.65, size: 12, spin: -0.06, phase: 2.8 },
+  { glyph: "::", color: "cyan", x: 0.16, y: 0.58, z: 0.6, size: 12, spin: 0.04, phase: 3.1 },
+  { glyph: "//", color: "yellow", x: 0.84, y: 0.59, z: 0.75, size: 12, spin: -0.05, phase: 1.3 },
+  { glyph: ";", color: "cyan", x: 0.14, y: 0.71, z: 0.45, size: 15, spin: 0.08, phase: 2.5 },
+  { glyph: "...", color: "pink", x: 0.86, y: 0.72, z: 0.8, size: 13, spin: -0.03, phase: 0.5 },
+  { glyph: "??", color: "yellow", x: 0.18, y: 0.84, z: 0.7, size: 12, spin: 0.05, phase: 3.6 },
+  { glyph: "( )", color: "deep", x: 0.82, y: 0.85, z: 0.55, size: 12, spin: -0.06, phase: 1.9 },
 ];
 
 function readTheme(): Theme {
@@ -48,12 +51,20 @@ function readTheme(): Theme {
   const v = (name: string) => css.getPropertyValue(name).trim();
   return {
     foreground: v("--foreground") || "#f0f0f0",
+    background: v("--background") || "#0a0a0a",
+    ink: v("--bauhaus-ink") || "#121212",
     yellow: v("--bauhaus-yellow") || "#f0c020",
     cyan: v("--bauhaus-cyan") || "#22d3ee",
     deep: v("--bauhaus-deep") || "#1040c0",
     pink: v("--bauhaus-pink") || "#f9a8d4",
     sky: v("--bauhaus-sky") || "#38bdf8",
   };
+}
+
+function readMonoFont() {
+  const css = getComputedStyle(document.documentElement);
+  const family = css.getPropertyValue("--font-mono").trim();
+  return family || '"JetBrains Mono", ui-monospace, monospace';
 }
 
 function prefersReducedMotion() {
@@ -82,73 +93,41 @@ function hexAlpha(hex: string, alpha: number) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-function drawBody(
+function drawGlyph(
   ctx: CanvasRenderingContext2D,
-  kind: Kind,
+  glyph: string,
   x: number,
   y: number,
-  size: number,
+  fontSize: number,
   rot: number,
+  theme: Theme,
   fill: string,
-  stroke: string,
+  monoFont: string,
 ) {
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(rot);
-  ctx.fillStyle = fill;
-  ctx.strokeStyle = stroke;
-  ctx.lineWidth = 1.5;
-  ctx.lineJoin = "miter";
-  ctx.lineCap = "square";
 
-  const s = size;
-  if (kind === "circle") {
-    ctx.beginPath();
-    ctx.arc(0, 0, s / 2, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.stroke();
-  } else if (kind === "square") {
-    ctx.fillRect(-s / 2, -s / 2, s, s);
-    ctx.strokeRect(-s / 2, -s / 2, s, s);
-  } else if (kind === "diamond") {
-    ctx.beginPath();
-    ctx.moveTo(0, -s / 2);
-    ctx.lineTo(s / 2, 0);
-    ctx.lineTo(0, s / 2);
-    ctx.lineTo(-s / 2, 0);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-  } else if (kind === "triangle") {
-    ctx.beginPath();
-    ctx.moveTo(0, -s / 2);
-    ctx.lineTo(s / 2, s / 2);
-    ctx.lineTo(-s / 2, s / 2);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-  } else if (kind === "x") {
-    const h = s / 2;
-    ctx.beginPath();
-    ctx.moveTo(-h, -h);
-    ctx.lineTo(h, h);
-    ctx.moveTo(h, -h);
-    ctx.lineTo(-h, h);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(0, 0, 2.2, 0, Math.PI * 2);
-    ctx.fill();
-  } else {
-    ctx.beginPath();
-    ctx.moveTo(-s / 2, 0);
-    ctx.lineTo(s / 2, 0);
-    ctx.moveTo(0, -s / 2);
-    ctx.lineTo(0, s / 2);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(0, 0, 2.2, 0, Math.PI * 2);
-    ctx.fill();
-  }
+  const weight = 700;
+  ctx.font = `${weight} ${fontSize}px ${monoFont}`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  ctx.globalAlpha = 0.42;
+  ctx.shadowColor = hexAlpha(theme.foreground, 0.55);
+  ctx.shadowBlur = fontSize * 0.35;
+  ctx.shadowOffsetX = 2;
+  ctx.shadowOffsetY = 2;
+  ctx.fillStyle = fill;
+  ctx.fillText(glyph, 0, fontSize * 0.06);
+
+  ctx.shadowBlur = fontSize * 0.55;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 0;
+  ctx.shadowColor = hexAlpha(fill, 0.35);
+  ctx.globalAlpha = 0.58;
+  ctx.fillText(glyph, 0, fontSize * 0.06);
+
   ctx.restore();
 }
 
@@ -167,6 +146,10 @@ export function HeroField() {
     const mouse = { x: 0.5, y: 0.42 };
     const bursts: { x: number; y: number; born: number }[] = [];
     let theme = readTheme();
+    let monoFont = readMonoFont();
+    void document.fonts?.ready.then(() => {
+      monoFont = readMonoFont();
+    });
     let width = 0;
     let height = 0;
     let dpr = 1;
@@ -284,7 +267,7 @@ export function HeroField() {
       }
       ctx.globalAlpha = 1;
 
-      const projected = BODIES.map((body, i) => {
+      const projected = GLYPHS.map((body) => {
         const bob = Math.sin(t * 0.55 + body.phase) * 10;
         const sway = Math.cos(t * 0.4 + body.phase) * 8;
         const parallax = 18 + body.z * 22;
@@ -297,6 +280,16 @@ export function HeroField() {
           bob +
           (mouse.y - 0.42) * parallax * 0.7 * (pointer.active ? 1 : 0.45);
 
+        const gdx = x - mx;
+        const gdy = y - my;
+        const gd = Math.hypot(gdx, gdy) || 0.001;
+        const glyphRadius = Math.min(width, height) * 0.24;
+        const gFall = Math.max(0, 1 - gd / glyphRadius);
+        const gEased = gFall * gFall * (3 - 2 * gFall);
+        const push = 22 * gEased * (pointer.active ? 1.15 : 0.5);
+        x += (gdx / gd) * push;
+        y += (gdy / gd) * push;
+
         for (const burst of bursts) {
           const age = (now - burst.born) / 1000;
           const bx = burst.x * width;
@@ -304,27 +297,32 @@ export function HeroField() {
           const bdx = x - bx;
           const bdy = y - by;
           const bd = Math.hypot(bdx, bdy) || 0.001;
-          const kick = Math.exp(-age * 1.5) * Math.exp(-(bd * bd) / (280 * 280)) * 18;
+          const kick = Math.exp(-age * 1.5) * Math.exp(-(bd * bd) / (280 * 280)) * 22;
           x += (bdx / bd) * kick;
           y += (bdy / bd) * kick;
         }
 
-        const scale = 0.72 + (1.15 - body.z) * 0.28;
-        const rot = t * body.spin + i * 0.4;
+        const scale = 0.82 + (1.15 - body.z) * 0.22;
+        const rot =
+          Math.sin(t * 0.5 + body.phase) * 0.1 +
+          t * body.spin * 0.35 +
+          (mouse.x - 0.5) * 0.06;
         return { body, x, y, scale, rot };
       });
 
       for (const item of projected) {
-        const color = theme[item.body.color];
-        drawBody(
+        const fill = theme[item.body.color];
+        const uiScale = Math.min(1.28, Math.max(0.95, width / 880));
+        drawGlyph(
           ctx,
-          item.body.kind,
+          item.body.glyph,
           item.x,
           item.y,
-          item.body.size * item.scale,
+          item.body.size * item.scale * uiScale,
           item.rot,
-          hexAlpha(color, 0.14),
-          hexAlpha(color, 0.85),
+          theme,
+          fill,
+          monoFont,
         );
       }
     };
@@ -338,6 +336,7 @@ export function HeroField() {
 
     const themeWatch = new MutationObserver(() => {
       theme = readTheme();
+      monoFont = readMonoFont();
     });
     themeWatch.observe(document.documentElement, {
       attributes: true,

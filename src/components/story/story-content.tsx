@@ -3,6 +3,7 @@
 import { Reveal } from "@/components/motion/fade-in";
 import { Timeline } from "@/components/timeline/timeline";
 import { StoryHear } from "@/components/story/story-hear";
+import { DeveloperPortrait } from "@/components/story/developer-portrait";
 import { resolveToken, Sigil } from "@/components/story/sigil";
 import { useLocale } from "@/components/locale/locale-provider";
 import { cn } from "@/lib/utils";
@@ -37,6 +38,16 @@ export function StoryContent({
         </div>
 
         <div className="relative">
+          <div className="flex flex-col gap-8 sm:flex-row sm:items-start">
+            {data ? (
+              <DeveloperPortrait
+                data={data}
+                size="lg"
+                showHandle
+                className="shrink-0 sm:pt-1"
+              />
+            ) : null}
+            <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             {mode === "ai" && (
               <span className="inline-flex w-fit items-center gap-1.5 rounded-none border-2 border-foreground bg-background px-2.5 py-1 font-mono text-xs font-bold tracking-[0.2em] text-foreground uppercase shadow-hard-sm">
@@ -66,6 +77,8 @@ export function StoryContent({
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-pretty text-muted-foreground sm:text-lg">
             {story.summary}
           </p>
+            </div>
+          </div>
         </div>
         </div>
       </Reveal>

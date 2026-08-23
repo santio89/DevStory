@@ -25,15 +25,15 @@ const en = {
     title: "How it works",
     one: {
       t: "Every commit is a chapter",
-      d: "We read public repository history, from the first hello world to the latest refactor, and find the moments that mattered.",
+      d: "We read their public GitHub history — repos, languages, and commits.",
     },
     two: {
-      t: "AI-written narrative",
-      d: "A language model trained as a biographer turns raw git data into eras: The Hello World Era, The Framework Awakening.",
+      t: "The biographer writes",
+      d: "Git data becomes named eras told in narrative prose.",
     },
     three: {
-      t: "A timeline that moves you",
-      d: "Scroll through a beautifully animated vertical timeline that builds the story in front of your eyes.",
+      t: "Follow the timeline",
+      d: "Scroll year by year through each era on a vertical timeline.",
     },
   },
   marquee: [
@@ -254,15 +254,15 @@ const es: Messages = {
     title: "Cómo funciona",
     one: {
       t: "Cada commit es un capítulo",
-      d: "Leemos el historial público de repositorios, desde el primer hola mundo hasta el último refactor, y encontramos los momentos que importaron.",
+      d: "Leemos su historial público en GitHub: repos, lenguajes y commits.",
     },
     two: {
-      t: "Narrativa escrita por IA",
-      d: "Un modelo de lenguaje entrenado como biógrafo convierte los datos crudos de git en épocas: La Era del Hola Mundo, El Despertar de los Frameworks.",
+      t: "El biógrafo escribe",
+      d: "Los datos de git se convierten en épocas con nombre, en prosa narrativa.",
     },
     three: {
-      t: "Una línea de tiempo que te emociona",
-      d: "Desplázate por una línea de tiempo vertical bellamente animada que construye la historia frente a tus ojos.",
+      t: "Sigue la línea de tiempo",
+      d: "Desplázate año a año por cada época en una línea de tiempo vertical.",
     },
   },
   marquee: [

@@ -82,6 +82,15 @@ function lerp(a: number, b: number, t: number) {
   return a + (b - a) * t;
 }
 
+/** Pull flank glyphs toward center on wide viewports; mobile stays as authored. */
+function compressGlyphX(viewportWidth: number, x: number) {
+  if (viewportWidth < 768) return x;
+
+  const t = Math.min(1, (viewportWidth - 768) / 640);
+  const factor = 1 - t * 0.32;
+  return 0.5 + (x - 0.5) * factor;
+}
+
 function hexAlpha(hex: string, alpha: number) {
   const n = hex.replace("#", "").trim();
   const full =
@@ -279,7 +288,7 @@ export function HeroField() {
         const sway = Math.cos(t * 0.4 + body.phase) * 8;
         const parallax = 18 + body.z * 22;
         let x =
-          body.x * width +
+          compressGlyphX(width, body.x) * width +
           sway +
           (mouse.x - 0.5) * parallax * (pointer.active ? 1 : 0.45);
         let y =

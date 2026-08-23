@@ -9,9 +9,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { GitCommit, Sparkles, TerminalSquare } from "lucide-react";
+import { BookOpen, GitCommit, Milestone } from "lucide-react";
 
-const FEATURE_ICONS = [GitCommit, Sparkles, TerminalSquare];
+const FEATURE_ICONS = [GitCommit, BookOpen, Milestone];
 const FEATURE_ICON_COLORS = [
   "text-bauhaus-deep",
   "text-bauhaus-cyan",

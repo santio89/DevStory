@@ -105,7 +105,16 @@ const EMAIL_SYSTEM_PROMPT = `You are Dev Story's letter writer. Given a develope
 
 Return exactly the schema.`;
 
-export async function generateEmailCopy(story: DevStory): Promise<EmailCopy> {
+function emailLocaleInstruction(locale: Locale): string {
+  return locale === "es"
+    ? "Write the subject line and P.S. in Spanish."
+    : "Write the subject line and P.S. in English.";
+}
+
+export async function generateEmailCopy(
+  story: DevStory,
+  locale: Locale = "en",
+): Promise<EmailCopy> {
   if (!hasAIProviderConfigured()) {
     return { subject: story.title, ps: "" };
   }
@@ -123,7 +132,7 @@ export async function generateEmailCopy(story: DevStory): Promise<EmailCopy> {
           description: "An email subject line and closing P.S. for a Dev Story email",
           schema: emailCopySchema,
         }),
-        system: EMAIL_SYSTEM_PROMPT,
+        system: `${EMAIL_SYSTEM_PROMPT}\n\n${emailLocaleInstruction(locale)}`,
         prompt: `Title: ${story.title}\n\nSummary: ${story.summary}\n\nEras:\n${eras}`,
         temperature: 0.9,
         maxOutputTokens: 150,

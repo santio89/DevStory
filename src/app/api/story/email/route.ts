@@ -3,6 +3,7 @@ import { z } from "zod";
 import { generateEmailCopy } from "@/lib/devstory/generate";
 import { storySchema } from "@/lib/devstory/story";
 import { sendStoryEmail, EmailSendError, hasEmailConfigured } from "@/lib/email";
+import { dictionary, isLocale } from "@/lib/i18n/dictionary";
 import {
   isValidGitHubUsername,
   normalizeGitHubUsername,
@@ -19,6 +20,7 @@ const bodySchema = z.object({
   displayName: z.string().min(1).max(120).optional(),
   storyId: z.string().uuid().optional(),
   avatarUrl: z.string().url().max(512).optional().nullable(),
+  locale: z.string().optional(),
 });
 
 export async function POST(request: Request) {
@@ -43,6 +45,8 @@ export async function POST(request: Request) {
   const username = normalizeGitHubUsername(parsed.username);
   const normalizedEmail = parsed.email.toLowerCase();
   const displayName = parsed.displayName ?? username;
+  const locale = isLocale(parsed.locale) ? parsed.locale : "en";
+  const t = dictionary[locale].share;
   const avatarUrl =
     parsed.avatarUrl?.trim() ||
     resolveGitHubAvatar({ username, avatarUrl: parsed.avatarUrl ?? null });
@@ -52,7 +56,7 @@ export async function POST(request: Request) {
     : publicUrl(`/?u=${encodeURIComponent(username)}`);
 
   try {
-    const copy = await generateEmailCopy(parsed.story);
+    const copy = await generateEmailCopy(parsed.story, locale);
     await sendStoryEmail({
       to: normalizedEmail,
       story: parsed.story,
@@ -62,6 +66,15 @@ export async function POST(request: Request) {
       handle: username,
       avatarUrl,
       storyUrl,
+      locale,
+      labels: {
+        brand: t.emailBrand,
+        subtitle: t.emailSubtitleFor(displayName),
+        blurb: t.emailBlurbFor(displayName),
+        cta: t.emailCtaFor(displayName),
+        psLabel: t.emailPsLabel,
+        footer: t.emailFooter,
+      },
     });
     return NextResponse.json({ ok: true });
   } catch (error) {

@@ -50,7 +50,7 @@ export function StorySharePanel({
   displayName: string;
   brain?: StoryDataSnapshot | null;
 }) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const [copied, setCopied] = useState(false);
   const [email, setEmail] = useState("");
   const [emailStatus, setEmailStatus] = useState<
@@ -89,6 +89,7 @@ export function StorySharePanel({
           story,
           displayName,
           storyId,
+          locale,
           avatarUrl: resolveGitHubAvatar(brain ?? { username, avatarUrl: null }),
         }),
       });

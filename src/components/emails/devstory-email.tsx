@@ -152,6 +152,15 @@ const footer: CSSProperties = {
   margin: 0,
 };
 
+export type EmailTemplateLabels = {
+  brand: string;
+  subtitle: string;
+  blurb: string;
+  cta: string;
+  psLabel: string;
+  footer: string;
+};
+
 export function DevStoryEmail({
   title,
   summary,
@@ -161,6 +170,8 @@ export function DevStoryEmail({
   avatarUrl,
   ps,
   storyUrl,
+  labels,
+  locale = "en",
 }: {
   title: string;
   summary: string;
@@ -170,16 +181,18 @@ export function DevStoryEmail({
   avatarUrl?: string | null;
   ps: string;
   storyUrl: string;
+  labels: EmailTemplateLabels;
+  locale?: "en" | "es";
 }) {
   const handleLabel = handle.startsWith("@") ? handle : `@${handle}`;
 
   return (
-    <Html>
+    <Html lang={locale}>
       <Head />
       <Preview>{summary}</Preview>
       <Body style={body}>
         <Container style={container}>
-          <Text style={brand}>Dev Story</Text>
+          <Text style={brand}>{labels.brand}</Text>
           <Section style={profileRow}>
             {avatarUrl ? (
               <Img
@@ -196,9 +209,7 @@ export function DevStoryEmail({
             </div>
           </Section>
           <Heading style={heading}>{title}</Heading>
-          <Text style={subtitle}>
-            The story of {username}&apos;s invisible hours.
-          </Text>
+          <Text style={subtitle}>{labels.subtitle}</Text>
           <Text style={summaryText}>{summary}</Text>
           <Hr style={hr} />
           {eras.map((era) => (
@@ -209,18 +220,19 @@ export function DevStoryEmail({
             </Section>
           ))}
           <Hr style={hr} />
-          <Text style={muted}>
-            {username}&apos;s Dev Story is a narrative timeline generated from
-            their GitHub history. Commits are letters, repos are chapters.
-          </Text>
+          <Text style={muted}>{labels.blurb}</Text>
           <Section style={cta}>
             <Button href={storyUrl} style={button}>
-              Read {username}&apos;s full story
+              {labels.cta}
             </Button>
           </Section>
-          {ps ? <Text style={psText}>P.S. {ps}</Text> : null}
+          {ps ? (
+            <Text style={psText}>
+              {labels.psLabel} {ps}
+            </Text>
+          ) : null}
           <Hr style={hr} />
-          <Text style={footer}>Crafted by Dev Story</Text>
+          <Text style={footer}>{labels.footer}</Text>
         </Container>
       </Body>
     </Html>

@@ -113,6 +113,14 @@ const en = {
     telegram: "Send on Telegram",
     embed: "Copy embed code",
     embedCopied: "Embed code copied!",
+    emailBrand: "Dev Story",
+    emailSubtitleFor: (name: string) =>
+      `The story of ${name}'s invisible hours.`,
+    emailBlurbFor: (name: string) =>
+      `${name}'s Dev Story is a narrative timeline generated from their GitHub history. Commits are letters, repos are chapters.`,
+    emailCtaFor: (name: string) => `Read ${name}'s full story`,
+    emailPsLabel: "P.S.",
+    emailFooter: "Crafted by Dev Story",
   },
   play: {
     title: "Re-tell this story",
@@ -336,6 +344,14 @@ const es: Messages = {
     telegram: "Enviar por Telegram",
     embed: "Copiar código de inserción",
     embedCopied: "¡Código de inserción copiado!",
+    emailBrand: "Dev Story",
+    emailSubtitleFor: (name: string) =>
+      `La historia de las horas invisibles de ${name}.`,
+    emailBlurbFor: (name: string) =>
+      `Dev Story de ${name} es una línea de tiempo narrativa generada a partir de su historial en GitHub. Los commits son letras, los repos son capítulos.`,
+    emailCtaFor: (name: string) => `Leer la historia completa de ${name}`,
+    emailPsLabel: "P.D.",
+    emailFooter: "Creado por Dev Story",
   },
   play: {
     title: "Re-cuenta esta historia",

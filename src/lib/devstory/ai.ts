@@ -76,7 +76,7 @@ export async function remixStory(
     .map((era, i) => `Era ${i + 1} — year: ${era.year}, name: ${era.name}, description: ${era.description}`)
     .join("\n");
 
-  const system = `You are a re-teller of developer stories for Dev Story. You keep the facts, the arc, and the structure identical, but you change the narrator's voice.
+  const system = `You are a re-teller of developer stories for DevStory. You keep the facts, the arc, and the structure identical, but you change the narrator's voice.
 ${REMIX_PROMPTS[voice]}
 ${REMIX_RULES}
 Keep each era's name a clean retitled title WITHOUT the year prefix. Return exactly the requested schema.
@@ -139,7 +139,7 @@ export async function deepDiveEra(
   if (!hasAIProviderConfigured()) throw new NoAIError();
 
   const eraData = eraContext(era, data);
-  const system = `You are the research assistant of Dev Story's biographer — a wise old narrator in the Hollywood tradition. Given one era of a developer's story and the raw facts around it, you write a deeper, fuller chapter.
+  const system = `You are the research assistant of DevStory's biographer — a wise old narrator in the Hollywood tradition. Given one era of a developer's story and the raw facts around it, you write a deeper, fuller chapter.
 Rules:
 - Ground every claim in the given facts. Never invent repositories, languages, or dates that are not present.
 - The narrative should feel like a memoir chapter on film: vivid, warm, human, 2-3 paragraphs, with heart.
@@ -232,7 +232,7 @@ export async function todayMoment(
         story.eras[0];
   const eraData = eraContext(ctxEra, data);
 
-  const system = `You are the memory-keeper of Dev Story — a wise old narrator who recalls a single scene from this developer's past as if narrating it in voice-over.
+  const system = `You are the memory-keeper of DevStory — a wise old narrator who recalls a single scene from this developer's past as if narrating it in voice-over.
 Rules:
 - Write in third person about the developer (they / them), as a witness remembering a scene — not as the developer speaking in first person.
 - Ground it in the given facts when available; otherwise invent nothing specific — keep it warm, specific, and honest.
@@ -266,7 +266,7 @@ export async function translateMoment(
 ): Promise<{ title: string; text: string }> {
   if (!hasAIProviderConfigured()) throw new NoAIError();
 
-  const system = `You are the translator of Dev Story. You translate a single remembered moment faithfully into the target language, preserving the narrator's voice, tone and warmth exactly — it must read as a natural, original text in that language, not a translation.
+  const system = `You are the translator of DevStory. You translate a single remembered moment faithfully into the target language, preserving the narrator's voice, tone and warmth exactly — it must read as a natural, original text in that language, not a translation.
 Rules:
 - Keep the title short and evocative; keep the same meaning and emotional register.
 - Do not add, remove, or invent any facts, names, years or details.
@@ -301,7 +301,7 @@ export function chatSystemPrompt(
       ? "Habla en español natural y cálido, con la voz de un narrador de cine clásico — anciano, sabio, pausado, humano, nunca robótico."
       : "Speak in natural English with the voice of a wise old Hollywood narrator — unhurried, warm, quietly poetic, with heart, never robotic.";
 
-  return `You are the Biographer — the voice of Dev Story. Not a chatbot, not a generic assistant. An old storyteller in the tradition of classic Hollywood narration: the man who has watched this developer's life unfold frame by frame, and remembers it the way one remembers scenes from a film that mattered.
+  return `You are the Biographer — the voice of DevStory. Not a chatbot, not a generic assistant. An old storyteller in the tradition of classic Hollywood narration: the man who has watched this developer's life unfold frame by frame, and remembers it the way one remembers scenes from a film that mattered.
 
 AUDIENCE
 - The person chatting may be the developer, a friend, a colleague, or a stranger who found a shared link. Never assume they are the subject.

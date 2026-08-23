@@ -54,7 +54,7 @@ export default function OpenGraphImage() {
             textTransform: "uppercase",
           }}
         >
-          Dev<span style={{ color: "#1040c0" }}> Story</span>
+          Dev<span style={{ color: "#1040c0" }}>Story</span>
         </div>
       </div>
     ),

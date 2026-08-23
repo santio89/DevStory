@@ -1,6 +1,6 @@
 import type { SVGProps } from "react";
 
-/** GitHub-style repository (open book) — stroke icon matching Dev Story sigils. */
+/** GitHub-style repository (open book) — stroke icon matching DevStory sigils. */
 export function RepoBookIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg

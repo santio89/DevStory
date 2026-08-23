@@ -67,8 +67,8 @@ const en = {
   },
   generator: {
     section: "the biographer",
-    title: "Dev Story",
-    titleFor: (username: string) => `Dev Story · @${username}`,
+    title: "DevStory",
+    titleFor: (username: string) => `DevStory · @${username}`,
     writing: "Writing…",
     rewrite: "Rewrite story",
     generate: "Generate story",
@@ -86,7 +86,7 @@ const en = {
   },
   share: {
     title: "Share this story",
-    subjectFor: (name: string) => `${name}'s Dev Story`,
+    subjectFor: (name: string) => `${name}'s DevStory`,
     blurbFor: (username: string) => `The journey of @${username}`,
     erasLabel: (n: number) => `${n} eras`,
     noLanguages: "no languages",
@@ -113,14 +113,14 @@ const en = {
     telegram: "Send on Telegram",
     embed: "Copy embed code",
     embedCopied: "Embed code copied!",
-    emailBrand: "Dev Story",
+    emailBrand: "DevStory",
     emailSubtitleFor: (name: string) =>
       `The story of ${name}'s invisible hours.`,
     emailBlurbFor: (name: string) =>
-      `${name}'s Dev Story is a narrative timeline generated from their GitHub history. Commits are letters, repos are chapters.`,
+      `${name}'s DevStory is a narrative timeline generated from their GitHub history. Commits are letters, repos are chapters.`,
     emailCtaFor: (name: string) => `Read ${name}'s full story`,
     emailPsLabel: "P.S.",
-    emailFooter: "Crafted by Dev Story",
+    emailFooter: "Crafted by DevStory",
   },
   play: {
     title: "Re-tell this story",
@@ -219,11 +219,11 @@ const en = {
     portraitSince: (year: string) => `Est. ${year}`,
   },
   sharePage: {
-    of: (name: string) => `${name}'s Dev Story`,
-    savedStory: "A saved Dev Story",
+    of: (name: string) => `${name}'s DevStory`,
+    savedStory: "A saved DevStory",
     writeYours: "Look up another developer.",
     ctaDesc:
-      "Every commit is a chapter. Type any public GitHub username and let Dev Story turn their invisible hours into a narrative timeline.",
+      "Every commit is a chapter. Type any public GitHub username and let DevStory turn their invisible hours into a narrative timeline.",
     tellYours: "Look someone up",
   },
 };
@@ -298,8 +298,8 @@ const es: Messages = {
   },
   generator: {
     section: "el biógrafo",
-    title: "Dev Story",
-    titleFor: (username: string) => `Dev Story · @${username}`,
+    title: "DevStory",
+    titleFor: (username: string) => `DevStory · @${username}`,
     writing: "Escribiendo…",
     rewrite: "Reescribir historia",
     generate: "Generar historia",
@@ -317,7 +317,7 @@ const es: Messages = {
   },
   share: {
     title: "Comparte esta historia",
-    subjectFor: (name: string) => `Dev Story de ${name}`,
+    subjectFor: (name: string) => `DevStory de ${name}`,
     blurbFor: (username: string) => `El viaje de @${username}`,
     erasLabel: (n: number) => `${n} épocas`,
     noLanguages: "sin lenguajes",
@@ -344,14 +344,14 @@ const es: Messages = {
     telegram: "Enviar por Telegram",
     embed: "Copiar código de inserción",
     embedCopied: "¡Código de inserción copiado!",
-    emailBrand: "Dev Story",
+    emailBrand: "DevStory",
     emailSubtitleFor: (name: string) =>
       `La historia de las horas invisibles de ${name}.`,
     emailBlurbFor: (name: string) =>
-      `Dev Story de ${name} es una línea de tiempo narrativa generada a partir de su historial en GitHub. Los commits son letras, los repos son capítulos.`,
+      `DevStory de ${name} es una línea de tiempo narrativa generada a partir de su historial en GitHub. Los commits son letras, los repos son capítulos.`,
     emailCtaFor: (name: string) => `Leer la historia completa de ${name}`,
     emailPsLabel: "P.D.",
-    emailFooter: "Creado por Dev Story",
+    emailFooter: "Creado por DevStory",
   },
   play: {
     title: "Re-cuenta esta historia",
@@ -452,11 +452,11 @@ const es: Messages = {
     portraitSince: (year: string) => `Desde ${year}`,
   },
   sharePage: {
-    of: (name: string) => `Dev Story de ${name}`,
-    savedStory: "Una Dev Story guardada",
+    of: (name: string) => `DevStory de ${name}`,
+    savedStory: "Una DevStory guardada",
     writeYours: "Busca a otro desarrollador.",
     ctaDesc:
-      "Cada commit es un capítulo. Escribe cualquier usuario público de GitHub y deja que Dev Story convierta sus horas invisibles en una línea de tiempo narrativa.",
+      "Cada commit es un capítulo. Escribe cualquier usuario público de GitHub y deja que DevStory convierta sus horas invisibles en una línea de tiempo narrativa.",
     tellYours: "Buscar a alguien",
   },
 };

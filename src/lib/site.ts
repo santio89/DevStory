@@ -1,4 +1,4 @@
-export const siteName = "Dev Story";
+export const siteName = "DevStory";
 export const siteDescription =
   "Any public GitHub username. Their code. Their story. A narrative timeline from commit history.";
 export const siteUrl = (

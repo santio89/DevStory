@@ -17,7 +17,8 @@ export function StoryPageHero({
   const { t } = useLocale();
 
   return (
-    <section className="relative z-10 flex min-h-[clamp(15rem,34vh,22rem)] flex-col items-center justify-center px-4 pb-10 pt-24 text-center sm:pt-28">
+    <section className="relative z-10 flex min-h-full flex-col items-center px-4 pt-24 text-center sm:pt-28">
+      <div className="flex flex-1 flex-col items-center justify-center pb-16 sm:pb-20">
         <Reveal variant="hero">
           <h1 className="font-heading text-3xl font-black tracking-normal text-balance uppercase sm:text-4xl md:text-5xl">
             {t.sharePage.of(username)}
@@ -28,6 +29,7 @@ export function StoryPageHero({
             @{githubLogin}
           </p>
         </Reveal>
+      </div>
     </section>
   );
 }

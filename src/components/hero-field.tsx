@@ -512,7 +512,12 @@ export function HeroField({ variant = "home" }: { variant?: HeroFieldVariant }) 
     <canvas
       ref={canvasRef}
       aria-hidden
-      className="pointer-events-none absolute inset-0 h-full w-full z-0 motion-reduce:hidden [mask-image:linear-gradient(to_bottom,black,transparent_92%)]"
+      className={cn(
+        "pointer-events-none absolute inset-0 z-0 h-full w-full motion-reduce:hidden",
+        variant === "share"
+          ? "[mask-image:linear-gradient(to_bottom,black_0%,black_62%,transparent_100%)]"
+          : "[mask-image:linear-gradient(to_bottom,black,transparent_92%)]",
+      )}
     />
   );
 }

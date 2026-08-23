@@ -10,6 +10,7 @@ Turn a public GitHub username into an AI-written narrative timeline: commits as 
 - **Database:** Neon Postgres, Drizzle ORM
 - **AI & APIs:** OpenRouter, Vercel AI SDK, Vercel AI Gateway, GitHub API
 - **Email:** React Email, EmailJS
+- **Testing:** Vitest, jsdom
 - **Deployment:** Vercel
 
 ## Run locally
@@ -22,6 +23,14 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) and try `/?u=github-username`.
 
+## Testing
+
+```bash
+npm test
+```
+
+Run the unit test suite (Vitest + jsdom). Covers the core pipeline: story schema validation, token gallery integrity, the mock story generator, era-count sizing, the AI variety quality gate, the "Summon a memory" widget, the minify round-trip, the AI cache TTL, TTS narration, locale parity, and the theme and language toggles.
+
 ## Env
 
 See [`.env.example`](.env.example). For the full experience: `GITHUB_TOKEN`, `OPENROUTER_API_KEY`, `DATABASE_URL`, `EMAILJS_*`, `NEXT_PUBLIC_APP_URL`. Optional: `AI_GATEWAY_API_KEY` (AI fallback).
@@ -32,4 +41,5 @@ See [`.env.example`](.env.example). For the full experience: `GITHUB_TOKEN`, `OP
 | -------------------- | ---------------------- |
 | `npm run dev`        | Dev server             |
 | `npm run build`      | Production build       |
+| `npm test`           | Run unit tests         |
 | `npm run db:migrate` | Run Drizzle migrations (run after pulling schema changes, and on deploy) |

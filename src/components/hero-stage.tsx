@@ -31,7 +31,7 @@ export function HeroStageBackground({
       {variant === "share" ? (
         <div
           aria-hidden
-          className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-b from-transparent to-background sm:h-24"
+          className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-b from-transparent to-background sm:h-20"
         />
       ) : null}
     </div>

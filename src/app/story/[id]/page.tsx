@@ -91,12 +91,12 @@ export default async function StoryPage({
       </SiteHeader>
 
       <main className="flex-1">
-        <div className="relative min-h-[clamp(20rem,46vh,32rem)] overflow-hidden">
+        <div className="relative min-h-[clamp(17rem,38vh,26rem)] overflow-hidden">
           <HeroStageBackground variant="share" />
           <StoryPageHero username={story.username} githubLogin={story.githubLogin} />
         </div>
 
-        <section className="mx-auto w-full max-w-5xl scroll-mt-20 px-4 pt-10 pb-24 sm:px-6">
+        <section className="mx-auto w-full max-w-5xl scroll-mt-20 px-4 pt-8 pb-24 sm:px-6">
           <StorySavedView
             storyId={story.id}
             githubLogin={story.githubLogin}

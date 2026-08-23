@@ -33,14 +33,15 @@ type GlyphBody = {
 };
 
 const ELLIPSE_CY = 0.43;
-const SHARE_ELLIPSE_CY = 0.54;
+const SHARE_ELLIPSE_CY = 0.48;
 
 /** Evenly spaced on left / right arcs — pairs read top-to-bottom on each flank. */
 const LEFT_ARC_ANGLES = [3.95, 3.48, 3.02, 2.55, 2.08, 1.72] as const;
 const RIGHT_ARC_ANGLES = [-0.92, -0.46, 0, 0.46, 0.92, 1.28] as const;
 
-const SHARE_LEFT_ARC_ANGLES = [3.88, 3.28, 2.68, 2.02] as const;
-const SHARE_RIGHT_ARC_ANGLES = [-0.86, -0.3, 0.26, 0.82] as const;
+/** Symmetric arcs framing share-page title + handle. */
+const SHARE_LEFT_ARC_ANGLES = [3.72, 3.22, 2.72, 2.22] as const;
+const SHARE_RIGHT_ARC_ANGLES = [-0.78, -0.28, 0.28, 0.78] as const;
 
 /** Twelve tokens on a soft ellipse framing the hero copy. */
 const GLYPHS: GlyphBody[] = [
@@ -161,31 +162,31 @@ function homeEllipseFrame(viewportWidth: number, viewportHeight: number): Ellips
   };
 }
 
-/** Compact ellipse around share-page title + handle. */
+/** Compact ellipse centered on share-page title + handle. */
 function shareEllipseFrame(viewportWidth: number, viewportHeight: number): EllipseFrame {
   const w = viewportWidth;
-  const h = Math.max(viewportHeight, 220);
+  const h = Math.max(viewportHeight, 200);
   const cy = SHARE_ELLIPSE_CY;
-  const titleHalfW = Math.min(360, w * 0.4);
-  const blockH = Math.min(150, h * 0.7);
+  const titleHalfW = Math.min(340, w * 0.38);
+  const blockH = 108;
 
   if (w < 640) {
     return {
       cx: 0.5,
       cy,
-      rx: Math.min(0.5, (titleHalfW + 22) / w),
-      ry: Math.min(0.44, (blockH * 0.6 + 16) / h),
+      rx: Math.min(0.48, (titleHalfW + 28) / w),
+      ry: Math.min(0.4, (blockH + 18) / h),
     };
   }
 
-  const padX = 40 + Math.min(22, (w - 1024) / 90);
-  const padY = 20 + Math.min(12, (h - 280) / 35);
+  const padX = 36 + Math.min(16, (w - 1024) / 100);
+  const padY = 14 + Math.min(8, (h - 260) / 45);
 
   return {
     cx: 0.5,
     cy,
-    rx: Math.min(0.44, (titleHalfW + padX) / w),
-    ry: Math.min(0.42, (blockH * 0.66 + padY) / h),
+    rx: Math.min(0.42, (titleHalfW + padX) / w),
+    ry: Math.min(0.36, (blockH + padY) / h),
   };
 }
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState } from "react";
-import { dictionary, type Locale, type Messages } from "@/lib/i18n/dictionary";
+import { dictionary, isLocale, type Locale, type Messages } from "@/lib/i18n/dictionary";
 
 type LocaleContextValue = {
   locale: Locale;
@@ -15,6 +15,17 @@ const LocaleContext = createContext<LocaleContextValue>({
   t: dictionary.en,
 });
 
+function resolveInitialLocale(initialLocale: Locale): Locale {
+  if (typeof window === "undefined") return initialLocale;
+
+  const lang = new URLSearchParams(window.location.search).get("lang");
+  if (isLocale(lang)) return lang;
+
+  if (window.location.pathname.startsWith("/story/")) return "en";
+
+  return initialLocale;
+}
+
 export function LocaleProvider({
   initialLocale,
   children,
@@ -22,7 +33,9 @@ export function LocaleProvider({
   initialLocale: Locale;
   children: React.ReactNode;
 }) {
-  const [locale, setLocale] = useState<Locale>(initialLocale);
+  const [locale, setLocale] = useState<Locale>(() =>
+    resolveInitialLocale(initialLocale),
+  );
   return (
     <LocaleContext.Provider value={{ locale, setLocale, t: dictionary[locale] }}>
       {children}

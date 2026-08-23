@@ -2,37 +2,17 @@ import { cookies } from "next/headers";
 import type { Metadata } from "next";
 import { HeroStageBackground } from "@/components/hero-stage";
 import { HomeExperience } from "@/components/home-experience";
+import { HomeFeatures } from "@/components/home-features";
 import { LocaleToggle } from "@/components/locale-toggle";
-import { FadeIn } from "@/components/motion/fade-in";
 import { SiteHeader } from "@/components/site-header";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { dictionary } from "@/lib/i18n/dictionary";
-import { resolveAppLocale } from "@/lib/locale/resolve";
 import { SiteFooter } from "@/components/site-footer";
 import {
   isValidGitHubUsername,
   normalizeGitHubUsername,
 } from "@/lib/github/username";
+import { dictionary } from "@/lib/i18n/dictionary";
+import { resolveAppLocale } from "@/lib/locale/resolve";
 import { siteName } from "@/lib/site";
-import { cn } from "@/lib/utils";
-import { GitCommit, Sparkles, TerminalSquare } from "lucide-react";
-
-const FEATURE_ICONS = [GitCommit, Sparkles, TerminalSquare];
-const FEATURE_ICON_COLORS = [
-  "text-bauhaus-deep",
-  "text-bauhaus-cyan",
-  "text-bauhaus-sky",
-];
-const FEATURE_CORNER = [
-  "bg-bauhaus-deep",
-  "bg-bauhaus-yellow",
-  "bg-bauhaus-pink",
-];
 
 export async function generateMetadata({
   searchParams,
@@ -82,10 +62,7 @@ export default async function Home({
 }: {
   searchParams: Promise<{ u?: string; lang?: string }>;
 }) {
-  const cookieStore = await cookies();
-  const { u: initialUsername, lang } = await searchParams;
-  const locale = resolveAppLocale(lang, cookieStore.get("devstory-locale")?.value);
-  const t = dictionary[locale];
+  const { u: initialUsername } = await searchParams;
 
   return (
     <>
@@ -96,46 +73,13 @@ export default async function Home({
       <main className="flex-1">
         <HomeExperience
           initialUsername={initialUsername}
-          hero={t.hero}
           heroBackground={<HeroStageBackground />}
         />
 
-        <section
-          id="features"
-          className="mx-auto w-full max-w-5xl px-4 pb-24 sm:px-6"
-        >
-          <FadeIn>
-            <h2 className="text-center font-heading text-2xl font-black tracking-normal text-balance uppercase sm:text-3xl">
-              {t.features.title}
-              <span className="ml-2 inline-block size-3 rounded-full border-2 border-foreground bg-bauhaus-yellow" />
-            </h2>
-          </FadeIn>
-          <div className="mt-10 grid gap-5 sm:grid-cols-3">
-            {FEATURE_ICONS.map((Icon, i) => {
-              const feature =
-                t.features[i === 0 ? "one" : i === 1 ? "two" : "three"];
-              return (
-                <FadeIn key={i} delay={0.1 * i}>
-                  <Card className="relative h-full bg-card shadow-hard transition-transform duration-200 hover:-translate-y-1">
-                    <span
-                      className={`absolute top-3 right-3 size-3 rotate-45 ${FEATURE_CORNER[i]}`}
-                    />
-                    <CardHeader>
-                      <span className="mb-1 flex size-9 items-center justify-center rounded-none border-2 border-foreground bg-bauhaus-sky/20 shadow-hard-sm">
-                        <Icon className={cn("size-5", FEATURE_ICON_COLORS[i])} />
-                      </span>
-                      <CardTitle>{feature.t}</CardTitle>
-                      <CardDescription>{feature.d}</CardDescription>
-                    </CardHeader>
-                  </Card>
-                </FadeIn>
-              );
-            })}
-          </div>
-        </section>
+        <HomeFeatures />
       </main>
 
-      <SiteFooter tagline={t.footer.tagline} />
+      <SiteFooter />
     </>
   );
 }

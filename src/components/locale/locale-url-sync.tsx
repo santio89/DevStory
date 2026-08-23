@@ -15,16 +15,18 @@ function LocaleUrlSyncInner() {
   const onSharePage = pathname.startsWith("/story/");
   const cookieWritten = useRef<string | null>(null);
 
+  // Sync URL -> locale only when the URL changes (navigation), not when the user
+  // toggles language — otherwise stale searchParams fight replaceState updates.
   useEffect(() => {
     if (isLocale(langParam)) {
-      if (langParam !== locale) setLocale(langParam);
+      setLocale(langParam);
       return;
     }
 
-    if (onSharePage && locale !== "en") {
+    if (onSharePage) {
       setLocale("en");
     }
-  }, [langParam, onSharePage, locale, setLocale]);
+  }, [langParam, onSharePage, setLocale]);
 
   useEffect(() => {
     if (cookieWritten.current === locale) return;

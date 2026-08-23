@@ -11,7 +11,6 @@ import {
   StoryPageHero,
 } from "@/components/story/story-page-sections";
 import { getStory, storyForLocale } from "@/lib/stories";
-import { dictionary } from "@/lib/i18n/dictionary";
 import { resolveAppLocale } from "@/lib/locale/resolve";
 import { siteName, siteDescription, publicUrl, shareStoryPath } from "@/lib/site";
 
@@ -72,24 +71,17 @@ export async function generateMetadata({
 
 export default async function StoryPage({
   params,
-  searchParams,
 }: {
   params: Promise<{ id: string }>;
   searchParams: Promise<{ lang?: string }>;
 }) {
   const { id } = await params;
-  const { lang } = await searchParams;
   const story = await getStory(id);
 
   if (!story) {
     notFound();
   }
 
-  const cookieStore = await cookies();
-  const locale = resolveAppLocale(lang, cookieStore.get("devstory-locale")?.value, {
-    sharePage: true,
-  });
-  const t = dictionary[locale];
   const mode = story.mode === "mock" ? "mock" : "ai";
 
   return (
@@ -101,10 +93,7 @@ export default async function StoryPage({
       <main className="flex-1">
         <div className="relative overflow-hidden">
           <HeroStageBackground />
-          <StoryPageHero
-            title={t.sharePage.of(story.username)}
-            handle={`@${story.githubLogin}`}
-          />
+          <StoryPageHero username={story.username} githubLogin={story.githubLogin} />
         </div>
 
         <section className="mx-auto w-full max-w-5xl scroll-mt-20 px-4 pt-10 pb-24 sm:px-6">
@@ -120,14 +109,10 @@ export default async function StoryPage({
           />
         </section>
 
-        <StoryPageCta
-          title={t.sharePage.writeYours}
-          description={t.sharePage.ctaDesc}
-          buttonLabel={t.sharePage.tellYours}
-        />
+        <StoryPageCta />
       </main>
 
-      <SiteFooter tagline={t.footer.tagline} />
+      <SiteFooter />
     </>
   );
 }

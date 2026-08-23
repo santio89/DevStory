@@ -5,11 +5,11 @@ import { HeroLookup } from "@/components/hero-lookup";
 import { HeroTitle } from "@/components/hero-title";
 import { HeroScrollCue } from "@/components/hero-scroll-cue";
 import { FadeIn } from "@/components/motion/fade-in";
+import { useLocale } from "@/components/locale/locale-provider";
 import { BrainProvider, useBrain } from "@/components/story/brain-provider";
 import { StoryGenerator } from "@/components/story/story-generator";
 import { StoryPreview } from "@/components/story/story-preview";
 import { Marquee } from "@/components/story/marquee";
-import type { Messages } from "@/lib/i18n/dictionary";
 import {
   isValidGitHubUsername,
   normalizeGitHubUsername,
@@ -17,15 +17,15 @@ import {
 
 function HomeWithUsername({
   username,
-  hero,
   heroBackground,
   onUsernameChange,
 }: {
   username: string;
-  hero: Messages["hero"];
   heroBackground: ReactNode;
   onUsernameChange: (username: string) => void;
 }) {
+  const { t } = useLocale();
+  const hero = t.hero;
   const { brain, brainLoading } = useBrain();
   const [storyLoading, setStoryLoading] = useState(false);
   const shouldScrollRef = useRef(true);
@@ -111,13 +111,13 @@ function HomeWithUsername({
 
 export function HomeExperience({
   initialUsername,
-  hero,
   heroBackground,
 }: {
   initialUsername?: string;
-  hero: Messages["hero"];
   heroBackground: ReactNode;
 }) {
+  const { t } = useLocale();
+  const hero = t.hero;
   const [username, setUsername] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
 
@@ -167,7 +167,6 @@ export function HomeExperience({
       <BrainProvider key={username} username={username} autoFetch>
         <HomeWithUsername
           username={username}
-          hero={hero}
           heroBackground={heroBackground}
           onUsernameChange={setUsername}
         />

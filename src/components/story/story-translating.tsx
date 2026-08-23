@@ -2,15 +2,12 @@
 
 import { motion } from "framer-motion";
 import { useLocale } from "@/components/locale/locale-provider";
+import { SkeletonBar } from "@/components/ui/skeleton-bar";
 import { fluidSpring } from "@/lib/motion/reveal";
 import { Loader2 } from "lucide-react";
 
 function Bar({ className = "" }: { className?: string }) {
-  return (
-    <div
-      className={`h-3 animate-pulse rounded-none bg-foreground/15 ${className}`}
-    />
-  );
+  return <SkeletonBar className={className} />;
 }
 
 export function StoryTranslating() {

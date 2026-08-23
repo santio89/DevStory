@@ -7,13 +7,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { StoryView } from "@/components/story/story-view";
 import { StoryChat } from "@/components/story/story-chat";
 import { StoryTranslating } from "@/components/story/story-translating";
+import { BiographerSkeleton } from "@/components/story/story-loading-skeletons";
 import { useLocale } from "@/components/locale/locale-provider";
 import type { DevStory } from "@/lib/devstory/story";
 import type { StoryPreviewData } from "@/lib/devstory/aggregate";
 import type { StoryDataSnapshot } from "@/lib/devstory/minify";
 import { snapshotToPreview } from "@/lib/devstory/minify";
 import type { Locale } from "@/lib/i18n/dictionary";
-import { BookOpen, Sparkles, Loader2, AlertTriangle } from "lucide-react";
+import { BookOpen, Sparkles, AlertTriangle } from "lucide-react";
 
 const STORAGE_KEY = "devstory-story";
 
@@ -248,12 +249,7 @@ export function StoryGenerator({
 
       {showLoading && (
         <Reveal variant="enter" key="generating">
-        <Card className="bg-card shadow-hard">
-          <CardContent className="flex items-center gap-3 py-8 font-mono text-sm font-bold tracking-wider text-muted-foreground uppercase">
-            <Loader2 className="size-4 animate-spin text-bauhaus-deep" />
-            {t.generator.readingFor(username)}
-          </CardContent>
-        </Card>
+          <BiographerSkeleton statusLabel={t.generator.readingFor(username)} />
         </Reveal>
       )}
 
@@ -268,12 +264,7 @@ export function StoryGenerator({
 
       {!story && !loading && !hydrated && (
         <Reveal variant="enter" key="hydrating">
-        <Card className="bg-card shadow-hard">
-          <CardContent className="flex items-center gap-3 py-8 font-mono text-sm font-bold tracking-wider text-muted-foreground uppercase">
-            <Loader2 className="size-4 animate-spin text-bauhaus-deep" />
-            {t.generator.readingFor(username)}
-          </CardContent>
-        </Card>
+          <BiographerSkeleton statusLabel={t.generator.readingFor(username)} />
         </Reveal>
       )}
 

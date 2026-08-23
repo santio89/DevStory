@@ -9,9 +9,9 @@ import { useLocale } from "@/components/locale/locale-provider";
 import type { StoryPreviewData } from "@/lib/devstory/aggregate";
 import type { Locale } from "@/lib/i18n/dictionary";
 import { RepoBookIcon } from "@/components/icons/repo-book";
+import { BrainPreviewSkeleton } from "@/components/story/story-loading-skeletons";
 import {
   GitCommit,
-  Loader2,
   RefreshCw,
   Star,
   FolderGit2,
@@ -196,12 +196,7 @@ export function StoryPreview({
 
       {((loading && !data) || waitingForUpstream) && (
         <Reveal variant="enter" key="loading">
-        <Card className="bg-card shadow-hard">
-          <CardContent className="flex items-center gap-3 py-8 font-mono text-sm font-bold tracking-wider text-muted-foreground uppercase">
-            <Loader2 className="size-4 animate-spin text-bauhaus-deep" />
-            {t.preview.harvestingFor(username)}
-          </CardContent>
-        </Card>
+          <BrainPreviewSkeleton statusLabel={t.preview.harvestingFor(username)} />
         </Reveal>
       )}
 

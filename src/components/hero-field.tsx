@@ -314,14 +314,30 @@ export function HeroField({ variant = "home" }: { variant?: HeroFieldVariant }) 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
 
+    const stagePoint = (event: PointerEvent) => {
+      const stage = canvas.closest("[data-hero-stage]");
+      if (!stage) return null;
+      const rect = stage.getBoundingClientRect();
+      if (rect.width < 1 || rect.height < 1) return null;
+      const inside =
+        event.clientX >= rect.left &&
+        event.clientX <= rect.right &&
+        event.clientY >= rect.top &&
+        event.clientY <= rect.bottom;
+      return {
+        x: (event.clientX - rect.left) / rect.width,
+        y: (event.clientY - rect.top) / rect.height,
+        inside,
+      };
+    };
+
     const onPointer = (event: PointerEvent) => {
-      const x = event.clientX / window.innerWidth;
-      const y = event.clientY / window.innerHeight;
-      const inside = x >= -0.05 && x <= 1.05 && y >= -0.08 && y <= 1.08;
-      pointer.active = inside;
-      if (inside) {
-        pointer.x = x;
-        pointer.y = y;
+      const pt = stagePoint(event);
+      if (!pt) return;
+      pointer.active = pt.inside;
+      if (pt.inside) {
+        pointer.x = pt.x;
+        pointer.y = pt.y;
       }
     };
 
@@ -331,13 +347,12 @@ export function HeroField({ variant = "home" }: { variant?: HeroFieldVariant }) 
 
     const onClick = (event: PointerEvent) => {
       if (event.button !== 0) return;
-      const x = event.clientX / window.innerWidth;
-      const y = event.clientY / window.innerHeight;
-      if (x < 0 || x > 1 || y < 0 || y > 1) return;
+      const pt = stagePoint(event);
+      if (!pt?.inside) return;
       pointer.active = true;
-      pointer.x = x;
-      pointer.y = y;
-      bursts.push({ x, y, born: performance.now() });
+      pointer.x = pt.x;
+      pointer.y = pt.y;
+      bursts.push({ x: pt.x, y: pt.y, born: performance.now() });
       if (bursts.length > 5) bursts.shift();
     };
 

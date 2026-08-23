@@ -3,11 +3,10 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useLocale } from "@/components/locale/locale-provider";
-import { setLocaleCookie } from "@/app/actions";
+import { writeLocaleCookie } from "@/lib/locale/cookie";
 import { cn } from "@/lib/utils";
 import type { Locale } from "@/lib/i18n/dictionary";
 import { Languages, LogOut } from "lucide-react";
@@ -20,7 +19,6 @@ type MenuUser = {
 
 export function UserMenuDropdown({ user }: { user: MenuUser }) {
   const { locale, setLocale, t } = useLocale();
-  const router = useRouter();
   const [open, setOpen] = useState(false);
 
   const initial = (user.name ?? user.username ?? "D")?.slice(0, 1).toUpperCase();
@@ -29,12 +27,10 @@ export function UserMenuDropdown({ user }: { user: MenuUser }) {
     setOpen((v) => !v);
   }
 
-  async function switchLocale(next: Locale) {
+  function switchLocale(next: Locale) {
     setLocale(next);
-    try {
-      await setLocaleCookie(next);
-    } catch {}
-    router.refresh();
+    writeLocaleCookie(next);
+    setOpen(false);
   }
 
   return (

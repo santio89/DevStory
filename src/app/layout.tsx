@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { Outfit, JetBrains_Mono } from "next/font/google";
 import { MotionProvider } from "@/components/motion/motion-provider";
 import { LocaleProvider } from "@/components/locale/locale-provider";
+import { LocaleUrlSync } from "@/components/locale/locale-url-sync";
 import { isLocale, type Locale } from "@/lib/i18n/dictionary";
 import { THEME_SCRIPT } from "@/lib/theme";
 import { siteName, siteDescription, siteUrl } from "@/lib/site";
@@ -90,6 +91,7 @@ export default async function RootLayout({
       </head>
       <body className="flex min-h-full flex-col overflow-x-hidden">
         <LocaleProvider initialLocale={locale}>
+          <LocaleUrlSync />
           <MotionProvider>{children}</MotionProvider>
         </LocaleProvider>
       </body>

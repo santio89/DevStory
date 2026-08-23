@@ -5,7 +5,6 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/motion/fade-in";
 import { LookupOrbitIcon } from "@/components/story/story-decorations";
-import { SiteFooter } from "@/components/site-footer";
 
 export function StoryPageHero({
   title,
@@ -67,8 +66,4 @@ export function StoryPageCta({
       </Reveal>
     </section>
   );
-}
-
-export function StoryPageFooter({ tagline }: { tagline: string }) {
-  return <SiteFooter tagline={tagline} />;
 }

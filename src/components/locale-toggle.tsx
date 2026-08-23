@@ -1,19 +1,17 @@
 "use client";
 
 import { useLocale } from "@/components/locale/locale-provider";
-import { setLocaleCookie } from "@/app/actions";
+import { writeLocaleCookie } from "@/lib/locale/cookie";
 import { cn } from "@/lib/utils";
 import type { Locale } from "@/lib/i18n/dictionary";
 
 export function LocaleToggle() {
   const { locale, setLocale, t } = useLocale();
 
-  async function switchLocale(next: Locale) {
+  function switchLocale(next: Locale) {
     if (next === locale) return;
     setLocale(next);
-    try {
-      await setLocaleCookie(next);
-    } catch {}
+    writeLocaleCookie(next);
   }
 
   return (
@@ -28,7 +26,7 @@ export function LocaleToggle() {
         <button
           key={code}
           type="button"
-          onClick={() => void switchLocale(code)}
+          onClick={() => switchLocale(code)}
           className={cn(
             "rounded-none border-2 px-2 py-1 font-mono text-[11px] font-bold tracking-wider uppercase transition-all duration-200",
             locale === code

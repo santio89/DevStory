@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import type { Metadata } from "next";
-import { HeroField, HeroTilt } from "@/components/hero-field";
+import { HeroStageBackground } from "@/components/hero-stage";
 import { HomeExperience } from "@/components/home-experience";
 import { LocaleToggle } from "@/components/locale-toggle";
 import { FadeIn } from "@/components/motion/fade-in";
@@ -11,8 +11,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { dictionary, isLocale } from "@/lib/i18n/dictionary";
-import type { Locale } from "@/lib/i18n/dictionary";
+import { dictionary } from "@/lib/i18n/dictionary";
+import { resolveAppLocale } from "@/lib/locale/resolve";
 import { SiteFooter } from "@/components/site-footer";
 import {
   isValidGitHubUsername,
@@ -37,17 +37,16 @@ const FEATURE_CORNER = [
 export async function generateMetadata({
   searchParams,
 }: {
-  searchParams: Promise<{ u?: string }>;
+  searchParams: Promise<{ u?: string; lang?: string }>;
 }): Promise<Metadata> {
-  const { u } = await searchParams;
+  const { u, lang } = await searchParams;
   if (!u) return {};
 
   const normalized = normalizeGitHubUsername(u).toLowerCase();
   if (!isValidGitHubUsername(normalized)) return {};
 
   const cookieStore = await cookies();
-  const storedLocale = cookieStore.get("devstory-locale")?.value;
-  const locale: Locale = isLocale(storedLocale) ? storedLocale : "en";
+  const locale = resolveAppLocale(lang, cookieStore.get("devstory-locale")?.value);
   const t = dictionary[locale];
 
   const title = t.generator.titleFor(normalized);
@@ -81,13 +80,12 @@ export async function generateMetadata({
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ u?: string }>;
+  searchParams: Promise<{ u?: string; lang?: string }>;
 }) {
   const cookieStore = await cookies();
-  const storedLocale = cookieStore.get("devstory-locale")?.value;
-  const locale: Locale = isLocale(storedLocale) ? storedLocale : "en";
+  const { u: initialUsername, lang } = await searchParams;
+  const locale = resolveAppLocale(lang, cookieStore.get("devstory-locale")?.value);
   const t = dictionary[locale];
-  const { u: initialUsername } = await searchParams;
 
   return (
     <>
@@ -99,17 +97,7 @@ export default async function Home({
         <HomeExperience
           initialUsername={initialUsername}
           hero={t.hero}
-          heroBackground={
-            <div
-              data-hero-stage
-              className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
-            >
-              <div className="bauhaus-grid absolute inset-0 hidden opacity-40 [mask-image:linear-gradient(to_bottom,black,transparent_90%)] motion-reduce:block" />
-              <HeroTilt>
-                <HeroField />
-              </HeroTilt>
-            </div>
-          }
+          heroBackground={<HeroStageBackground />}
         />
 
         <section

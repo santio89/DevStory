@@ -32,4 +32,4 @@ See [`.env.example`](.env.example). For the full experience: `GITHUB_TOKEN`, `OP
 | -------------------- | ---------------------- |
 | `npm run dev`        | Dev server             |
 | `npm run build`      | Production build       |
-| `npm run db:migrate` | Run Drizzle migrations |
+| `npm run db:migrate` | Run Drizzle migrations (run after pulling schema changes, and on deploy) |

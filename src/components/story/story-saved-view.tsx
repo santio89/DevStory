@@ -17,6 +17,7 @@ function StorySavedContent({
   story: initialStory,
   mode,
   authoredLocale,
+  savedTranslations,
 }: {
   storyId: string;
   githubLogin: string;
@@ -24,21 +25,22 @@ function StorySavedContent({
   story: DevStory;
   mode: "ai" | "mock";
   authoredLocale: Locale;
+  savedTranslations: Partial<Record<Locale, DevStory>>;
 }) {
   const { brain } = useBrain();
   const { t, locale } = useLocale();
   const [translations, setTranslations] = useState<
     Partial<Record<Locale, DevStory>>
-  >({});
+  >(() => savedTranslations);
   const [failedLocales, setFailedLocales] = useState<Locale[]>([]);
 
   const translationFailed = failedLocales.includes(locale);
+  const hasTranslation = locale === authoredLocale || Boolean(translations[locale]);
   const translating = Boolean(
-    locale !== authoredLocale &&
-      !translations[locale] &&
-      !translationFailed,
+    locale !== authoredLocale && !hasTranslation && !translationFailed,
   );
-  const activeStory = translations[locale] ?? initialStory;
+  const activeStory =
+    locale === authoredLocale ? initialStory : (translations[locale] ?? initialStory);
 
   useEffect(() => {
     if (locale === authoredLocale || translations[locale]) return;
@@ -52,6 +54,7 @@ function StorySavedContent({
             story: initialStory,
             sourceLocale: authoredLocale,
             targetLocale: locale,
+            storyId,
           }),
         });
         if (!res.ok) {
@@ -77,7 +80,7 @@ function StorySavedContent({
     return () => {
       active = false;
     };
-  }, [initialStory, locale, authoredLocale, translations]);
+  }, [initialStory, locale, authoredLocale, translations, storyId]);
 
   return (
     <div className="space-y-10">
@@ -118,6 +121,7 @@ export function StorySavedView({
   data,
   mode,
   authoredLocale,
+  savedTranslations = {},
 }: {
   storyId: string;
   githubLogin: string;
@@ -126,6 +130,7 @@ export function StorySavedView({
   data: StoryDataSnapshot | null;
   mode: "ai" | "mock";
   authoredLocale: Locale;
+  savedTranslations?: Partial<Record<Locale, DevStory>>;
 }) {
   return (
     <BrainProvider
@@ -140,6 +145,7 @@ export function StorySavedView({
         story={story}
         mode={mode}
         authoredLocale={authoredLocale}
+        savedTranslations={savedTranslations}
       />
     </BrainProvider>
   );

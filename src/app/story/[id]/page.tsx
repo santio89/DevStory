@@ -1,34 +1,37 @@
 import { notFound } from "next/navigation";
-import { cookies } from "next/headers";
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { HeroField, HeroTilt } from "@/components/hero-field";
 import { SiteHeader } from "@/components/site-header";
 import { LocaleToggle } from "@/components/locale-toggle";
+import { LocaleProvider } from "@/components/locale/locale-provider";
 import { StorySavedView } from "@/components/story/story-saved-view";
+import { ShareLocaleSync } from "@/components/story/share-locale-sync";
 import {
   StoryPageCta,
   StoryPageFooter,
   StoryPageHero,
 } from "@/components/story/story-page-sections";
-import { getStory } from "@/lib/stories";
-import { dictionary, isLocale } from "@/lib/i18n/dictionary";
-import { siteName, siteDescription, publicUrl } from "@/lib/site";
-import type { Messages } from "@/lib/i18n/dictionary";
+import { getStory, storyForLocale } from "@/lib/stories";
+import { dictionary, isLocale, type Locale } from "@/lib/i18n/dictionary";
+import { siteName, siteDescription, publicUrl, shareStoryPath } from "@/lib/site";
 
-async function getLocale(): Promise<Messages> {
-  const cookieStore = await cookies();
-  const storedLocale = cookieStore.get("devstory-locale")?.value;
-  return dictionary[isLocale(storedLocale) ? storedLocale : "en"];
+function resolveShareLocale(lang: string | undefined): Locale {
+  return isLocale(lang) ? lang : "en";
 }
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ lang?: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
+  const { lang } = await searchParams;
   const story = await getStory(id);
-  const url = publicUrl(`/story/${id}`);
+  const locale = resolveShareLocale(lang);
+  const url = publicUrl(shareStoryPath(id, locale));
 
   if (!story) {
     return {
@@ -38,17 +41,19 @@ export async function generateMetadata({
     };
   }
 
+  const displayStory = storyForLocale(story, locale);
+
   return {
-    title: story.title,
-    description: story.summary,
+    title: displayStory.title,
+    description: displayStory.summary,
     alternates: { canonical: url },
     openGraph: {
-      title: story.title,
-      description: story.summary,
+      title: displayStory.title,
+      description: displayStory.summary,
       type: "website",
       url,
       siteName,
-      locale: "en_US",
+      locale: locale === "es" ? "es_ES" : "en_US",
       images: [
         {
           url: "/opengraph-image",
@@ -60,8 +65,8 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: story.title,
-      description: story.summary,
+      title: displayStory.title,
+      description: displayStory.summary,
       images: ["/opengraph-image"],
     },
   };
@@ -69,17 +74,21 @@ export async function generateMetadata({
 
 export default async function StoryPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ lang?: string }>;
 }) {
   const { id } = await params;
+  const { lang } = await searchParams;
   const story = await getStory(id);
 
   if (!story) {
     notFound();
   }
 
-  const t = await getLocale();
+  const shareLocale = resolveShareLocale(lang);
+  const t = dictionary[shareLocale];
   const mode = story.mode === "mock" ? "mock" : "ai";
 
   return (
@@ -107,16 +116,22 @@ export default async function StoryPage({
         </div>
 
         <section className="mx-auto w-full max-w-5xl px-4 pb-20 sm:px-6">
-          <StorySavedView
-            key={story.id}
-            storyId={story.id}
-            githubLogin={story.githubLogin}
-            username={story.username}
-            story={story.story}
-            data={story.data}
-            mode={mode}
-            authoredLocale={story.authoredLocale}
-          />
+          <LocaleProvider initialLocale={shareLocale}>
+            <Suspense fallback={null}>
+              <ShareLocaleSync />
+            </Suspense>
+            <StorySavedView
+              key={`${story.id}-${shareLocale}`}
+              storyId={story.id}
+              githubLogin={story.githubLogin}
+              username={story.username}
+              story={story.story}
+              data={story.data}
+              mode={mode}
+              authoredLocale={story.authoredLocale}
+              savedTranslations={story.translations}
+            />
+          </LocaleProvider>
         </section>
 
         <StoryPageCta

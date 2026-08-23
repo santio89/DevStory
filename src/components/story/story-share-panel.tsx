@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useLocale } from "@/components/locale/locale-provider";
 import type { DevStory } from "@/lib/devstory/story";
 import type { StoryDataSnapshot } from "@/lib/devstory/minify";
-import { publicUrl } from "@/lib/site";
+import { publicUrl, shareStoryPath, shareUsernamePath } from "@/lib/site";
 import { resolveGitHubAvatar } from "@/lib/github/avatar";
 import {
   Check,
@@ -59,8 +59,8 @@ export function StorySharePanel({
   const [emailError, setEmailError] = useState<string | null>(null);
 
   const sharePath = storyId
-    ? `/story/${storyId}`
-    : `/?u=${encodeURIComponent(username)}`;
+    ? shareStoryPath(storyId, locale)
+    : shareUsernamePath(username, locale);
   const shareUrl = publicUrl(sharePath);
 
   const shareSubject = t.share.subjectFor(displayName);

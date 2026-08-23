@@ -15,10 +15,19 @@ export type StoryRow = {
   data: StoryDataSnapshot | null;
   mode: string;
   authoredLocale: Locale;
+  translations: Partial<Record<Locale, DevStory>>;
 };
 
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export function storyForLocale(
+  row: Pick<StoryRow, "story" | "authoredLocale" | "translations">,
+  locale: Locale,
+): DevStory {
+  if (locale === row.authoredLocale) return row.story;
+  return row.translations[locale] ?? row.story;
+}
 
 export async function getStory(id: string): Promise<StoryRow | null> {
   if (!hasDatabase() || !UUID_PATTERN.test(id)) return null;
@@ -35,6 +44,7 @@ export async function getStory(id: string): Promise<StoryRow | null> {
     data: row.data ?? null,
     mode: row.mode,
     authoredLocale: (row.authoredLocale as Locale) ?? "en",
+    translations: row.translations ?? {},
   };
 }
 
@@ -66,7 +76,36 @@ export async function saveStory({
       data,
       mode,
       authoredLocale,
+      translations: {},
     })
     .returning({ id: stories.id });
   return row?.id ?? null;
+}
+
+export async function saveStoryTranslation({
+  id,
+  locale,
+  story,
+  authoredLocale,
+}: {
+  id: string;
+  locale: Locale;
+  story: DevStory;
+  authoredLocale: Locale;
+}): Promise<void> {
+  if (!hasDatabase() || !UUID_PATTERN.test(id)) return;
+  if (locale === authoredLocale) return;
+
+  const existing = await getStory(id);
+  if (!existing) return;
+
+  const translations = { ...existing.translations, [locale]: story };
+  const db = getDb();
+  await db
+    .update(stories)
+    .set({
+      translations,
+      updatedAt: new Date(),
+    })
+    .where(eq(stories.id, id));
 }

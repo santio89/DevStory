@@ -189,6 +189,7 @@ export function StoryGenerator({
             story,
             sourceLocale: authoredLocale,
             targetLocale: locale,
+            storyId: storyId ?? undefined,
           }),
         });
         if (!res.ok) {
@@ -214,7 +215,7 @@ export function StoryGenerator({
     return () => {
       active = false;
     };
-  }, [story, locale, authoredLocale, translations]);
+  }, [story, locale, authoredLocale, translations, storyId]);
 
   const showLoading = loading;
 

@@ -13,6 +13,10 @@ export const stories = pgTable("stories", {
   data: jsonb("data").$type<StoryDataSnapshot | null>(),
   mode: text("mode").notNull().default("ai"),
   authoredLocale: text("authored_locale").notNull().default("en").$type<Locale>(),
+  translations: jsonb("translations")
+    .notNull()
+    .$type<Partial<Record<Locale, DevStory>>>()
+    .default({}),
   emailSubject: text("email_subject"),
   emailPs: text("email_ps"),
   createdAt: timestamp("created_at", { withTimezone: true })

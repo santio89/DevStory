@@ -10,3 +10,19 @@ export function publicUrl(path: string): string {
   const normalized = path.startsWith("/") ? path : `/${path}`;
   return `${siteUrl}${normalized}`;
 }
+
+export function shareStoryPath(storyId: string, locale: string): string {
+  return `/story/${storyId}?lang=${locale}`;
+}
+
+export function shareUsernamePath(username: string, locale: string): string {
+  return `/?u=${encodeURIComponent(username)}&lang=${locale}`;
+}
+
+export function shareStoryUrl(storyId: string, locale: string): string {
+  return publicUrl(shareStoryPath(storyId, locale));
+}
+
+export function shareUsernameUrl(username: string, locale: string): string {
+  return publicUrl(shareUsernamePath(username, locale));
+}

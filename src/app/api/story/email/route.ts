@@ -9,7 +9,7 @@ import {
   normalizeGitHubUsername,
 } from "@/lib/github/username";
 import { resolveGitHubAvatar } from "@/lib/github/avatar";
-import { publicUrl } from "@/lib/site";
+import { shareStoryUrl, shareUsernameUrl } from "@/lib/site";
 
 export const maxDuration = 60;
 
@@ -52,8 +52,8 @@ export async function POST(request: Request) {
     resolveGitHubAvatar({ username, avatarUrl: parsed.avatarUrl ?? null });
 
   const storyUrl = parsed.storyId
-    ? publicUrl(`/story/${parsed.storyId}`)
-    : publicUrl(`/?u=${encodeURIComponent(username)}`);
+    ? shareStoryUrl(parsed.storyId, locale)
+    : shareUsernameUrl(username, locale);
 
   try {
     const copy = await generateEmailCopy(parsed.story, locale);

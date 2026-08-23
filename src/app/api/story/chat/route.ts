@@ -6,15 +6,9 @@ import {
   NoAIError,
   type ChatRole,
 } from "@/lib/devstory/ai";
-import { buildDevStoryData } from "@/lib/devstory/aggregate";
-import { validateStory } from "@/lib/devstory/translate";
-import type { StoryDataSnapshot } from "@/lib/devstory/minify";
+import { parseBrainSnapshot } from "@/lib/devstory/brain";
 import type { ChatExtras } from "@/lib/devstory/chat-context";
-import { CHAT_COMMIT_PROBE } from "@/lib/github/probe-repos";
-import {
-  isValidGitHubUsername,
-  normalizeGitHubUsername,
-} from "@/lib/github/username";
+import { validateStory } from "@/lib/devstory/translate";
 import { dictionary, type Locale } from "@/lib/i18n/dictionary";
 
 export const maxDuration = 120;
@@ -24,7 +18,7 @@ export async function POST(request: Request) {
     messages?: unknown;
     story?: unknown;
     data?: unknown;
-    username?: unknown;
+    brain?: unknown;
     locale?: unknown;
     extras?: unknown;
   };
@@ -34,10 +28,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid story payload." }, { status: 400 });
   }
 
-  const clientData =
-    body.data && typeof body.data === "object"
-      ? (body.data as StoryDataSnapshot)
-      : null;
+  const brain =
+    parseBrainSnapshot(body.brain) ?? parseBrainSnapshot(body.data);
 
   const extras =
     body.extras &&
@@ -73,34 +65,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: dictionary[locale].chat.offTopic });
   }
 
-  const usernameRaw =
-    typeof body.username === "string"
-      ? body.username
-      : clientData?.username ?? "";
-  const username = isValidGitHubUsername(usernameRaw)
-    ? normalizeGitHubUsername(usernameRaw).toLowerCase()
-    : null;
-
-  let gitData = null;
-  if (username) {
-    try {
-      gitData = await buildDevStoryData(username, {
-        commitProbeLimit: CHAT_COMMIT_PROBE,
-        questionForProbe: lastUserMessage?.content,
-      });
-    } catch {
-      // Fall back to client snapshot + story only.
-    }
-  }
-
   try {
-    const system = chatSystemPromptFromData(
-      story,
-      gitData,
-      clientData,
-      locale,
-      extras,
-    );
+    const system = chatSystemPromptFromData(story, brain, locale, extras);
     const result = chatStream(system, messages);
     return result.toTextStreamResponse();
   } catch (error) {

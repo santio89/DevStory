@@ -8,9 +8,9 @@ import { StoryPreview } from "@/components/story/story-preview";
 import { StorySharePanel } from "@/components/story/story-share-panel";
 import { StoryChat } from "@/components/story/story-chat";
 import { StoryTranslating } from "@/components/story/story-translating";
+import { BrainProvider, useBrain } from "@/components/story/brain-provider";
 import { resolveToken, Sigil } from "@/components/story/sigil";
 import { useLocale } from "@/components/locale/locale-provider";
-import { snapshotToPreview } from "@/lib/devstory/minify";
 import type { StoryDataSnapshot } from "@/lib/devstory/minify";
 import type { DevStory } from "@/lib/devstory/story";
 import type { TokenId } from "@/lib/devstory/tokens";
@@ -18,22 +18,20 @@ import type { Locale } from "@/lib/i18n/dictionary";
 import { cn } from "@/lib/utils";
 import { Award } from "lucide-react";
 
-export function StorySavedView({
+function StorySavedContent({
   storyId,
   githubLogin,
   username,
   story: initialStory,
-  data,
   authoredLocale,
 }: {
   storyId: string;
   githubLogin: string;
   username: string;
   story: DevStory;
-  data: StoryDataSnapshot | null;
-  mode: "ai" | "mock";
   authoredLocale: Locale;
 }) {
+  const { brain } = useBrain();
   const { t, locale } = useLocale();
   const [translations, setTranslations] = useState<
     Partial<Record<Locale, DevStory>>
@@ -95,7 +93,6 @@ export function StorySavedView({
   const heroToken: TokenId = lastEra ? resolveToken(lastEra) : "sprout";
   const words = displayStory.title.split(/\s+/);
   const pivot = Math.floor(words.length / 2);
-  const previewData = data ? snapshotToPreview(data) : null;
 
   return (
     <div className="space-y-10">
@@ -142,7 +139,7 @@ export function StorySavedView({
         </div>
       </Reveal>
 
-      <Timeline eras={displayStory.eras} data={data} />
+      <Timeline eras={displayStory.eras} data={brain} />
 
       {displayStory.closing ? (
         <Reveal variant="subtle">
@@ -161,18 +158,13 @@ export function StorySavedView({
       <StoryMoment
         key={fingerprint}
         story={displayStory}
-        data={data}
+        data={brain}
         fingerprint={fingerprint}
       />
         </>
       )}
 
-      {previewData && (
-        <StoryPreview
-          username={githubLogin}
-          staticData={previewData}
-        />
-      )}
+      <StoryPreview username={githubLogin} />
 
       <StorySharePanel
         story={displayStory}
@@ -183,10 +175,43 @@ export function StorySavedView({
 
       <StoryChat
         story={displayStory}
-        data={data}
+        brain={brain}
         username={githubLogin}
         storageScope={storyId}
       />
     </div>
+  );
+}
+
+export function StorySavedView({
+  storyId,
+  githubLogin,
+  username,
+  story,
+  data,
+  authoredLocale,
+}: {
+  storyId: string;
+  githubLogin: string;
+  username: string;
+  story: DevStory;
+  data: StoryDataSnapshot | null;
+  mode: "ai" | "mock";
+  authoredLocale: Locale;
+}) {
+  return (
+    <BrainProvider
+      username={githubLogin}
+      initialBrain={data}
+      autoFetch={false}
+    >
+      <StorySavedContent
+        storyId={storyId}
+        githubLogin={githubLogin}
+        username={username}
+        story={story}
+        authoredLocale={authoredLocale}
+      />
+    </BrainProvider>
   );
 }

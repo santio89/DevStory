@@ -1,9 +1,14 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { buildDevStoryData } from "@/lib/devstory/aggregate";
+import {
+  brainMatchesUsername,
+  devStoryDataFromBrain,
+  parseBrainSnapshot,
+} from "@/lib/devstory/brain";
 import { generateStory } from "@/lib/devstory/generate";
 import { summarizeStoryData } from "@/lib/devstory/minify";
-import { STORY_COMMIT_PROBE } from "@/lib/github/probe-repos";
+import { BRAIN_COMMIT_PROBE } from "@/lib/github/probe-repos";
 import { isLocale, type Locale } from "@/lib/i18n/dictionary";
 import {
   isValidGitHubUsername,
@@ -16,6 +21,7 @@ export const maxDuration = 120;
 const bodySchema = z.object({
   username: z.string().min(1).max(39),
   locale: z.string().optional(),
+  brain: z.unknown().optional(),
 });
 
 export async function POST(request: Request) {
@@ -34,11 +40,16 @@ export async function POST(request: Request) {
   const locale: Locale = isLocale(body.locale) ? body.locale : "en";
 
   try {
-    const data = await buildDevStoryData(username, {
-      commitProbeLimit: STORY_COMMIT_PROBE,
-    });
+    const clientBrain = parseBrainSnapshot(body.brain);
+    const data =
+      clientBrain && brainMatchesUsername(clientBrain, username)
+        ? devStoryDataFromBrain(clientBrain)
+        : await buildDevStoryData(username, {
+            commitProbeLimit: BRAIN_COMMIT_PROBE,
+          });
+
     const { story, mode } = await generateStory(data, locale);
-    const snapshot = summarizeStoryData(data);
+    const snapshot = summarizeStoryData(data, BRAIN_COMMIT_PROBE);
     const id = await saveStory({
       githubLogin: data.username,
       username: data.name,

@@ -1,13 +1,16 @@
 import type { RepoSnapshot } from "./repos";
 
-/** Default for quick preview refresh paths. */
-export const DEFAULT_COMMIT_PROBE = 5;
+/** Canonical brain harvest — deepest commit sampling for all AI features. */
+export const BRAIN_COMMIT_PROBE = 24;
 
-/** Story generation + preview — rich commit sampling. */
-export const STORY_COMMIT_PROBE = 20;
+/** @deprecated Use BRAIN_COMMIT_PROBE */
+export const STORY_COMMIT_PROBE = BRAIN_COMMIT_PROBE;
 
-/** Chat biographer — deepest commit sampling. */
-export const CHAT_COMMIT_PROBE = 24;
+/** @deprecated Use BRAIN_COMMIT_PROBE */
+export const CHAT_COMMIT_PROBE = BRAIN_COMMIT_PROBE;
+
+/** @deprecated Use BRAIN_COMMIT_PROBE */
+export const DEFAULT_COMMIT_PROBE = BRAIN_COMMIT_PROBE;
 
 const PROBE_BATCH_SIZE = 10;
 

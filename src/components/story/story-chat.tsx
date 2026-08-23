@@ -109,12 +109,12 @@ function readStoredMoment(
 
 export function StoryChat({
   story,
-  data,
+  brain,
   username,
   storageScope,
 }: {
   story: DevStory;
-  data: StoryDataSnapshot | null;
+  brain: StoryDataSnapshot | null;
   username: string;
   storageScope?: string;
 }) {
@@ -200,7 +200,7 @@ export function StoryChat({
         body: JSON.stringify({
           messages: next,
           story,
-          data,
+          brain,
           username,
           locale,
           extras: moment ? { moment } : undefined,
@@ -252,7 +252,7 @@ export function StoryChat({
   const suggestions = pickChatSuggestions({
     username,
     story,
-    data,
+    data: brain,
     pool: t.chat.suggestionPool,
     count: 3,
     seed: `${fingerprint}|${locale}`,

@@ -66,8 +66,7 @@ export function HeroLookup({
         </Button>
       </div>
       {loading && (
-        <p className="mt-3 flex items-center justify-center gap-2 font-mono text-xs font-bold tracking-wider text-muted-foreground uppercase">
-          <Loader2 className="size-3.5 animate-spin text-bauhaus-deep" />
+        <p className="mt-3 text-center font-mono text-xs font-bold tracking-wider text-muted-foreground uppercase">
           {t.preview.harvestingFor(normalizeGitHubUsername(value) || "…")}
         </p>
       )}

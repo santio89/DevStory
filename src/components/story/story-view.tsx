@@ -14,14 +14,14 @@ export function StoryView({
   mode,
   username,
   displayName,
-  data = null,
+  brain = null,
   storyId = null,
 }: {
   story: DevStory;
   mode: "ai" | "mock";
   username: string;
   displayName: string;
-  data?: StoryDataSnapshot | null;
+  brain?: StoryDataSnapshot | null;
   storyId?: string | null;
 }) {
   const { locale } = useLocale();
@@ -30,16 +30,16 @@ export function StoryView({
     .join("§");
 
   useEffect(() => {
-    prefetchStoryMoment(story, data, locale);
-  }, [story, data, locale, fingerprint]);
+    prefetchStoryMoment(story, brain, locale);
+  }, [story, brain, locale, fingerprint]);
 
   return (
     <div className="space-y-10">
-      <StoryContent story={story} mode={mode} data={data} />
+      <StoryContent story={story} mode={mode} data={brain} />
       <StoryMoment
         key={fingerprint}
         story={story}
-        data={data}
+        data={brain}
         fingerprint={fingerprint}
         autoSummon
       />

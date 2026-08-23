@@ -1,15 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { FadeIn, Reveal } from "@/components/motion/fade-in";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { langColor } from "@/components/story/languages";
+import { useBrain } from "@/components/story/brain-provider";
+import { BrainPreviewSkeleton } from "@/components/story/story-loading-skeletons";
 import { useLocale } from "@/components/locale/locale-provider";
 import type { StoryPreviewData } from "@/lib/devstory/aggregate";
 import type { Locale } from "@/lib/i18n/dictionary";
 import { RepoBookIcon } from "@/components/icons/repo-book";
-import { BrainPreviewSkeleton } from "@/components/story/story-loading-skeletons";
 import {
   GitCommit,
   RefreshCw,
@@ -69,104 +69,40 @@ function CommitList({
   );
 }
 
-export function StoryPreview({
-  username,
-  onLoadingChange,
-  staticData = null,
-  deferFetch = false,
-}: {
-  username: string;
-  onLoadingChange?: (loading: boolean) => void;
-  staticData?: StoryPreviewData | null;
-  deferFetch?: boolean;
-}) {
+function previewFromBrain(
+  brain: NonNullable<ReturnType<typeof useBrain>["brain"]>,
+): StoryPreviewData {
+  return {
+    username: brain.username,
+    totals: {
+      repoCount: brain.totals.repos,
+      totalStars: brain.totals.stars,
+      commitsAnalyzed: brain.totals.commitsAnalyzed,
+      oldestRepoDate: brain.totals.oldestRepoDate,
+    },
+    languagesByYear: brain.languagesByYear,
+    milestones: brain.milestones.map((m) => ({
+      repo: m.repo,
+      date: m.date,
+      message: m.msg,
+      sha: m.sha,
+    })),
+    latestMilestones: brain.latestMilestones.map((m) => ({
+      repo: m.repo,
+      date: m.date,
+      message: m.msg,
+      sha: m.sha,
+    })),
+  };
+}
+
+export function StoryPreview({ username }: { username: string }) {
   const { t, locale } = useLocale();
-  const [fetchedData, setFetchedData] = useState<StoryPreviewData | null>(null);
-  const [fetching, setFetching] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const data = fetchedData ?? staticData;
-  const waitingForUpstream =
-    deferFetch && !staticData && !fetchedData && !error;
-  const loading = waitingForUpstream || fetching;
-  const showRefreshButton = !waitingForUpstream;
-
-  async function fetchPreview(refresh = false, signal?: AbortSignal) {
-    setFetching(true);
-    setError(null);
-    if (!staticData) {
-      setFetchedData(null);
-    }
-    try {
-      const params = new URLSearchParams({ username });
-      if (refresh) params.set("refresh", "1");
-      const res = await fetch(`/api/story?${params}`, {
-        cache: "no-store",
-        signal,
-      });
-      const json = (await res.json()) as {
-        preview?: StoryPreviewData;
-        error?: string;
-      };
-      if (!res.ok) {
-        throw new Error(json.error ?? t.preview.fetchError(res.status));
-      }
-      setFetchedData(json.preview ?? null);
-    } catch (e) {
-      if (e instanceof DOMException && e.name === "AbortError") return;
-      setError(e instanceof Error ? e.message : t.preview.genericError);
-      setFetchedData(null);
-    } finally {
-      if (!signal?.aborted) {
-        setFetching(false);
-      }
-    }
-  }
-
-  useEffect(() => {
-    if (staticData || deferFetch) return;
-
-    const ac = new AbortController();
-    let active = true;
-
-    void (async () => {
-      setFetching(true);
-      setError(null);
-      setFetchedData(null);
-      try {
-        const params = new URLSearchParams({ username });
-        const res = await fetch(`/api/story?${params}`, {
-          cache: "no-store",
-          signal: ac.signal,
-        });
-        const json = (await res.json()) as {
-          preview?: StoryPreviewData;
-          error?: string;
-        };
-        if (!res.ok) {
-          throw new Error(json.error ?? t.preview.fetchError(res.status));
-        }
-        if (active) setFetchedData(json.preview ?? null);
-      } catch (e) {
-        if (e instanceof DOMException && e.name === "AbortError") return;
-        if (active) {
-          setError(e instanceof Error ? e.message : t.preview.genericError);
-          setFetchedData(null);
-        }
-      } finally {
-        if (active) setFetching(false);
-      }
-    })();
-
-    return () => {
-      active = false;
-      ac.abort();
-    };
-  }, [username, staticData, deferFetch]);
-
-  useEffect(() => {
-    onLoadingChange?.(loading);
-  }, [loading, onLoadingChange]);
+  const { brain, brainLoading, brainError, refreshBrain } = useBrain();
+  const fetching = brainLoading;
+  const displayData = fetching ? null : brain ? previewFromBrain(brain) : null;
+  const loading = brainLoading || (!brain && !brainError);
+  const showRefreshButton = Boolean(brain) || Boolean(brainError);
 
   return (
     <div className="space-y-6">
@@ -184,8 +120,8 @@ export function StoryPreview({
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => void fetchPreview(true)}
-          disabled={loading}
+          onClick={() => void refreshBrain(true)}
+          disabled={fetching}
           className={showRefreshButton ? undefined : "invisible"}
         >
           <RefreshCw className={fetching ? "animate-spin" : ""} />
@@ -194,49 +130,49 @@ export function StoryPreview({
       </div>
       </Reveal>
 
-      {((loading && !data) || waitingForUpstream) && (
+      {loading && (
         <Reveal variant="enter" key="loading">
           <BrainPreviewSkeleton statusLabel={t.preview.harvestingFor(username)} />
         </Reveal>
       )}
 
-      {error && !loading && (
+      {brainError && !fetching && (
         <Card className="border-destructive bg-destructive/10 shadow-none">
           <CardContent className="flex items-center gap-2 py-4 font-mono text-sm font-bold text-destructive uppercase">
             <AlertTriangle className="size-4 shrink-0" />
-            {error}
+            {brainError}
           </CardContent>
         </Card>
       )}
 
-      {data && (
+      {displayData && (
         <>
           <div className="grid gap-5 sm:grid-cols-4">
             {[
               {
                 label: t.preview.repos,
-                value: data.totals.repoCount,
+                value: displayData.totals.repoCount,
                 icon: FolderGit2,
                 color: "text-bauhaus-deep",
                 block: false,
               },
               {
                 label: t.preview.stars,
-                value: data.totals.totalStars,
+                value: displayData.totals.totalStars,
                 icon: Star,
                 color: "text-bauhaus-ink",
                 block: true,
               },
               {
                 label: t.preview.commitsAnalyzed,
-                value: data.totals.commitsAnalyzed,
+                value: displayData.totals.commitsAnalyzed,
                 icon: GitCommit,
                 color: "text-bauhaus-deep",
                 block: false,
               },
               {
                 label: t.preview.firstRepo,
-                value: formatDate(data.totals.oldestRepoDate, locale),
+                value: formatDate(displayData.totals.oldestRepoDate, locale),
                 icon: RepoBookIcon,
                 color: "text-bauhaus-deep",
                 block: false,
@@ -273,12 +209,12 @@ export function StoryPreview({
                   <CardTitle>{t.preview.languagesTitle}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {data.languagesByYear.length === 0 && (
+                  {displayData.languagesByYear.length === 0 && (
                     <p className="font-mono text-sm font-bold tracking-wider text-muted-foreground uppercase">
                       {t.preview.noLanguageData}
                     </p>
                   )}
-                  {data.languagesByYear.map((year) => (
+                  {displayData.languagesByYear.map((year) => (
                     <div key={year.year}>
                       <div className="mb-2 bg-bauhaus-sky/20 px-1.5 py-0.5 font-mono text-xs font-bold tracking-[0.2em] text-bauhaus-deep uppercase">
                         {year.year}
@@ -310,7 +246,7 @@ export function StoryPreview({
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <CommitList
-                    commits={data.milestones}
+                    commits={displayData.milestones}
                     emptyLabel={t.preview.noCommits}
                     locale={locale}
                   />
@@ -320,7 +256,7 @@ export function StoryPreview({
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <CommitList
-                    commits={data.latestMilestones}
+                    commits={displayData.latestMilestones}
                     emptyLabel={t.preview.noLatestCommits}
                     locale={locale}
                   />

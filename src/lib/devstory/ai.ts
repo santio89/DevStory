@@ -6,7 +6,6 @@ import type { MomentAnchor } from "./moment";
 import type { DevStory, Era } from "./story";
 import type { StoryDataSnapshot } from "./minify";
 import type { Locale } from "@/lib/i18n/dictionary";
-import type { DevStoryData } from "./aggregate";
 import { buildChatContext, type ChatExtras } from "./chat-context";
 
 export const REMIX_VOICES = [
@@ -335,12 +334,11 @@ ${context}`;
 
 export function chatSystemPromptFromData(
   story: DevStory,
-  git: DevStoryData | null,
-  fallback: StoryDataSnapshot | null,
+  brain: StoryDataSnapshot | null,
   locale: Locale,
   extras?: ChatExtras,
 ): string {
-  const context = buildChatContext(story, git, fallback, extras);
+  const context = buildChatContext(story, brain, extras);
   return chatSystemPrompt(story, context, locale);
 }
 

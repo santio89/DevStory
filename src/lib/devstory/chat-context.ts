@@ -1,5 +1,5 @@
-import type { DevStoryData } from "./aggregate";
 import type { StoryDataSnapshot } from "./minify";
+import { normalizeBrainSnapshot } from "./minify";
 import type { DevStory } from "./story";
 
 const MAX_REPO_CATALOG = 250;
@@ -51,22 +51,19 @@ ${eras}
 ${story.closing ? `Closing: ${story.closing}` : ""}`;
 }
 
-function formatRepoCatalog(
-  repos: DevStoryData["repos"],
-  probed: Set<string>,
-): string {
+function formatRepoCatalog(brain: StoryDataSnapshot): string {
   const lines: string[] = [];
-  const slice = repos.slice(0, MAX_REPO_CATALOG);
+  const slice = brain.repos.slice(0, MAX_REPO_CATALOG);
   for (const r of slice) {
-    const mark = probed.has(r.name) ? "◆" : "·";
-    const desc = r.description ? ` | ${r.description}` : "";
+    const mark = r.probed ? "◆" : "·";
+    const desc = r.desc ? ` | ${r.desc}` : "";
     lines.push(
-      `${mark} ${r.name} | ${r.language ?? "?"} | ★${r.stars} | ${r.createdAt.slice(0, 10)}${desc}`,
+      `${mark} ${r.name} | ${r.lang ?? "?"} | ★${r.stars} | ${r.created}${desc}`,
     );
   }
-  if (repos.length > MAX_REPO_CATALOG) {
+  if (brain.totals.repos > MAX_REPO_CATALOG) {
     lines.push(
-      `… and ${repos.length - MAX_REPO_CATALOG} more public repositories (ask by name)`,
+      `… and ${brain.totals.repos - MAX_REPO_CATALOG} more public repositories (ask by name)`,
     );
   }
   return lines.join("\n");
@@ -74,41 +71,33 @@ function formatRepoCatalog(
 
 export function buildChatContext(
   story: DevStory,
-  git: DevStoryData | null,
-  fallback: StoryDataSnapshot | null,
+  brain: StoryDataSnapshot | null,
   extras?: ChatExtras,
 ): string {
   const sections: string[] = [];
-  const probed = new Set(git ? Object.keys(git.repoCommits) : []);
+  const snapshot = brain ? normalizeBrainSnapshot(brain) : null;
 
-  if (git) {
+  if (snapshot) {
     const profile = [
-      `Name: ${git.name} (@${git.username})`,
-      git.profile.bio ? `Bio: ${git.profile.bio}` : null,
-      git.profile.location ? `Location: ${git.profile.location}` : null,
-      git.profile.company ? `Company: ${git.profile.company}` : null,
-      git.profile.blog ? `Website: ${git.profile.blog}` : null,
-      `On GitHub since: ${git.profile.createdAt?.slice(0, 10) ?? "unknown"}`,
-      `Followers: ${git.profile.followers} · Following: ${git.profile.following}`,
-      `Public repos: ${git.totals.repoCount} · Stars: ${git.totals.totalStars} · Commits counted (probed repos): ${git.totals.commitsAnalyzed}`,
-      git.totals.oldestRepo
-        ? `Oldest repo: ${git.totals.oldestRepo} (${git.totals.oldestRepoDate?.slice(0, 10) ?? "?"})`
+      `Name: ${snapshot.name} (@${snapshot.username})`,
+      snapshot.profile.bio ? `Bio: ${snapshot.profile.bio}` : null,
+      snapshot.profile.location ? `Location: ${snapshot.profile.location}` : null,
+      snapshot.profile.company ? `Company: ${snapshot.profile.company}` : null,
+      snapshot.profile.blog ? `Website: ${snapshot.profile.blog}` : null,
+      `On GitHub since: ${snapshot.memberSince?.slice(0, 10) ?? "unknown"}`,
+      `Followers: ${snapshot.profile.followers} · Following: ${snapshot.profile.following}`,
+      `Public repos: ${snapshot.totals.repos} · Stars: ${snapshot.totals.stars} · Commits counted (probed repos): ${snapshot.totals.commitsAnalyzed}`,
+      snapshot.totals.oldestRepo
+        ? `Oldest repo: ${snapshot.totals.oldestRepo} (${snapshot.totals.oldestRepoDate?.slice(0, 10) ?? "?"})`
         : null,
-      git.totals.newestRepo
-        ? `Newest repo: ${git.totals.newestRepo} (${git.totals.newestRepoDate?.slice(0, 10) ?? "?"})`
+      snapshot.totals.newestRepo
+        ? `Newest repo: ${snapshot.totals.newestRepo} (${snapshot.totals.newestRepoDate?.slice(0, 10) ?? "?"})`
         : null,
-      `Repos with commit detail probed: ${probed.size} of ${git.totals.repoCount} (◆ in catalog below)`,
+      `Repos with commit detail probed: ${snapshot.totals.reposProbed} of ${snapshot.totals.repos} (◆ in catalog below)`,
     ]
       .filter(Boolean)
       .join("\n");
     sections.push(`WHO THEY ARE\n${profile}`);
-  } else if (fallback) {
-    sections.push(
-      `WHO THEY ARE
-Name: ${fallback.name} (@${fallback.username})
-On GitHub since: ${fallback.memberSince?.slice(0, 10) ?? "unknown"}
-Public repos: ${fallback.totals.repos} · Stars: ${fallback.totals.stars}`,
-    );
   }
 
   sections.push(storySection(story));
@@ -122,58 +111,49 @@ ${extras.moment.text}`,
     );
   }
 
-  if (git && git.repos.length > 0) {
+  if (snapshot?.repos.length) {
     sections.push(
-      `ALL PUBLIC REPOSITORIES (${git.repos.length} total — ◆ = commit history probed)\n${formatRepoCatalog(git.repos, probed)}`,
-    );
-  } else if (fallback?.repos.length) {
-    sections.push(
-      `REPOSITORIES (partial snapshot)\n${fallback.repos
-        .map(
-          (r) =>
-            `· ${r.name} | ${r.lang ?? "?"} | ★${r.stars} | ${r.created}${r.desc ? ` | ${r.desc}` : ""}`,
-        )
-        .join("\n")}`,
+      `ALL PUBLIC REPOSITORIES (${snapshot.totals.repos} total — ◆ = commit history probed)\n${formatRepoCatalog(snapshot)}`,
     );
   }
 
   const ledger: { repo: string; sha: string; date: string; message: string }[] =
     [];
-  if (git) {
-    for (const m of git.milestones) {
-      ledger.push({
-        repo: m.repo,
-        sha: m.sha,
-        date: m.date,
-        message: m.message,
-      });
-    }
-    for (const rc of Object.values(git.repoCommits)) {
-      if (rc.firstCommit) {
-        ledger.push({
-          repo: rc.firstCommit.repo,
-          sha: rc.firstCommit.sha,
-          date: rc.firstCommit.date,
-          message: rc.firstCommit.message,
-        });
-      }
-      for (const c of rc.recentCommits) {
-        ledger.push({
-          repo: c.repo,
-          sha: c.sha,
-          date: c.date,
-          message: c.message,
-        });
-      }
-    }
-  } else if (fallback?.milestones.length) {
-    for (const m of fallback.milestones) {
+
+  if (snapshot) {
+    for (const m of snapshot.milestones) {
       ledger.push({
         repo: m.repo,
         sha: m.sha,
         date: m.date,
         message: m.msg,
       });
+    }
+    for (const m of snapshot.latestMilestones) {
+      ledger.push({
+        repo: m.repo,
+        sha: m.sha,
+        date: m.date,
+        message: m.msg,
+      });
+    }
+    for (const sample of snapshot.commitSamples) {
+      if (sample.first) {
+        ledger.push({
+          repo: sample.repo,
+          sha: sample.first.sha,
+          date: sample.first.date,
+          message: sample.first.msg,
+        });
+      }
+      for (const c of sample.recent) {
+        ledger.push({
+          repo: sample.repo,
+          sha: c.sha,
+          date: c.date,
+          message: c.msg,
+        });
+      }
     }
   }
 
@@ -184,14 +164,8 @@ ${extras.moment.text}`,
     );
   }
 
-  if (git?.languagesByYear.length) {
-    const langLines = git.languagesByYear.map(
-      (y) =>
-        `  ${y.year}: ${y.languages.map((l) => `${l.language} (${l.repoCount})`).join(", ")}`,
-    );
-    sections.push(`LANGUAGES OVER TIME\n${langLines.join("\n")}`);
-  } else if (fallback?.languagesByYear.length) {
-    const langLines = fallback.languagesByYear.map(
+  if (snapshot?.languagesByYear.length) {
+    const langLines = snapshot.languagesByYear.map(
       (y) =>
         `  ${y.year}: ${y.languages.map((l) => `${l.language} (${l.repoCount})`).join(", ")}`,
     );

@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { buildDevStoryData, toPreviewData } from "@/lib/devstory/aggregate";
+import { buildDevStoryData } from "@/lib/devstory/aggregate";
+import { summarizeStoryData } from "@/lib/devstory/minify";
+import { BRAIN_COMMIT_PROBE } from "@/lib/github/probe-repos";
 import { isValidGitHubUsername, normalizeGitHubUsername } from "@/lib/github/username";
-import { DEFAULT_COMMIT_PROBE } from "@/lib/github/probe-repos";
 
 const querySchema = z.object({
   username: z.string().min(1).max(39),
@@ -24,9 +25,10 @@ export async function GET(request: Request) {
   try {
     const data = await buildDevStoryData(username, {
       forceRefresh,
-      commitProbeLimit: DEFAULT_COMMIT_PROBE,
+      commitProbeLimit: BRAIN_COMMIT_PROBE,
     });
-    return NextResponse.json({ preview: toPreviewData(data) });
+    const brain = summarizeStoryData(data, BRAIN_COMMIT_PROBE);
+    return NextResponse.json({ brain });
   } catch (error) {
     console.error("Failed to build DevStory data:", error);
     const status =

@@ -17,7 +17,7 @@ type Theme = {
   sky: string;
 };
 
-type Kind = "circle" | "square" | "diamond" | "plus";
+type Kind = "circle" | "square" | "diamond" | "plus" | "triangle" | "x";
 
 type Body = {
   kind: Kind;
@@ -37,7 +37,10 @@ const BODIES: Body[] = [
   { kind: "plus", color: "cyan", x: 0.84, y: 0.68, z: 0.45, size: 20, spin: -0.14, phase: 0.7 },
   { kind: "square", color: "sky", x: 0.16, y: 0.46, z: 1.1, size: 10, spin: 0.22, phase: 1.8 },
   { kind: "circle", color: "deep", x: 0.88, y: 0.42, z: 0.35, size: 12, spin: -0.1, phase: 3.1 },
+  { kind: "triangle", color: "cyan", x: 0.14, y: 0.34, z: 0.65, size: 15, spin: -0.11, phase: 1.4 },
+  { kind: "triangle", color: "yellow", x: 0.86, y: 0.61, z: 0.6, size: 13, spin: 0.13, phase: 2.7 },
   { kind: "diamond", color: "yellow", x: 0.76, y: 0.84, z: 0.8, size: 11, spin: 0.16, phase: 2.0 },
+  { kind: "x", color: "pink", x: 0.22, y: 0.84, z: 0.75, size: 11, spin: -0.15, phase: 3.4 },
 ];
 
 function readTheme(): Theme {
@@ -116,6 +119,25 @@ function drawBody(
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
+  } else if (kind === "triangle") {
+    ctx.beginPath();
+    ctx.moveTo(0, -s / 2);
+    ctx.lineTo(s / 2, s / 2);
+    ctx.lineTo(-s / 2, s / 2);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  } else if (kind === "x") {
+    const h = s / 2;
+    ctx.beginPath();
+    ctx.moveTo(-h, -h);
+    ctx.lineTo(h, h);
+    ctx.moveTo(h, -h);
+    ctx.lineTo(-h, h);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(0, 0, 2.2, 0, Math.PI * 2);
+    ctx.fill();
   } else {
     ctx.beginPath();
     ctx.moveTo(-s / 2, 0);

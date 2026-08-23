@@ -30,21 +30,28 @@ type GlyphBody = {
   phase: number;
 };
 
-/** Six per flank — programming tokens, text-only with soft shadow. */
+/** Six per flank — 12 unique programming tokens, text-only with soft shadow. */
 const GLYPHS: GlyphBody[] = [
   { glyph: "< />", color: "yellow", x: 0.13, y: 0.17, z: 0.55, size: 13, spin: 0.05, phase: 0.2 },
   { glyph: "{ }", color: "deep", x: 0.87, y: 0.19, z: 0.85, size: 14, spin: -0.04, phase: 1.0 },
   { glyph: "[ ]", color: "sky", x: 0.15, y: 0.31, z: 0.7, size: 13, spin: 0.06, phase: 1.6 },
   { glyph: "=>", color: "cyan", x: 0.85, y: 0.33, z: 0.5, size: 13, spin: -0.05, phase: 2.2 },
-  { glyph: "&&", color: "sky", x: 0.12, y: 0.45, z: 0.9, size: 12, spin: 0.07, phase: 0.8 },
-  { glyph: "||", color: "pink", x: 0.88, y: 0.46, z: 0.65, size: 12, spin: -0.06, phase: 2.8 },
-  { glyph: "::", color: "cyan", x: 0.16, y: 0.58, z: 0.6, size: 12, spin: 0.04, phase: 3.1 },
-  { glyph: "//", color: "yellow", x: 0.84, y: 0.59, z: 0.75, size: 12, spin: -0.05, phase: 1.3 },
-  { glyph: ";", color: "cyan", x: 0.14, y: 0.71, z: 0.45, size: 15, spin: 0.08, phase: 2.5 },
+  { glyph: "&&", color: "pink", x: 0.12, y: 0.45, z: 0.9, size: 12, spin: 0.07, phase: 0.8 },
+  { glyph: "?.", color: "deep", x: 0.88, y: 0.46, z: 0.65, size: 12, spin: -0.06, phase: 2.8 },
+  { glyph: "#", color: "yellow", x: 0.16, y: 0.58, z: 0.6, size: 13, spin: 0.04, phase: 3.1 },
+  { glyph: "//", color: "cyan", x: 0.84, y: 0.59, z: 0.75, size: 12, spin: -0.05, phase: 1.3 },
+  { glyph: ";", color: "sky", x: 0.14, y: 0.71, z: 0.45, size: 15, spin: 0.08, phase: 2.5 },
   { glyph: "...", color: "pink", x: 0.86, y: 0.72, z: 0.8, size: 13, spin: -0.03, phase: 0.5 },
   { glyph: "??", color: "yellow", x: 0.18, y: 0.84, z: 0.7, size: 12, spin: 0.05, phase: 3.6 },
-  { glyph: "( )", color: "deep", x: 0.82, y: 0.85, z: 0.55, size: 12, spin: -0.06, phase: 1.9 },
+  { glyph: "**", color: "deep", x: 0.82, y: 0.85, z: 0.55, size: 12, spin: -0.06, phase: 1.9 },
 ];
+
+if (process.env.NODE_ENV !== "production") {
+  const glyphs = GLYPHS.map((g) => g.glyph);
+  if (new Set(glyphs).size !== glyphs.length) {
+    throw new Error("Hero GLYPHS must contain 12 unique symbols.");
+  }
+}
 
 function readTheme(): Theme {
   const css = getComputedStyle(document.documentElement);

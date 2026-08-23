@@ -240,8 +240,8 @@ const es: Messages = {
   },
   hero: {
     badge: "Git, narrado.",
-    titleFirst: "Cualquier Código.",
-    titleSecond: "Cualquier Historia.",
+    titleFirst: "Cada Código.",
+    titleSecond: "Cada Historia.",
     subtitle:
       "Escribe un usuario público de GitHub. Convertimos su historial de commits en una línea de tiempo narrativa.",
     lookupPlaceholder: "usuario-github",

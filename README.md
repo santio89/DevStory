@@ -1,6 +1,6 @@
 # DevStory
 
-Turn a public GitHub username into an AI-written narrative timeline — commits as letters, repos as chapters. Generate a story, share it, email it, or chat with the biographer.
+Turn a public GitHub username into an AI-written narrative timeline: commits as letters, repos as chapters. Generate a story, share it, email it, or chat with the biographer.
 
 **Live:** [yourdevstory.vercel.app](https://yourdevstory.vercel.app)
 
@@ -20,7 +20,7 @@ cp .env.example .env.local   # fill in keys
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) — try `/?u=github-username`.
+Open [http://localhost:3000](http://localhost:3000) and try `/?u=github-username`.
 
 ## Env
 

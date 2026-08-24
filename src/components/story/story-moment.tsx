@@ -137,7 +137,6 @@ export function StoryMoment({
             size="sm"
             disabled={loading || translating}
             onClick={() => void handleMoment(Boolean(moment))}
-            className="border-dashed border-foreground/50 bg-background/70 hover:border-foreground hover:bg-background"
           >
             {loading || translating ? (
               <Loader2 className="size-3.5 animate-spin" />

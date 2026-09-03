@@ -11,8 +11,8 @@ const en = {
   },
   hero: {
     badge: "Git, narrated.",
-    titleFirst: "Every Code.",
-    titleSecond: "Every Story.",
+    titleFirst: "Your Code.",
+    titleSecond: "Your Story.",
     subtitle:
       "Type your public GitHub username and let the Biographer turn your commits into a narrative timeline.",
     lookupPlaceholder: "github-username",
@@ -240,8 +240,8 @@ const es: Messages = {
   },
   hero: {
     badge: "Git, narrado.",
-    titleFirst: "Cada Código.",
-    titleSecond: "Cada Historia.",
+    titleFirst: "Tu Código.",
+    titleSecond: "Tu Historia.",
     subtitle:
       "Escribe tu usuario público de GitHub y deja que el Biógrafo convierta tus commits en una línea de tiempo narrativa.",
     lookupPlaceholder: "usuario-github",

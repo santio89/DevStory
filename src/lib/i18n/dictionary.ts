@@ -14,7 +14,7 @@ const en = {
     titleFirst: "Every Code.",
     titleSecond: "Every Story.",
     subtitle:
-      "Type a public GitHub username and let the Biographer turn their commits into a narrative timeline.",
+      "Type your public GitHub username and let the Biographer turn your commits into a narrative timeline.",
     lookupPlaceholder: "github-username",
     lookupButton: "Look up",
     lookupLoading: "Looking up…",
@@ -25,10 +25,10 @@ const en = {
     title: "How it works",
     one: {
       t: "Every commit is a chapter",
-      d: "We read their public GitHub history: repos, languages, and commits.",
+      d: "We read your public GitHub history: repos, languages, and commits.",
     },
     two: {
-      t: "The biographer writes",
+      t: "The Biographer writes",
       d: "Git data becomes named eras told in narrative prose.",
     },
     three: {
@@ -60,8 +60,8 @@ const en = {
     noLanguageData: "no language data yet",
     earliestCommits: "Earliest commits",
     latestCommits: "Latest commits",
-    noCommits: "no commits found in their oldest repos",
-    noLatestCommits: "no recent commits found in their newest repos",
+    noCommits: "no commits found in your oldest repos",
+    noLatestCommits: "no recent commits found in your newest repos",
     fetchError: (status: number) => `GitHub data fetch failed (${status}).`,
     genericError: "Something went wrong.",
   },
@@ -223,7 +223,7 @@ const en = {
     savedStory: "A saved DevStory",
     writeYours: "Look up another developer.",
     ctaDesc:
-      "Every commit is a chapter. Type any public GitHub username and let DevStory turn their invisible hours into a narrative timeline.",
+      "Every commit is a chapter. Type your public GitHub username and let DevStory turn your invisible hours into a narrative timeline.",
     tellYours: "Look someone up",
   },
 };
@@ -243,7 +243,7 @@ const es: Messages = {
     titleFirst: "Cada Código.",
     titleSecond: "Cada Historia.",
     subtitle:
-      "Escribe un usuario público de GitHub y deja que el Biógrafo convierta sus commits en una línea de tiempo narrativa.",
+      "Escribe tu usuario público de GitHub y deja que el Biógrafo convierta tus commits en una línea de tiempo narrativa.",
     lookupPlaceholder: "usuario-github",
     lookupButton: "Buscar",
     lookupLoading: "Buscando…",
@@ -254,10 +254,10 @@ const es: Messages = {
     title: "Cómo funciona",
     one: {
       t: "Cada commit es un capítulo",
-      d: "Leemos su historial público en GitHub: repos, lenguajes y commits.",
+      d: "Leemos tu historial público en GitHub: repos, lenguajes y commits.",
     },
     two: {
-      t: "El biógrafo escribe",
+      t: "El Biógrafo escribe",
       d: "Los datos de git se convierten en épocas con nombre, en prosa narrativa.",
     },
     three: {
@@ -290,8 +290,8 @@ const es: Messages = {
     noLanguageData: "aún no hay datos de lenguajes",
     earliestCommits: "Primeros commits",
     latestCommits: "Últimos commits",
-    noCommits: "no hay commits en sus repos más antiguos",
-    noLatestCommits: "no hay commits recientes en sus repos más nuevos",
+    noCommits: "no hay commits en tus repos más antiguos",
+    noLatestCommits: "no hay commits recientes en tus repos más nuevos",
     fetchError: (status: number) =>
       `Error al obtener los datos de GitHub (${status}).`,
     genericError: "Algo salió mal.",
@@ -456,7 +456,7 @@ const es: Messages = {
     savedStory: "Una DevStory guardada",
     writeYours: "Busca a otro desarrollador.",
     ctaDesc:
-      "Cada commit es un capítulo. Escribe cualquier usuario público de GitHub y deja que DevStory convierta sus horas invisibles en una línea de tiempo narrativa.",
+      "Cada commit es un capítulo. Escribe tu usuario público de GitHub y deja que DevStory convierta tus horas invisibles en una línea de tiempo narrativa.",
     tellYours: "Buscar a alguien",
   },
 };

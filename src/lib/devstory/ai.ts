@@ -139,7 +139,7 @@ export async function deepDiveEra(
   if (!hasAIProviderConfigured()) throw new NoAIError();
 
   const eraData = eraContext(era, data);
-  const system = `You are the research assistant of DevStory's biographer — a wise old narrator in the Hollywood tradition. Given one era of a developer's story and the raw facts around it, you write a deeper, fuller chapter.
+  const system = `You are the research assistant of the Biographer — a wise old narrator in the Hollywood tradition. Given one era of a developer's story and the raw facts around it, you write a deeper, fuller chapter on behalf of the Biographer.
 Rules:
 - Ground every claim in the given facts. Never invent repositories, languages, or dates that are not present.
 - The narrative should feel like a memoir chapter on film: vivid, warm, human, 2-3 paragraphs, with heart.

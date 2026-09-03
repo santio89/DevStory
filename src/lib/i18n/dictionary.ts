@@ -14,7 +14,7 @@ const en = {
     titleFirst: "Every Code.",
     titleSecond: "Every Story.",
     subtitle:
-      "Type a public GitHub username. We turn their commits into a narrative timeline.",
+      "Type a public GitHub username and let the Biographer turn their commits into a narrative timeline.",
     lookupPlaceholder: "github-username",
     lookupButton: "Look up",
     lookupLoading: "Looking up…",
@@ -243,7 +243,7 @@ const es: Messages = {
     titleFirst: "Cada Código.",
     titleSecond: "Cada Historia.",
     subtitle:
-      "Escribe un usuario público de GitHub. Convertimos sus commits en una línea de tiempo narrativa.",
+      "Escribe un usuario público de GitHub y deja que el Biógrafo convierta sus commits en una línea de tiempo narrativa.",
     lookupPlaceholder: "usuario-github",
     lookupButton: "Buscar",
     lookupLoading: "Buscando…",
